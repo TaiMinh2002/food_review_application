@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "869848429736",
+    "project_id": "food-3853c",
+    "storage_bucket": "food-3853c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:869848429736:android:4037c1875a3c796e0afe9d",
+        "android_client_info": {
+          "package_name": "com.minhpt.foodreview"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtmwAH1h0vW8hHBQsqYH_2XdDyZPex1oo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
