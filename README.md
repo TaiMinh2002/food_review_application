@@ -78,3 +78,8 @@ Nguồn API tham khảo: [Riverpod](https://riverpod.dev/docs/concepts2/provider
 
 Sau khi hoàn thiện MVP: bổ sung ảnh chụp thật Android/iOS, video luồng đăng review,
 thiết bị đã kiểm thử và đường dẫn repository. Chưa có screenshot hay release ở giai đoạn base.
+
+## Design system
+
+Core UI dùng chung theo Stitch: [hướng dẫn, tokens và component API](docs/DESIGN_SYSTEM.md).
+Mở tab **Hồ sơ → Xem UI Kit** để xem các component, hoặc chọn giao diện **Sáng / Tối / Theo hệ thống**.

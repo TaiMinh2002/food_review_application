@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/app_shell.dart';
+import '../../shared/design_system/design_system_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/places/presentation/place_detail_screen.dart';
@@ -16,6 +17,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     errorBuilder: (context, state) =>
         const Scaffold(body: AppMessage(message: 'Không tìm thấy trang.')),
     routes: [
+      GoRoute(
+        path: '/design-system',
+        builder: (context, state) => const DesignSystemScreen(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(navigationShell: shell),
         branches: [

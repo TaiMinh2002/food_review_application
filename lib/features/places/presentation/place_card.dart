@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../favorites/presentation/favorite_providers.dart';
 import '../domain/place.dart';
+import '../../../shared/widgets/app_restaurant_card.dart';
 
 class PlaceCard extends ConsumerWidget {
   const PlaceCard({super.key, required this.place});
@@ -13,20 +14,20 @@ class PlaceCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavorite = ref.watch(favoriteIdsProvider).contains(place.id);
-    return Card(
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: const CircleAvatar(child: Icon(Icons.restaurant)),
-        title: Text(place.name),
-        subtitle: Text('${place.category}\n${place.address}'),
-        isThreeLine: true,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: AppRestaurantCard(
+        name: place.name,
+        category: place.category,
+        address: place.address,
+        imageUrl: place.imageUrls.firstOrNull,
+        rating: place.averageRating,
+        reviewCount: place.reviewCount,
+        compact: true,
+        isFavorite: isFavorite,
         onTap: () => context.push('/places/${place.id}'),
-        trailing: IconButton(
-          tooltip: isFavorite ? 'Bỏ yêu thích' : 'Lưu yêu thích',
-          onPressed: () =>
-              ref.read(favoriteIdsProvider.notifier).toggle(place.id),
-          icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
-        ),
+        onFavorite: () =>
+            ref.read(favoriteIdsProvider.notifier).toggle(place.id),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/router/app_router.dart';
 import '../core/theme/app_theme.dart';
+import '../core/theme/theme_mode_provider.dart';
 
 class FoodReviewApp extends ConsumerWidget {
   const FoodReviewApp({super.key});
@@ -13,6 +14,8 @@ class FoodReviewApp extends ConsumerWidget {
       title: 'Food Review',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: ref.watch(appRouterProvider),
     );
   }
