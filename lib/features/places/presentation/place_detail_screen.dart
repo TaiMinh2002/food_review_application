@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/widgets/app_message.dart';
+import '../../../core/errors/app_error_message.dart';
+import '../../../shared/design_system/design_system.dart';
 import '../../favorites/presentation/favorite_providers.dart';
 import 'place_providers.dart';
 
@@ -20,7 +22,10 @@ class PlaceDetailScreen extends ConsumerWidget {
           .when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, stack) => AppMessage(
-              message: 'Không tải được thông tin quán.',
+              message: AppErrorMessage.from(
+                error,
+                fallback: 'Không tải được thông tin quán.',
+              ),
               onRetry: () => ref.invalidate(placeProvider(placeId)),
             ),
             data: (place) {
@@ -49,13 +54,11 @@ class PlaceDetailScreen extends ConsumerWidget {
                         : '★ ${place.averageRating.toStringAsFixed(1)} · ${place.reviewCount} đánh giá',
                   ),
                   const SizedBox(height: 24),
-                  FilledButton.icon(
+                  AppButton(
                     onPressed: () =>
                         ref.read(favoriteIdsProvider.notifier).toggle(placeId),
-                    icon: Icon(
-                      favorite ? Icons.favorite : Icons.favorite_border,
-                    ),
-                    label: Text(favorite ? 'Bỏ yêu thích' : 'Lưu yêu thích'),
+                    icon: favorite ? Icons.favorite : Icons.favorite_border,
+                    label: favorite ? 'Bỏ yêu thích' : 'Lưu yêu thích',
                   ),
                   const SizedBox(height: 24),
                   const Text(

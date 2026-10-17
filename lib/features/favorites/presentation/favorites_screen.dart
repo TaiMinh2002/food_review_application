@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/widgets/app_message.dart';
+import '../../../core/errors/app_error_message.dart';
 import '../../places/presentation/place_card.dart';
 import '../../places/presentation/place_providers.dart';
 import 'favorite_providers.dart';
@@ -19,7 +20,10 @@ class FavoritesScreen extends ConsumerWidget {
           .when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, stack) => AppMessage(
-              message: 'Không tải được quán đã lưu.',
+              message: AppErrorMessage.from(
+                error,
+                fallback: 'Không tải được quán đã lưu.',
+              ),
               onRetry: () => ref.invalidate(placesProvider),
             ),
             data: (places) {
