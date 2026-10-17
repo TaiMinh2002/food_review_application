@@ -26,13 +26,18 @@ Không bọc API Firestore async bằng contract đồng bộ hiện tại.
 
 ## Routing
 
-- `/places`: khám phá.
-- `/places/:placeId`: chi tiết; tải theo ID, xử lý ID không tồn tại.
+- `/home`: màn khám phá hiện có; Home theo Stitch chờ T03.
+- `/restaurants/:restaurantId`: chi tiết; map ID sang `placeId` trong domain, xử lý ID không tồn tại.
+- `/map`: tab placeholder, chờ T08.
 - `/favorites`: quán đã lưu trong phiên.
 - `/profile`: trang khởi đầu hồ sơ.
-- `/sign-in`: thông báo tích hợp Auth đang chờ cấu hình.
+- `/login`: thông báo tích hợp Auth đang chờ cấu hình.
 
-Ba tab dùng indexed stack giữ search/filter khi chuyển tab. Router thuộc provider và được dispose.
+Bốn tab dùng indexed stack giữ search/filter khi chuyển tab. Router thuộc provider và được dispose.
+`AppRoute` định nghĩa route có tên và helper encode tham số. URL `/places`, `/places/:placeId`,
+`/sign-in` cũ redirect về canonical route và giữ query. Detail được push trên root navigator;
+Back pop về nguồn, direct link không có history thì về Home. Các route chưa có feature dùng
+placeholder có task ID; admin bị từ chối mặc định. Xem [UI_FOUNDATION.md](UI_FOUNDATION.md).
 Sau khi có Auth: thêm redirect cho viết review/yêu thích cá nhân, theo dõi auth stream và giữ
 địa chỉ đích sau đăng nhập; khách vẫn được xem quán. Chưa áp dụng guard trong demo.
 

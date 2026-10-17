@@ -3,6 +3,11 @@ import '../domain/place_repository.dart';
 
 /// Illustrative data only. Replace through placeRepositoryProvider for Firestore.
 class DemoPlaceRepository implements PlaceRepository {
+  DemoPlaceRepository({List<Place> data = places})
+    : _places = List.unmodifiable(data);
+
+  final List<Place> _places;
+
   static const places = [
     Place(
       id: 'pho-demo',
@@ -36,11 +41,11 @@ class DemoPlaceRepository implements PlaceRepository {
   ];
 
   @override
-  Future<List<Place>> fetchPlaces() async => places;
+  Future<List<Place>> fetchPlaces() async => _places;
 
   @override
   Future<Place?> getPlace(String id) async {
-    for (final place in places) {
+    for (final place in _places) {
       if (place.id == id) return place;
     }
     return null;

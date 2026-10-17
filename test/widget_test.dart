@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +8,7 @@ import 'package:food_review/core/router/app_router.dart';
 import 'package:food_review/features/places/domain/place.dart';
 import 'package:food_review/features/places/domain/place_repository.dart';
 import 'package:food_review/features/places/presentation/place_providers.dart';
+import 'package:food_review/shared/widgets/app_skeleton.dart';
 
 void main() {
   testWidgets('Search, detail and favorites share state across navigation', (
@@ -28,20 +31,42 @@ void main() {
 
     await tester.pageBack();
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Đã lưu'));
+    await tester.tap(find.text('Yêu thích'));
     await tester.pumpAndSettle();
     expect(find.text('Phở Nhà Mình'), findsOneWidget);
     await tester.tap(find.byTooltip('Bỏ yêu thích'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Bạn chưa lưu quán nào'), findsOneWidget);
 
-    await tester.tap(find.text('Khám phá'));
+    await tester.tap(find.text('Trang chủ'));
     await tester.pumpAndSettle();
     expect(find.text('Góc Cà Phê'), findsNothing);
     expect(
       tester.widget<EditableText>(find.byType(EditableText)).controller.text,
       'phở',
     );
+  });
+
+  testWidgets('Pending repository shows loading before its empty result', (
+    tester,
+  ) async {
+    final result = Completer<List<Place>>();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          placeRepositoryProvider.overrideWithValue(
+            _DeferredRepository(result.future),
+          ),
+        ],
+        child: const FoodReviewApp(),
+      ),
+    );
+    await tester.pump();
+    expect(find.byType(AppRestaurantSkeleton), findsNWidgets(2));
+    result.complete([]);
+    await tester.pumpAndSettle();
+    expect(find.byType(AppRestaurantSkeleton), findsNothing);
+    expect(find.text('Không tìm thấy quán phù hợp.'), findsOneWidget);
   });
 
   testWidgets('Empty repository shows empty state', (tester) async {
@@ -96,6 +121,14 @@ class _EmptyRepository implements PlaceRepository {
 
   @override
   Future<Place?> getPlace(String id) async => null;
+}
+
+class _DeferredRepository extends _EmptyRepository {
+  _DeferredRepository(this.result);
+  final Future<List<Place>> result;
+
+  @override
+  Future<List<Place>> fetchPlaces() => result;
 }
 
 class _FailOnceRepository extends _EmptyRepository {

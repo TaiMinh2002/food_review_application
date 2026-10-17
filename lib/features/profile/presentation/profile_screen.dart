@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/theme_mode_provider.dart';
+import '../../../core/router/app_route.dart';
 import '../../../shared/design_system/design_system.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -28,7 +29,7 @@ class ProfileScreen extends ConsumerWidget {
           AppButton(
             variant: AppButtonVariant.outline,
             label: 'Thông tin đăng nhập',
-            onPressed: () => context.push('/sign-in'),
+            onPressed: () => context.push(AppRoute.login.path),
           ),
           const SizedBox(height: 24),
           DropdownButtonFormField<ThemeMode>(
