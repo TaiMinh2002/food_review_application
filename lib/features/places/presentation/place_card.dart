@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/router/app_route.dart';
+
 import '../../favorites/presentation/favorite_providers.dart';
 import '../domain/place.dart';
 import '../../../shared/widgets/app_restaurant_card.dart';
@@ -25,7 +27,9 @@ class PlaceCard extends ConsumerWidget {
         reviewCount: place.reviewCount,
         compact: true,
         isFavorite: isFavorite,
-        onTap: () => context.push('/places/${place.id}'),
+        onTap: () => context.push(
+          AppRoute.restaurant.location(parameters: {'restaurantId': place.id}),
+        ),
         onFavorite: () =>
             ref.read(favoriteIdsProvider.notifier).toggle(place.id),
       ),

@@ -65,7 +65,7 @@ Tiện ích bổ sung:
 
 `MaterialApp.router` đã dùng light/dark/system. Màn hình khám phá dùng search/chip/card/skeleton mới; màn chi tiết dùng button mới; các màn tải dữ liệu dùng error mapper và retry chung. Tab hồ sơ có chọn giao diện và nút **Xem UI Kit** (`/design-system`). Catalog bao gồm toàn bộ 10 nhóm để phát triển tính năng tiếp theo.
 
-App shell hiện giữ 3 tab chức năng đang có. Component điều hướng hỗ trợ danh sách tùy ý; catalog minh hoạ 4 tab theo thiết kế. Core không tạo màn bản đồ khi feature đó chưa triển khai. Các card không tự tạo dữ liệu giá, khoảng cách hoặc ảnh nếu repository chưa cung cấp.
+App shell có 4 tab theo T02; Bản đồ hiện là placeholder chờ T08, Trang chủ vẫn dùng màn khám phá cũ chờ T03. Component điều hướng hỗ trợ danh sách tùy ý; catalog minh hoạ 4 tab theo thiết kế. Các card không tự tạo dữ liệu giá, khoảng cách hoặc ảnh nếu repository chưa cung cấp.
 
 Skeleton tôn trọng giảm chuyển động và TickerMode. Password toggle, rating, icon buttons có nhãn trợ năng; form error/toast hỗ trợ thông báo trạng thái. Nút có vùng chạm tối thiểu 48px, icon button 44px; bố cục tránh khoá chiều cao để hỗ trợ chữ lớn.
 

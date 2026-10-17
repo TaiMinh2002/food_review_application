@@ -6,7 +6,7 @@ Base được dựng từ `flutter_food_review_tech_stack.md`, ưu tiên MVP por
 ## Trạng thái hiện tại
 
 - Đã chạy bằng dữ liệu mẫu: danh sách quán, tìm tên không phân biệt hoa/thường, lọc danh mục, chi tiết quán, thêm/bỏ yêu thích.
-- Riverpod quản lý dữ liệu/state; go_router điều hướng với ba tab giữ trạng thái; Material 3 theme.
+- Riverpod quản lý dữ liệu/state; go_router điều hướng với bốn tab giữ trạng thái; tab Bản đồ hiện là placeholder; Material 3 theme.
 - Có loading, error/retry, empty và trường hợp không tìm thấy địa điểm.
 - Auth, review và profile đã có domain/contract hoặc màn hình khởi đầu; **chưa kết nối backend**.
 - Yêu thích chỉ lưu trong RAM, mất khi khởi động lại. Quán và tọa độ đều là dữ liệu minh họa.
@@ -63,12 +63,15 @@ test/                       # Kiểm thử hành vi và domain
 
 ## Tài liệu phát triển
 
+- [Quy tắc phát triển bắt buộc](rule.md) và [hướng dẫn contributor/agent](AGENTS.md)
 - [Phân tích stack và phạm vi](docs/PROJECT_ANALYSIS.md)
 - [Quy ước kiến trúc](docs/ARCHITECTURE.md)
 - [Quản lý cấu hình và dữ liệu nhạy cảm](docs/ENVIRONMENT.md)
 - [Thiết kế dữ liệu và cấu hình dịch vụ](docs/BACKEND_SETUP.md)
 - [Danh sách đầy đủ các tính năng](docs/FEATURES.md)
 - [Backlog, tiêu chí hoàn thành và lộ trình](docs/ROADMAP.md)
+- [Kế hoạch UI theo từng task](docs/UI_IMPLEMENTATION_PLAN.md)
+- [Nền thiết kế, dữ liệu và routing T01–T02](docs/UI_FOUNDATION.md)
 
 Nguồn API tham khảo: [Riverpod](https://riverpod.dev/docs/concepts2/providers),
 [go_router](https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html),

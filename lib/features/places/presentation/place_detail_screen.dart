@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/router/route_placeholder_screen.dart';
+
 import '../../../shared/widgets/app_message.dart';
 import '../../../core/errors/app_error_message.dart';
 import '../../../shared/design_system/design_system.dart';
@@ -16,7 +18,10 @@ class PlaceDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final favorite = ref.watch(favoriteIdsProvider).contains(placeId);
     return Scaffold(
-      appBar: AppBar(title: const Text('Chi tiết quán')),
+      appBar: AppBar(
+        leading: const RouteBackButton(),
+        title: const Text('Chi tiết quán'),
+      ),
       body: ref
           .watch(placeProvider(placeId))
           .when(

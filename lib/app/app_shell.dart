@@ -20,16 +20,20 @@ class AppShell extends StatelessWidget {
         ),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
-            label: 'Khám phá',
+            icon: Icon(Icons.home_outlined),
+            label: 'Trang chủ',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.map_outlined),
+            label: 'Bản đồ',
           ),
           NavigationDestination(
             icon: Icon(Icons.favorite_border),
-            label: 'Đã lưu',
+            label: 'Yêu thích',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
-            label: 'Hồ sơ',
+            label: 'Cá nhân',
           ),
         ],
       ),
