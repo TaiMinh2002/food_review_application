@@ -13,6 +13,17 @@ mapping DTO, Timestamp, exception SDK. Presentation chứa UI và state.
 Core là thành phần toàn app; shared chỉ nhận widget/model thực sự tái sử dụng.
 Không đưa logic tính năng vào core hoặc dựng use case khi chưa có nghiệp vụ cần tái sử dụng.
 
+## Stack và nền tảng
+
+Flutter/Dart cho Android/iOS; Riverpod quản lý dependency/state; go_router giữ stack tab;
+Material 3 và Inter cho UI. Firebase Auth quản lý danh tính, Firestore lưu dữ liệu,
+Cloudinary + HTTP/image_picker cho ảnh, flutter_map/OSM + geolocator/latlong2 cho vị trí.
+Package đã khai báo không đồng nghĩa đã tích hợp; Firebase native đã khởi tạo nhưng
+chưa có repository Auth/Firestore thật. Web cần FirebaseOptions riêng.
+Không thêm code generation, service locator hoặc base repository tổng quát khi chưa cần.
+Phạm vi/trạng thái/lộ trình ở [FEATURES.md](FEATURES.md); schema, query và phân quyền ở
+[BACKEND_SETUP.md](BACKEND_SETUP.md).
+
 ## Dependency injection
 
 `ProviderScope` ở main; `placeRepositoryProvider` đang cấp `DemoPlaceRepository`.

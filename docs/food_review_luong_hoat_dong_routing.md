@@ -16,7 +16,7 @@ Tài liệu này mô tả:
 - Luồng báo cáo nội dung và khu vực quản trị.
 - Quy ước tên route đề xuất cho Flutter.
 
-**Lưu ý:** Đây là thiết kế điều hướng đề xuất dựa trên kế hoạch màn hình trong quá trình trao đổi. Route chưa được triển khai trong mã nguồn. Một số số thứ tự màn hình từng bị trùng hoặc thay đổi, vì vậy hãy dùng tên chức năng/route thay vì số màn hình làm định danh chính.
+**Lưu ý:** Đây là đặc tả luồng, không phải danh sách tính năng đã hoàn tất. Nền T02 đã đăng ký route và placeholder; Auth/dữ liệu thật còn chờ tích hợp. Xem trạng thái tại [UI_FOUNDATION.md](UI_FOUNDATION.md), phạm vi MVP/mở rộng tại [FEATURES.md](FEATURES.md). Dùng tên chức năng/route thay vì số màn hình làm định danh chính.
 
 ---
 
@@ -191,7 +191,7 @@ flowchart TD
 - Chỉnh sửa hồ sơ cập nhật tên hiển thị, ảnh đại diện và các trường hồ sơ được hỗ trợ.
 - Đánh giá của tôi chỉ hiển thị đánh giá thuộc tài khoản đang đăng nhập.
 - Thông báo có thể hỗ trợ mở nội dung liên quan, ví dụ nhà hàng hoặc đánh giá.
-- Cài đặt chứa các tùy chọn tài khoản và ứng dụng phù hợp với phạm vi MVP.
+- Cài đặt chứa các tùy chọn có tác dụng theo phạm vi trong FEATURES.md; inbox/bộ sưu tập thuộc đợt mở rộng.
 - Khi đăng xuất, xóa token/phiên đăng nhập cục bộ và chuyển về chế độ khách.
 - Không xóa tài khoản hoặc dữ liệu backend khi người dùng chỉ chọn đăng xuất.
 
@@ -257,7 +257,7 @@ flowchart TD
 
 ## 10. Danh sách route đề xuất
 
-Các route dưới đây là quy ước tên cho Flutter, không phải route đã được tạo trong mã nguồn.
+Các route dưới đây đã được đăng ký ở nền T02; nhiều đích còn là placeholder. Admin detail bổ sung trong kế hoạch UI được ghi cùng bảng để tra cứu.
 
 | Màn hình | Route |
 |---|---|
@@ -287,11 +287,13 @@ Các route dưới đây là quy ước tên cho Flutter, không phải route đ
 | Chỉnh sửa bộ sưu tập | `/collections/:collectionId/edit` |
 | Tạo báo cáo | `/reports/create` |
 | Quản lý nội dung | `/admin/reports` |
+| Chi tiết báo cáo | `/admin/reports/:reportId` |
 
 ### Quy ước tham số
 
 - `restaurantId`: định danh nhà hàng.
-- `reviewId`: định danh đánh giá.
+- `reviewId`: ID document review; theo schema dự kiến là UID trong từng quán, không duy nhất toàn app. Route edit cần thêm query `restaurantId` khi triển khai; target report/notification cần cả ID quán và review theo [BACKEND_SETUP.md](BACKEND_SETUP.md).
+- `reportId`: định danh báo cáo.
 - `userId`: định danh hồ sơ người dùng.
 - `collectionId`: định danh bộ sưu tập.
 - `categoryId`: định danh danh mục.
@@ -319,38 +321,11 @@ Các route dưới đây là quy ước tên cho Flutter, không phải route đ
 
 Dùng `go_router` để định nghĩa route, nested routes, redirect và guard. Với bốn tab chính, cân nhắc `StatefulShellRoute.indexedStack` để duy trì trạng thái mỗi tab.
 
-### Tổ chức code tham khảo
+### Tổ chức code
 
-```text
-lib/
-├── app/
-│   ├── app.dart
-│   └── router/
-│       ├── app_router.dart
-│       ├── route_names.dart
-│       └── route_guards.dart
-├── core/
-│   ├── auth/
-│   ├── errors/
-│   └── widgets/
-├── features/
-│   ├── home/
-│   ├── search/
-│   ├── categories/
-│   ├── restaurants/
-│   ├── reviews/
-│   ├── map/
-│   ├── favorites/
-│   ├── want_to_visit/
-│   ├── profile/
-│   ├── notifications/
-│   ├── collections/
-│   ├── reports/
-│   └── admin/
-└── main.dart
-```
-
-Đây là cấu trúc gợi ý; có thể điều chỉnh theo cấu trúc dự án thực tế.
+Dùng cấu trúc thực tế trong [ARCHITECTURE.md](ARCHITECTURE.md): router ở `core/router`,
+widget dùng chung ở `shared/`, feature theo `domain/data/presentation`.
+Giữ feature/domain `places`; `restaurantId` trên URL được map sang `placeId` tại biên route.
 
 ### Nguyên tắc
 

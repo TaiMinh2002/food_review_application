@@ -1,7 +1,7 @@
 # Food Review
 
 Ứng dụng Flutter khám phá quán ăn, viết đánh giá và lưu địa điểm yêu thích.
-Base được dựng từ `flutter_food_review_tech_stack.md`, ưu tiên MVP portfolio trong 4–5 tuần.
+Phạm vi MVP và các hướng mở rộng được tổng hợp tại [FEATURES.md](docs/FEATURES.md).
 
 ## Trạng thái hiện tại
 
@@ -22,11 +22,10 @@ cp config/app_config.example.json config/app_config.local.json
 flutter run --dart-define-from-file=config/app_config.local.json
 ```
 
-Demo không cần tài khoản Firebase hoặc Cloudinary. Có thể kiểm tra UI trên web:
-
-```bash
-flutter run -d chrome
-```
+Luồng demo chưa gọi repository Auth/Firestore hoặc Cloudinary. App vẫn khởi tạo Firebase
+ngay lúc mở trên Android/iOS, nên cần cấu hình native hợp lệ theo
+[BACKEND_SETUP.md](docs/BACKEND_SETUP.md). Web chưa có FirebaseOptions; cần bổ sung
+cấu hình khởi tạo trước khi chạy bằng Chrome.
 
 ## Kiểm tra
 
@@ -57,19 +56,18 @@ lib/
     profile/                # User model, màn hình khởi đầu
   shared/widgets/           # Trạng thái dùng chung
 config/                     # Cấu hình mẫu không chứa secret
-docs/                       # Phân tích, kiến trúc, backend, roadmap
+docs/                       # Tính năng, kiến trúc, backend, kế hoạch UI
 test/                       # Kiểm thử hành vi và domain
 ```
 
 ## Tài liệu phát triển
 
 - [Quy tắc phát triển bắt buộc](rule.md) và [hướng dẫn contributor/agent](AGENTS.md)
-- [Phân tích stack và phạm vi](docs/PROJECT_ANALYSIS.md)
 - [Quy ước kiến trúc](docs/ARCHITECTURE.md)
 - [Quản lý cấu hình và dữ liệu nhạy cảm](docs/ENVIRONMENT.md)
 - [Thiết kế dữ liệu và cấu hình dịch vụ](docs/BACKEND_SETUP.md)
-- [Danh sách đầy đủ các tính năng](docs/FEATURES.md)
-- [Backlog, tiêu chí hoàn thành và lộ trình](docs/ROADMAP.md)
+- [Tính năng chính, mở rộng và lộ trình](docs/FEATURES.md)
+- [Đặc tả luồng và routing](docs/food_review_luong_hoat_dong_routing.md)
 - [Kế hoạch UI theo từng task](docs/UI_IMPLEMENTATION_PLAN.md)
 - [Nền thiết kế, dữ liệu và routing T01–T02](docs/UI_FOUNDATION.md)
 
