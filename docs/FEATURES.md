@@ -1,202 +1,94 @@
-# Danh sách tính năng dự án Food Review
+# Food Review — Tính năng chính và hướng phát triển
 
-Tài liệu này là phạm vi sản phẩm và backlog triển khai. Ký hiệu trạng thái:
+Bản tổng hợp phạm vi sản phẩm, cập nhật 18/10/2026. Đây là nguồn duy nhất về danh sách
+và mức ưu tiên tính năng; chi tiết màn hình ở [kế hoạch UI](UI_IMPLEMENTATION_PLAN.md),
+luồng ở [routing](food_review_luong_hoat_dong_routing.md), dữ liệu/quyền ở
+[backend](BACKEND_SETUP.md). Các mục dự kiến không phải tính năng đã triển khai.
 
-- **Đã có:** chạy được trong base hiện tại.
-- **MVP:** cần hoàn thành cho phiên bản đầu tiên.
-- **Sau MVP:** chỉ triển khai sau khi các luồng chính ổn định.
+## 1. Hiện trạng
 
-## 1. Tài khoản và xác thực
+- Đã có nền T01–T02: design system Inter/Material 3, light/dark/system, bốn tab giữ trạng thái,
+  route và placeholder cho các màn dự kiến; khu vực admin từ chối truy cập mặc định.
+- Demo có danh sách quán, tìm tên không phân biệt hoa/thường, lọc danh mục, chi tiết,
+  yêu thích đồng bộ trong RAM và loading/empty/error/retry/not-found.
+- Firebase đã khởi tạo trên Android/iOS; chưa có repository Auth/Firestore thật.
+  Review mới có model/contract; Auth/Profile là màn khởi đầu; Bản đồ là placeholder.
+- T03 trở đi chưa hoàn tất. Yêu thích và lựa chọn theme chưa lưu qua restart;
+  tọa độ/ảnh demo không phải dữ liệu quán đã xác minh. Web chưa có FirebaseOptions.
 
-### MVP
+## 2. Tính năng chính — MVP
 
-- Đăng ký bằng email và mật khẩu.
-- Đăng nhập, đăng xuất và duy trì phiên đăng nhập sau khi mở lại app.
-- Kiểm tra định dạng email, độ mạnh mật khẩu và hiển thị lỗi dễ hiểu.
-- Quên mật khẩu qua email.
-- Điều hướng theo trạng thái đăng nhập; khách vẫn xem được địa điểm và review.
-- Yêu cầu đăng nhập khi viết review, lưu yêu thích hoặc mở hồ sơ cá nhân.
-- Tạo hồ sơ Firestore lần đầu với tên hiển thị, ảnh đại diện và thời điểm tạo.
+| Nhóm | Phạm vi cần hoàn thành | Task UI |
+| --- | --- | --- |
+| Tài khoản | Đăng ký email/mật khẩu, đăng nhập/đăng xuất, giữ phiên, quên mật khẩu; tạo hồ sơ lần đầu; validation và lỗi rõ ràng | T10–T12 |
+| Khám phá | Home, tìm tên có chuẩn hóa tiếng Việt không dấu, lọc danh mục; sắp xếp theo điểm/số review; dữ liệu thật và phân trang | T03, T05–T07 |
+| Chi tiết quán | Ảnh/thư viện toàn màn hình, tên, địa chỉ, danh mục, mô tả, điểm/số review, danh sách review; ID sai có trạng thái riêng | T04, T09a–T09b |
+| Review | Một review/người/quán; 1–5 sao, nội dung và ảnh thư viện/camera; tạo/sửa/xóa bài của mình; upload/retry/chống gửi trùng; aggregate do backend tính | T13–T14 |
+| Yêu thích | Lưu/bỏ theo tài khoản, đồng bộ Home/chi tiết/tab Yêu thích, đọc lại sau restart, lỗi ghi có hoàn tác | T15 |
+| Bản đồ và vị trí | OSM/marker mở chi tiết, GPS foreground theo yêu cầu, khoảng cách gần đúng, mở ứng dụng ngoài để chỉ đường; từ chối GPS vẫn dùng được | T08, T04 |
+| Hồ sơ và cài đặt | Xem/sửa tên/avatar, email riêng tư, review của tôi, đăng xuất; chọn light/dark/system, ghi rõ khả năng lưu lựa chọn | T17–T20 |
 
-### Sau MVP
+Khách được đọc nội dung công khai. Thao tác cá nhân cần đăng nhập, giữ đích quay lại hợp lệ;
+không tự gửi review/report sau đăng nhập. Giới hạn nội dung/số ảnh/dung lượng phải chốt
+trước T13 và thống nhất UI/backend; nhiều ảnh và xem ảnh lớn đã thuộc MVP.
 
-- Xác minh email trước khi đăng review.
-- Đăng nhập Google/Apple.
-- Xóa tài khoản và dữ liệu liên quan theo một quy trình rõ ràng.
+## 3. Mở rộng đã có kế hoạch UI — sau luồng cốt lõi
 
-## 2. Khám phá địa điểm ăn uống
+Các mục này thuộc kế hoạch hiện tại nhưng chưa triển khai, không mặc nhiên nằm trong MVP.
 
-### Đã có
+| Tính năng | Phạm vi | Task |
+| --- | --- | --- |
+| Muốn ghé thăm | Danh sách theo tài khoản, độc lập với yêu thích | T16 |
+| Bộ sưu tập | Tạo/sửa tên, mô tả và danh sách quán; mặc định riêng tư, kiểm tra owner | T21–T22 |
+| Thông báo trong app | Inbox, đã đọc/chưa đọc, mở đúng nội dung; backend tạo thông báo; push là hạng mục riêng | T23 |
+| Hồ sơ người đánh giá | Tên/avatar, review và thống kê công khai có nguồn; không lộ email | T24 |
+| Báo cáo và quản trị | Báo cáo quán/review/user có lý do, minh chứng tùy chọn; admin lọc/xem/xử lý/ẩn nội dung, lưu lịch sử; không xóa vĩnh viễn mặc định | T25–T27 |
 
-- Danh sách địa điểm bằng dữ liệu mẫu.
-- Tìm kiếm theo tên, lọc danh mục và mở trang chi tiết.
-- Trạng thái loading, lỗi/thử lại, danh sách rỗng và không tìm thấy địa điểm.
+Tìm kiếm nâng cao ở T06 chỉ bật tiêu chí đã có dữ liệu. Layout editor bộ sưu tập và admin
+còn thiếu thiết kế riêng; có route/placeholder không có nghĩa đã có chức năng.
 
-### MVP
+## 4. Ý tưởng có thể phát triển thêm
 
-- Đọc danh sách địa điểm thật từ Firestore và phân trang.
-- Tìm kiếm theo tên; chuẩn hóa chữ thường và tiếng Việt không dấu.
-- Lọc theo danh mục: nhà hàng, quán ăn, cà phê, đồ uống và món vặt.
-- Sắp xếp theo đánh giá, số review hoặc khoảng cách khi người dùng cấp vị trí.
-- Hiển thị ảnh đại diện, tên, địa chỉ ngắn, điểm trung bình và số review.
-- Dữ liệu quán chỉ do admin/backend quản lý; người dùng không được sửa từ client.
+Đây là backlog đề xuất, chưa cam kết triển khai. Chọn theo giá trị sử dụng, dữ liệu,
+độ phức tạp, chi phí và khả năng vận hành/kiểm duyệt.
 
-### Sau MVP
+| Ưu tiên | Nhóm ý tưởng | Phụ thuộc chính |
+| --- | --- | --- |
+| P1 — Khám phá và review | Lọc giá, điểm tối thiểu, ẩm thực/món ăn, tiện ích, giờ mở cửa, khu vực/bán kính/vùng bản đồ; tìm toàn văn, gom marker; điểm nhiều tiêu chí/phân bố sao; đánh dấu hữu ích; lịch sử đã xem có xóa/tắt | Dữ liệu có nguồn, query/index hoặc dịch vụ tìm kiếm/địa lý; công thức điểm và chống vote lặp |
+| P1 — Ảnh và chia sẻ | Nén/thumbnail/cache ảnh, dọn ảnh mồ côi, kiểm duyệt ảnh; chia sẻ quán/bộ sưu tập/review bằng link có web dự phòng | Backend quản lý media, deep link, quyền riêng tư khi chia sẻ |
+| P2 — Cá nhân hóa và cộng đồng | Gợi ý theo sở thích bằng quy tắc trước ML; theo dõi người viết/feed, bình luận/phản hồi, huy hiệu/thống kê đóng góp, danh sách chủ đề có bình chọn | Dữ liệu tương tác, hồ sơ công khai, chống spam và kiểm duyệt |
+| P3 — Kế hoạch đi ăn | Ghi chú/nhãn riêng, ngày dự kiến, nhắc hẹn tự nguyện; nhóm bạn chia sẻ và bình chọn quán; giờ mở cửa theo ngày/ngày nghỉ, đề xuất sửa thông tin | Phân quyền thành viên, lịch/thông báo và nguồn giờ mở cửa tin cậy |
+| P4 — Tin cậy và tài khoản | Xác minh email, Google/Apple login, xóa tài khoản/dữ liệu; xác minh chủ quán, phát hiện spam, kiểm duyệt tự động hỗ trợ, khiếu nại quyết định, chặn/bỏ chặn user | Backend xác minh quyền, xử lý dữ liệu/ảnh, quy trình hỗ trợ và kiểm duyệt |
+| P5 — Kinh doanh | Cổng chủ quán, quản lý chi nhánh/phản hồi review/thống kê; đặt bàn; ưu đãi/voucher; quảng bá có nhãn tài trợ; đặt món/giao hàng/thanh toán/hoàn tiền | Đối tác, ngân sách, vận hành và chính sách riêng; ngoài MVP |
+| Xuyên suốt | Cache/offline tốt hơn, tối ưu hiệu năng, đa ngôn ngữ Việt/Anh, push có tùy chọn tắt, analytics tối thiểu và App Check | Đo nhu cầu/chi phí, quyền riêng tư và dịch vụ phù hợp |
 
-- Lọc khoảng giá, giờ mở cửa, tiện ích và bán kính.
-- Tìm kiếm toàn văn bằng dịch vụ phù hợp khi số lượng địa điểm tăng.
-- Bộ sưu tập nổi bật, địa điểm mới và gợi ý theo sở thích.
+Không đưa chat trực tiếp hay chương trình khách hàng thân thiết vào MVP. Lịch sử xử lý
+báo cáo đã thuộc T27; mở rộng P4 bổ sung chống spam/khiếu nại, không lặp chức năng này.
 
-## 3. Chi tiết địa điểm
+## 5. Lộ trình và tiêu chí hoàn thành
 
-### Đã có
+1. Giữ nền T01–T02; dựng khám phá/chi tiết/map/review đọc T03–T09 theo Stitch.
+2. Nối Auth và dữ liệu thật; hoàn thiện tạo/sửa/xóa review, ảnh, yêu thích và hồ sơ.
+3. Nghiệm thu MVP; sau đó làm muốn ghé, collections, inbox, hồ sơ công khai, report/admin.
+4. Rà tích hợp T28–T29 theo phạm vi phát hành; chọn ý tưởng P1–P5 khi có nhu cầu/nguồn lực.
 
-- Thông tin cơ bản, điểm đánh giá, mô tả và thao tác yêu thích bằng dữ liệu mẫu.
+Backend làm cùng từng feature, không đợi T28 mới tích hợp. Mốc 4–5 tuần cũ chỉ là ước lượng
+MVP hẹp, không phải cam kết cho toàn bộ T01–T29 và backlog mở rộng.
 
-### MVP
+Điều kiện nghiệm thu mỗi phạm vi phát hành:
 
-- Thư viện ảnh, địa chỉ đầy đủ, danh mục và mô tả.
-- Điểm trung bình, tổng số review và danh sách review mới nhất.
-- Vị trí trên bản đồ, khoảng cách ước tính từ vị trí hiện tại.
-- Nút viết review, lưu/bỏ lưu và mở chỉ đường bằng ứng dụng bản đồ ngoài.
-- Deep link nội bộ tới địa điểm; xử lý ID không tồn tại.
+- Dữ liệu đọc lại sau restart; không lộ dữ liệu tài khoản A khi logout/login B;
+  favorite, muốn ghé và collection độc lập; chỉ điều hướng sau khi lưu thành công.
+- Backend/rules bảo vệ owner/admin, validate field; aggregate đáng tin cậy;
+  test emulator guest/owner/user khác/admin trước deploy; seed quán bằng công cụ admin.
+- Loading/empty/error/retry, mạng yếu, upload lỗi một phần, draft, double submit,
+  ID sai/nội dung bị ẩn và quyền GPS đều có cách xử lý; không dùng thành công giả.
+- UI kiểm tra light/dark, 320/390/428px, chữ lớn, bàn phím, semantic label và ảnh lỗi.
+- Format/analyze/test CI, kiểm thử Auth → quán → review → yêu thích, thiết bị Android/iOS;
+  ghi lỗi release an toàn, môi trường dev/prod tách biệt, không có secret trong client/Git.
+- Release có icon/splash/version, privacy policy, cấu hình ký riêng và metadata;
+  README/ảnh/video demo ghi rõ dữ liệu mẫu, tích hợp thiếu và bằng chứng kiểm thử.
 
-### Sau MVP
-
-- Giờ mở cửa, số điện thoại, website, menu và tiện ích.
-- Chia sẻ link địa điểm ra ứng dụng khác.
-
-## 4. Review và hình ảnh
-
-### MVP
-
-- Tạo review gồm 1–5 sao, nội dung và tối đa một số ảnh được quy định.
-- Kiểm tra nội dung, định dạng ảnh và dung lượng trước khi upload.
-- Chọn ảnh từ thư viện hoặc chụp bằng camera.
-- Upload ảnh lên Cloudinary bằng unsigned preset bị giới hạn.
-- Hiển thị tiến trình, lỗi upload, thử lại và chống gửi trùng.
-- Lưu review vào `places/{placeId}/reviews/{uid}` để mỗi tài khoản có một review
-  cho mỗi địa điểm.
-- Hiển thị tên/ảnh người viết, thời gian, số sao, nội dung và ảnh review.
-- Sửa hoặc xóa review của chính mình; tài khoản khác chỉ có quyền đọc.
-- Cập nhật điểm trung bình và số review bằng backend đáng tin cậy.
-
-### Sau MVP
-
-- Đánh dấu review hữu ích.
-- Báo cáo review/ảnh vi phạm và quy trình moderation cho quản trị viên.
-- Nén ảnh, thumbnail, dọn ảnh mồ côi và kiểm duyệt nội dung tự động.
-- Phản hồi review từ chủ địa điểm nếu có mô hình phân quyền phù hợp.
-
-## 5. Yêu thích
-
-### Đã có
-
-- Thêm/bỏ yêu thích trong bộ nhớ và tab địa điểm đã lưu.
-
-### MVP
-
-- Lưu theo tài khoản tại `users/{uid}/favorites/{placeId}`.
-- Đồng bộ trạng thái giữa danh sách, chi tiết và tab đã lưu.
-- Khôi phục dữ liệu sau khi mở lại app và tách dữ liệu giữa các tài khoản.
-- Xử lý tải, lỗi, danh sách rỗng và thao tác nhanh liên tiếp.
-
-### Sau MVP
-
-- Bộ sưu tập yêu thích riêng và ghi chú cá nhân.
-
-## 6. Bản đồ, vị trí và chỉ đường
-
-### MVP
-
-- Hiển thị OpenStreetMap bằng `flutter_map` với attribution đầy đủ.
-- Marker cho địa điểm và mở chi tiết khi chạm marker.
-- Xin quyền vị trí đúng lúc người dùng chọn “Gần tôi”.
-- Xử lý từ chối quyền, từ chối vĩnh viễn và dịch vụ vị trí đang tắt.
-- Hiển thị vị trí hiện tại và khoảng cách đường chim bay tới địa điểm.
-- Mở Apple Maps/Google Maps hoặc ứng dụng phù hợp để chỉ đường.
-- Chỉ dùng vị trí foreground; không theo dõi nền trong MVP.
-
-### Sau MVP
-
-- Tìm địa điểm trong vùng bản đồ đang xem.
-- Truy vấn địa lý theo bán kính và gom marker khi dữ liệu lớn.
-
-## 7. Hồ sơ cá nhân
-
-### MVP
-
-- Hiển thị tên, ảnh đại diện và email của tài khoản hiện tại.
-- Chỉnh sửa tên và ảnh đại diện.
-- Danh sách review đã viết và địa điểm đã lưu.
-- Đăng xuất và liên kết quên mật khẩu.
-
-### Sau MVP
-
-- Thống kê đóng góp, huy hiệu và hồ sơ công khai có kiểm soát quyền riêng tư.
-- Cài đặt thông báo, giao diện và ngôn ngữ.
-
-## 8. Dữ liệu, phân quyền và vận hành
-
-### MVP
-
-- Repository thật cho Auth, Place, Review và Favorite, tách khỏi UI.
-- Firestore mapper, server timestamp, phân trang và index theo query thực tế.
-- Security Rules kiểm tra đăng nhập, owner, field được phép, rating và độ dài nội dung.
-- Test rules với guest, owner và tài khoản khác trước khi deploy.
-- Firebase Crashlytics hoặc cơ chế ghi lỗi phù hợp cho bản release.
-- Firebase App Check sau khi luồng chính ổn định.
-- Môi trường development/production và cách quản lý config theo
-  `docs/ENVIRONMENT.md`.
-- Seed dữ liệu quán bằng script/admin tool sử dụng service account ngoài app.
-
-### Sau MVP
-
-- Backend xử lý aggregate, xóa ảnh và tác vụ chống spam.
-- Dashboard quản trị quán, review bị báo cáo và người dùng vi phạm.
-- Push notification cho các sự kiện có giá trị, có tùy chọn tắt.
-
-## 9. Chất lượng trải nghiệm
-
-### Đã có
-
-- Material 3, điều hướng ba tab giữ trạng thái và các trạng thái UI cơ bản.
-
-### MVP
-
-- Responsive trên các kích thước điện thoại Android/iOS phổ biến.
-- Dark mode, typography, màu sắc và component nhất quán.
-- Hỗ trợ bàn phím, vùng chạm, semantic label và cỡ chữ hệ thống.
-- Skeleton/loading hợp lý; thông báo lỗi có hành động thử lại.
-- Giữ dữ liệu nhập khi upload hoặc ghi Firestore thất bại.
-- Tránh gọi mạng trùng, hủy request không còn cần và cache ảnh hợp lý.
-- Luồng offline/poor network có thông báo rõ, không làm mất dữ liệu đang nhập.
-
-## 10. Kiểm thử và phát hành
-
-### MVP
-
-- Unit test cho model, mapper, validation và repository logic quan trọng.
-- Widget test cho tìm kiếm/lọc, auth form, review form và trạng thái lỗi.
-- Test tích hợp luồng đăng nhập → xem quán → review → yêu thích.
-- Test Firestore Rules bằng emulator.
-- Kiểm thử thật trên ít nhất một thiết bị Android và một thiết bị iOS.
-- CI chạy format, analyze và test.
-- Cấu hình ký release riêng, không commit keystore/certificate/mật khẩu.
-- README có hướng dẫn chạy, ảnh chụp, video demo, giới hạn và kiến trúc.
-- Chuẩn bị icon, splash screen, version, privacy policy và metadata cửa hàng.
-
-## Thứ tự triển khai đề xuất
-
-1. Kết nối Firebase Auth và hồ sơ người dùng.
-2. Chuyển Place repository từ demo sang Firestore, thêm seed và rules.
-3. Hoàn thành review text/rating, sau đó mới nối upload ảnh Cloudinary.
-4. Chuyển yêu thích sang Firestore và hoàn thiện trang hồ sơ.
-5. Thêm bản đồ, quyền vị trí, khoảng cách và chỉ đường.
-6. Hoàn thiện rules, test, accessibility, logging và bản release.
-
-## Ngoài phạm vi phiên bản đầu tiên
-
-Đặt bàn, giao đồ ăn, thanh toán, chat trực tiếp, chương trình khách hàng thân
-thiết và mạng xã hội đầy đủ không thuộc MVP. Các tính năng này cần backend,
-vận hành và chính sách riêng lớn hơn phạm vi một ứng dụng review ban đầu.
+Trạng thái theo bằng chứng: **chưa làm → đang làm → UI đã duyệt → chờ tích hợp → luồng hoàn tất**.
+Trước mỗi ý tưởng mới, ghi ngắn vấn đề/người dùng, luồng, dữ liệu/API/quyền, dịch vụ/chi phí,
+ưu tiên và tiêu chí nghiệm thu; không tự thêm nghiệp vụ chỉ vì thiết kế có nút.

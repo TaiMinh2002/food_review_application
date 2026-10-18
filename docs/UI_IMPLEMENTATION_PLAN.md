@@ -6,10 +6,10 @@ Ngày đối chiếu: 18/10/2026. Trạng thái: đã hoàn thiện nền tảng
 
 - Đặc tả luồng: [food_review_luong_hoat_dong_routing.md](food_review_luong_hoat_dong_routing.md), đặc biệt các mục 2–11.
 - Code hiện tại: router, app shell, các feature, repository contract và tests trong `lib/`, `test/`.
-- Quy ước hiện tại: [ARCHITECTURE.md](ARCHITECTURE.md), [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md), [BACKEND_SETUP.md](BACKEND_SETUP.md), [ROADMAP.md](ROADMAP.md).
+- Quy ước hiện tại: [ARCHITECTURE.md](ARCHITECTURE.md), [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md), [BACKEND_SETUP.md](BACKEND_SETUP.md), [FEATURES.md](FEATURES.md).
 - Stitch: [Vietnamese Food Review App](https://stitch.withgoogle.com/projects/17045709860825880180), project ID `17045709860825880180`. Đã đọc metadata project qua MCP và HTML của Home. Các màn còn lại mới đối chiếu tên/ID; phải đọc ảnh và HTML riêng khi bắt đầu task tương ứng.
 
-Yêu cầu hiện tại là phân tích và lên kế hoạch. Những checklist, cấu trúc thư mục và quy tắc mang tính đề xuất trong tài liệu nguồn là đầu vào phân tích, không phải chỉ thị tự động sửa code, đổi nghiệp vụ hoặc thao tác backend/Stitch.
+Tài liệu này là kế hoạch triển khai. Phạm vi MVP, phần mở rộng có kế hoạch và ý tưởng dài hạn được quản lý tại [FEATURES.md](FEATURES.md). Checklist và cấu trúc mang tính đề xuất không tự cấp phép sửa code, đổi nghiệp vụ hoặc thao tác backend/Stitch ngoài task được yêu cầu.
 
 Bao phủ toàn bộ luồng tài liệu, kể cả collections, reports và admin. Không tự bổ sung ba màn mở rộng 25, 26, 27 đã bị loại khỏi phạm vi. Số task trong kế hoạch là ID công việc độc lập với số màn Stitch.
 
@@ -18,7 +18,7 @@ Bao phủ toàn bộ luồng tài liệu, kể cả collections, reports và adm
 | Hạng mục | Đã có trong code | Cần thực hiện |
 | --- | --- | --- |
 | Design system | Tokens, Inter, light/dark, button/input/card/rating/overlay/navigation | Tái sử dụng, bổ sung chỉ khi màn cụ thể cần |
-| Điều hướng | GoRouter, indexed stack 3 tab: Khám phá / Đã lưu / Hồ sơ | 4 tab Trang chủ / Bản đồ / Yêu thích / Cá nhân; guard, return-to, route mới |
+| Điều hướng | GoRouter, indexed stack 4 tab, route/placeholder và return-to nền T02 | Nối guard Auth và nội dung màn thật; giữ stack/Back theo nguồn |
 | Home | `PlacesScreen`: danh sách, tìm tên và lọc danh mục tại chỗ | UI Home theo Stitch, tách Search và Category thành màn riêng |
 | Chi tiết quán | Load theo ID, rating, nút favorite, not-found | Ảnh, các khối nội dung, links review/gallery/map/report theo thiết kế |
 | Dữ liệu quán | `DemoPlaceRepository`, model `Place` cơ bản | Contract tìm/lọc/phân trang; bổ sung trường có nguồn dữ liệu |
@@ -28,7 +28,7 @@ Bao phủ toàn bộ luồng tài liệu, kể cả collections, reports và adm
 | Firebase | `main.dart` đã initialize Firebase; dependencies/config native đã chuẩn bị | Chưa có repository Auth/Firestore thực thi các luồng nghiệp vụ |
 | Các feature khác | Chưa có UI chức năng tương ứng | Map, want-to-visit, collections, notifications, reports/admin |
 
-README/roadmap cũ mô tả MVP hẹp hơn tài liệu luồng mới. Kế hoạch này giữ các feature mở rộng trong đợt sau, không ngầm coi tất cả có thể hoàn thành trong mốc 4–5 tuần cũ. Cần cập nhật lại roadmap khi bắt đầu triển khai.
+MVP và các đợt mở rộng được phân loại tại FEATURES.md. T16, T21–T27 thuộc phần mở rộng đã có kế hoạch; T28–T29 nghiệm thu theo phạm vi phát hành. Mốc 4–5 tuần cũ không áp dụng cho toàn bộ kế hoạch.
 
 ## 3. Các quyết định cần ghi nhận
 
@@ -165,7 +165,7 @@ Auth gate ưu tiên giữ ý định, không tự gửi review/report hoặc t�
 #### T14 — Sửa/xóa đánh giá `/reviews/:reviewId/edit`
 
 - [ ] Dùng lại form T13 ở mode edit, prefill; lấy review bằng repository theo ID và xác minh owner.
-- [ ] Giải quyết định danh: schema cũ dùng review ID là uid trong path quán nên không đủ duy nhất cho route toàn app. Chọn ID toàn cục hoặc thêm `restaurantId` làm query bắt buộc và tra cứu nhất quán; chốt trước khi code route edit/report.
+- [ ] Giải quyết định danh: review ID là uid trong path quán nên không đủ duy nhất toàn app. Theo đề xuất BACKEND_SETUP.md, thêm query `restaurantId` bắt buộc cho route edit và dùng cặp `(placeId, reviewId)` trong lookup/report/notification; nối helper/validation và test trước khi dùng.
 - [ ] Xác nhận trước xóa, xử lý ảnh giữ/thêm/bỏ, trạng thái not-found/không có quyền.
 - [ ] Refresh các màn bị ảnh hưởng; backend bảo vệ owner và thống kê rating.
 
@@ -232,9 +232,9 @@ Không thêm màn Collection Detail riêng ngoài đặc tả. Trước mắt ch
 - [ ] Private data: favorite, want-to-visit, collections, inbox theo user; public profile tách field riêng tư.
 - [ ] Reports/admin: schema, trạng thái, quyền, audit, chống gửi lặp; lỗi phải đi qua error mapper an toàn.
 - [ ] Auth/Firestore rules: guest/owner/user khác/admin; verify qua emulator trước release.
-- [ ] Đối chiếu Firebase bootstrap native đã có; README nói demo chạy web nhưng Web chưa có FirebaseOptions. Chọn môi trường QA có thể khởi động thực tế; nếu cần web demo thì bổ sung bootstrap phù hợp.
+- [ ] Đối chiếu Firebase bootstrap native đã có; Web chưa có FirebaseOptions. Chọn môi trường QA có thể khởi động thực tế; nếu cần web demo thì bổ sung bootstrap phù hợp.
 
-**Đạt khi:** các UI đã duyệt đều có trạng thái dữ liệu rõ ràng và các hành động được hỗ trợ lưu/đọc lại sau restart; cập nhật README/ROADMAP theo tình trạng thật.
+**Đạt khi:** các UI đã duyệt đều có trạng thái dữ liệu rõ ràng và các hành động được hỗ trợ lưu/đọc lại sau restart; cập nhật README/FEATURES theo tình trạng thật.
 
 #### T29 — Kiểm thử toàn luồng và đối chiếu UI cuối
 
