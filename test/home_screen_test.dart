@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'support/auth_fixtures.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:food_review/app/food_review_app.dart';
 import 'package:food_review/core/router/app_router.dart';
@@ -38,6 +41,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final container = ProviderContainer(
       overrides: [
+        signedInSession,
         if (missingImages)
           placeRepositoryProvider.overrideWithValue(
             DemoPlaceRepository(data: DemoPlaceFixtures.withoutImages),

@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'support/auth_fixtures.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:food_review/app/food_review_app.dart';
 import 'package:food_review/core/router/app_router.dart';
@@ -14,7 +17,9 @@ void main() {
   testWidgets('Search, detail and favorites share state across navigation', (
     tester,
   ) async {
-    await tester.pumpWidget(const ProviderScope(child: FoodReviewApp()));
+    await tester.pumpWidget(
+      ProviderScope(overrides: [signedInSession], child: const FoodReviewApp()),
+    );
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField), 'phở');

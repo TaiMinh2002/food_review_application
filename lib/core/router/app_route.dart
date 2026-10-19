@@ -43,6 +43,18 @@ enum AppRoute {
   final String? task;
 
   bool get isAdmin => path.startsWith('/admin/');
+  bool get requiresAuth => {
+    AppRoute.createReview,
+    AppRoute.editReview,
+    AppRoute.wantToVisit,
+    AppRoute.editProfile,
+    AppRoute.myReviews,
+    AppRoute.notifications,
+    AppRoute.collections,
+    AppRoute.createCollection,
+    AppRoute.editCollection,
+    AppRoute.createReport,
+  }.contains(this);
 
   String location({
     Map<String, String> parameters = const {},
@@ -59,7 +71,7 @@ enum AppRoute {
   }
 }
 
-/// Preparation for T10; does not authenticate or automatically perform actions.
+/// Only allow known internal destinations, never auth loops or admin URLs.
 String? safeReturnTo(String? value) {
   if (value == null) return null;
   final uri = Uri.tryParse(value);

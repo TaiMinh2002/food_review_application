@@ -39,6 +39,8 @@ Các component chỉ nhận dữ liệu và callback; không phụ thuộc route
 - Dùng `context.colors`, `context.textStyles`, `context.semanticColors`; không hardcode màu nền/chữ trong feature.
 - `semanticColors.onImage` là chữ sáng trên ảnh có scrim tối, khai báo cả light/dark và hỗ trợ copyWith/lerp; dùng cho banner Category.
 - `themeModeProvider`: mặc định `ThemeMode.system`, có thể đổi light/dark ngay trên toàn ứng dụng bằng `ref.read(themeModeProvider.notifier).setMode(...)`. Lựa chọn hiện lưu trong phiên ứng dụng, chưa lưu xuống thiết bị.
+- T10 Login tái sử dụng field/password toggle, button/error/ảnh và theme; `AppButton.iconAlignment`
+  hỗ trợ icon sau chữ, mặc định vẫn trước chữ. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 
 ## Thành phần theo UI Kit
 

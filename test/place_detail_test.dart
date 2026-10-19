@@ -7,6 +7,9 @@ import 'package:food_review/features/places/presentation/gallery_screen.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'support/auth_fixtures.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:food_review/app/food_review_app.dart';
@@ -57,6 +60,7 @@ void main() {
     addTearDown(tester.view.resetPadding);
     final container = ProviderContainer(
       overrides: [
+        signedInSession,
         mapTilesEnabledProvider.overrideWithValue(false),
         if (places != null) placeRepositoryProvider.overrideWithValue(places),
         if (reviews != null)

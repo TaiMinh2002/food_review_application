@@ -19,7 +19,8 @@ Flutter/Dart cho Android/iOS; Riverpod quản lý dependency/state; go_router gi
 Material 3 và Inter cho UI. Firebase Auth quản lý danh tính, Firestore lưu dữ liệu,
 Cloudinary + HTTP/image_picker cho ảnh, flutter_map/OSM + geolocator/latlong2 cho vị trí.
 Package đã khai báo không đồng nghĩa đã tích hợp; Firebase native đã khởi tạo nhưng
-chưa có repository Auth/Firestore thật. Web cần FirebaseOptions riêng.
+T10 đã có adapter Auth email/password/session/logout; Firestore vẫn chưa tích hợp.
+Web cần FirebaseOptions riêng. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 Không thêm code generation, service locator hoặc base repository tổng quát khi chưa cần.
 Phạm vi/trạng thái/lộ trình ở [FEATURES.md](FEATURES.md); schema, query và phân quyền ở
 [BACKEND_SETUP.md](BACKEND_SETUP.md).
@@ -60,6 +61,9 @@ Xem [GALLERY_UI.md](GALLERY_UI.md).
 đổi sang `watchPlaceIds(userId)` và async `setFavorite(userId, placeId, value)`;
 chuyển notifier sang async state, xử lý lỗi ghi và reset khi đăng xuất.
 Không bọc API Firestore async bằng contract đồng bộ hiện tại.
+T10 gate thao tác favorite và reset repository RAM theo session user ID;
+login không tự toggle favorite. `authSessionProvider` giữ loading/error/guest/user;
+controller sign-in/out gọi AuthRepository, UI không gọi Firebase trực tiếp.
 
 ## Routing
 
@@ -71,15 +75,17 @@ Không bọc API Firestore async bằng contract đồng bộ hiện tại.
 - `/restaurants/:restaurantId/gallery`: T09b trên root; `index` mở viewer, `source=review&reviewId=...` chọn ảnh review đúng scope. Đóng viewer về lưới, Back về nguồn. Xem [GALLERY_UI.md](GALLERY_UI.md).
 - `/favorites`: quán đã lưu trong phiên.
 - `/profile`: trang khởi đầu hồ sơ.
-- `/login`: thông báo tích hợp Auth đang chờ cấu hình.
+- `/login`: T10 theo Stitch 13; email/password, validation/loading/error, returnTo và links T11/T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 
 Bốn tab dùng indexed stack giữ search/filter khi chuyển tab. Router thuộc provider và được dispose.
 `AppRoute` định nghĩa route có tên và helper encode tham số. URL `/places`, `/places/:placeId`,
 `/sign-in` cũ redirect về canonical route và giữ query. Detail được push trên root navigator;
 Back pop về nguồn, direct link không có history thì về Home. Các route chưa có feature dùng
 placeholder có task ID; admin bị từ chối mặc định. Xem [UI_FOUNDATION.md](UI_FOUNDATION.md).
-Sau khi có Auth: thêm redirect cho viết review/yêu thích cá nhân, theo dõi auth stream và giữ
-địa chỉ đích sau đăng nhập; khách vẫn được xem quán. Chưa áp dụng guard trong demo.
+T10 đã có auth refresh/redirect và AuthGate cho các route riêng; khách vẫn xem quán,
+Profile/Favorites hiện lời mời đăng nhập. Giữ đích sau login và không tự thực hiện hành động;
+session loading/error không hiển thị private content kể cả snapshot cũ. Router không bị
+tạo lại khi session đổi. Admin vẫn từ chối mặc định, chưa có role backend.
 
 ## Quy ước code
 

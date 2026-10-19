@@ -1,6 +1,7 @@
 # Auth data
 
-Thêm FirebaseAuthRepository implement AuthRepository khi Firebase đã được cấu hình.
-Map User SDK sang UserProfile; không để Firebase User đi vào domain/UI.
-Map FirebaseAuthException sang AppException. Xử lý displayName/profile write thất bại
-sau khi tạo tài khoản và theo dõi authStateChanges để routing phản ứng.
+T10 đã có FirebaseAuthRepository: signInWithEmailAndPassword/signOut,
+authStateChanges → UserProfile và map lỗi thành AppException.
+Provider lấy FirebaseAuth khi Firebase đã khởi tạo; không có Firebase thì nguồn unavailable
+không giả đăng nhập thành công. Bật Email/Password ở Console và nghiệm thu tài khoản thật;
+xem docs/LOGIN_AUTH_UI.md. T11 mới triển khai signUp/profile write retry, T12 reset password.
