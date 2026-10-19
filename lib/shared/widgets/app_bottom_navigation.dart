@@ -25,6 +25,7 @@ class AppBottomNavigation extends StatelessWidget {
       ],
     ),
     child: NavigationBar(
+      height: 64,
       selectedIndex: selectedIndex,
       onDestinationSelected: onSelected,
       destinations: destinations,

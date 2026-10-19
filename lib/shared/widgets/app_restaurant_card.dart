@@ -24,10 +24,11 @@ class AppRestaurantCard extends StatelessWidget {
     this.onTap,
     this.onFavorite,
     this.compact = false,
+    this.imageAspectRatio = 16 / 9,
   });
   final String name, category;
   final String? imageUrl, address, priceLabel, distanceLabel, badge;
-  final double rating;
+  final double rating, imageAspectRatio;
   final int reviewCount;
   final bool isFavorite, compact;
   final bool? isOpen;
@@ -38,32 +39,51 @@ class AppRestaurantCard extends StatelessWidget {
     final details = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          name,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: context.textStyles.titleMedium,
-        ),
+        if (compact)
+          Text(
+            name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.textStyles.titleMedium,
+          )
+        else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(name, style: context.textStyles.headlineSmall),
+              ),
+              const SizedBox(width: 8),
+              if (reviewCount > 0) AppRating(value: rating),
+            ],
+          ),
         const SizedBox(height: 4),
         Text(
-          category,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+          compact || reviewCount == 0
+              ? category
+              : '$category · $reviewCount đánh giá',
           style: context.textStyles.bodySmall?.copyWith(
             color: context.colors.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 4),
-        AppRating(value: rating, count: reviewCount),
+        if (compact && reviewCount > 0)
+          AppRating(value: rating, count: reviewCount)
+        else if (reviewCount == 0)
+          Text('Chưa có đánh giá', style: context.textStyles.bodySmall),
         if (priceLabel != null)
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               priceLabel!,
-              style: context.textStyles.bodySmall?.copyWith(
-                color: context.colors.secondary,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
+              style:
+                  (compact
+                          ? context.textStyles.bodySmall
+                          : context.textStyles.labelLarge)
+                      ?.copyWith(
+                        color: context.colors.secondary,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
             ),
           ),
         if (address != null || distanceLabel != null)
@@ -126,7 +146,7 @@ class AppRestaurantCard extends StatelessWidget {
                   Stack(
                     children: [
                       AspectRatio(
-                        aspectRatio: 16 / 9,
+                        aspectRatio: imageAspectRatio,
                         child: AppImage(url: imageUrl, semanticLabel: name),
                       ),
                       if (badge != null)

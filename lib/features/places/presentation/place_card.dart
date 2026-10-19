@@ -3,15 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/app_route.dart';
+import '../../../core/formatters/app_formatters.dart';
 
 import '../../favorites/presentation/favorite_providers.dart';
 import '../domain/place.dart';
 import '../../../shared/widgets/app_restaurant_card.dart';
 
 class PlaceCard extends ConsumerWidget {
-  const PlaceCard({super.key, required this.place});
+  const PlaceCard({
+    super.key,
+    required this.place,
+    this.compact = true,
+    this.imageAspectRatio = 16 / 9,
+  });
 
   final Place place;
+  final bool compact;
+  final double imageAspectRatio;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,11 +29,16 @@ class PlaceCard extends ConsumerWidget {
       child: AppRestaurantCard(
         name: place.name,
         category: place.category,
-        address: place.address,
+        address: compact ? place.address : null,
+        badge: compact ? null : 'Minh họa',
         imageUrl: place.imageUrls.firstOrNull,
         rating: place.averageRating,
         reviewCount: place.reviewCount,
-        compact: true,
+        compact: compact,
+        imageAspectRatio: imageAspectRatio,
+        priceLabel: place.minPrice != null && place.maxPrice != null
+            ? AppFormatters.priceRange(place.minPrice!, place.maxPrice!)
+            : null,
         isFavorite: isFavorite,
         onTap: () => context.push(
           AppRoute.restaurant.location(parameters: {'restaurantId': place.id}),

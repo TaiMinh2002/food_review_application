@@ -10,6 +10,8 @@ class Place {
     this.imageUrls = const [],
     this.averageRating = 0,
     this.reviewCount = 0,
+    this.minPrice,
+    this.maxPrice,
   });
 
   final String id;
@@ -22,4 +24,5 @@ class Place {
   final List<String> imageUrls;
   final double averageRating;
   final int reviewCount;
+  final int? minPrice, maxPrice;
 }

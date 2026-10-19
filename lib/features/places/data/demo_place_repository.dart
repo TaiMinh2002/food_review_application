@@ -11,6 +11,11 @@ class DemoPlaceRepository implements PlaceRepository {
   static const places = [
     Place(
       id: 'pho-demo',
+      imageUrls: ['assets/images/demo/pho.jpg'],
+      averageRating: 4.8,
+      reviewCount: 328,
+      minPrice: 55000,
+      maxPrice: 85000,
       name: 'Phở Nhà Mình',
       description:
           'Nước dùng thanh, bánh phở mềm. Gợi ý cho một bữa sáng ấm bụng.',
@@ -21,6 +26,11 @@ class DemoPlaceRepository implements PlaceRepository {
     ),
     Place(
       id: 'coffee-demo',
+      imageUrls: ['assets/images/demo/coffee.jpg'],
+      averageRating: 4.7,
+      reviewCount: 194,
+      minPrice: 25000,
+      maxPrice: 60000,
       name: 'Góc Cà Phê',
       description:
           'Một góc nhỏ để thưởng thức cà phê và trò chuyện cùng bạn bè.',
@@ -31,6 +41,11 @@ class DemoPlaceRepository implements PlaceRepository {
     ),
     Place(
       id: 'banh-mi-demo',
+      imageUrls: ['assets/images/demo/banh_mi.jpg'],
+      averageRating: 4.6,
+      reviewCount: 145,
+      minPrice: 25000,
+      maxPrice: 45000,
       name: 'Bánh Mì Buổi Sáng',
       description: 'Bánh mì giòn, nhiều lựa chọn nhân cho bữa ăn nhanh.',
       address: 'Địa chỉ minh họa · Bình Thạnh, TP. Hồ Chí Minh',

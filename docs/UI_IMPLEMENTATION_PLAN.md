@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 18/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03 trở đi chưa triển khai. Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 18/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03 đã triển khai UI/demo, còn các tích hợp phụ thuộc. Xem [HOME_UI.md](HOME_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -113,17 +113,19 @@ flowchart TD
 
 Nguồn: `02 - Home`, screen `be51296ba5444ed0b0fc92ac5495ad7a`.
 
-- [ ] Header/vị trí, lời chào “Hôm nay ăn gì?”, nút thông báo và avatar theo thiết kế; vị trí mặc định phải phân biệt với GPS thật.
+- [x] Header/vị trí, lời chào “Hôm nay ăn gì?”, nút thông báo và avatar theo thiết kế; vị trí mặc định phải phân biệt với GPS thật.
 - [ ] Search mở T05; nút filter mở T06; category chips mở T07.
-- [ ] Khối “Gợi ý cho bạn”: card nổi bật, ảnh, rating, metadata, nút favorite. Chỉ hiển thị badge/giờ/giá khi có dữ liệu hợp lệ.
-- [ ] “Quán được yêu thích”: danh sách ngang; tách state card và section, dùng widget chung.
+- [x] Khối “Gợi ý cho bạn”: card nổi bật, ảnh, rating, metadata, nút favorite. Chỉ hiển thị badge/giờ/giá khi có dữ liệu hợp lệ.
+- [x] “Quán được yêu thích”: danh sách ngang; tách state card và section, dùng widget chung.
 - [ ] “Cộng đồng sành ăn”: CTA viết review cần chọn quán trước nếu chưa có `restaurantId`; sau đó đi qua auth gate. Không mở form thiếu quán.
-- [ ] “Khám phá gần bạn”: danh sách và CTA mở Map. Chưa cấp vị trí thì có trạng thái vị trí mặc định, không tính khoảng cách giả.
+- [x] “Khám phá gần bạn”: danh sách và CTA mở Map. Chưa cấp vị trí thì có trạng thái vị trí mặc định, không tính khoảng cách giả.
 - [ ] Nối “Xem tất cả” với Search/Category có bộ lọc tương ứng. Nhãn “cao nhất tuần” cần nguồn thống kê tuần; nếu chưa có thì ghi nhận để thống nhất nội dung, không lấy favorite cá nhân thay thế.
-- [ ] Tách `HomeScreen`/các section theo cấu trúc feature, không kéo dài `PlacesScreen` thành widget chứa toàn bộ logic.
-- [ ] Loading/error/retry/empty/ảnh lỗi; guest và user; giữ scroll khi đổi tab.
+- [x] Tách `HomeScreen`/các section theo cấu trúc feature, không kéo dài `PlacesScreen` thành widget chứa toàn bộ logic.
+- [x] Loading/error/retry/empty/ảnh lỗi; guest và user; giữ scroll khi đổi tab.
 
 **Đạt khi:** ảnh chụp đối chiếu đủ các khối Home, không overflow; card mở đúng quán. CTA đến feature chưa xong được theo dõi và kiểm chứng lại khi feature hoàn tất.
+
+**Bằng chứng T03:** [HOME_UI.md](HOME_UI.md). Search/lọc danh mục tại chỗ được giữ theo yêu cầu; submit mở T05, filter mở T06. Auth gate, danh mục T07 và thống kê tuần chưa hoàn tất. UI đã kiểm tra bằng render/test, chưa có xác nhận duyệt của người dùng.
 
 ### Đợt B — Khám phá và đọc nội dung
 

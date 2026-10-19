@@ -31,6 +31,17 @@ class AppImage extends StatelessWidget {
     if (url == null || url!.isEmpty) {
       return SizedBox(width: width, height: height, child: placeholder);
     }
+    if (url!.startsWith('assets/')) {
+      return Image.asset(
+        url!,
+        width: width,
+        height: height,
+        fit: BoxFit.cover,
+        semanticLabel: semanticLabel,
+        errorBuilder: (_, _, _) =>
+            SizedBox(width: width, height: height, child: placeholder),
+      );
+    }
     return Image.network(
       url!,
       width: width,
