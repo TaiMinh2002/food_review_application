@@ -12,6 +12,9 @@ AppException authFailure(String code) => AppException(switch (code) {
   'wrong-password' ||
   'user-not-found' => 'Email hoặc mật khẩu không chính xác.',
   'invalid-email' => 'Vui lòng nhập địa chỉ email hợp lệ.',
+  'email-already-in-use' =>
+    'Email này đã được đăng ký. Hãy đăng nhập hoặc sử dụng email khác.',
+  'weak-password' => 'Mật khẩu chưa đủ mạnh. Hãy dùng ít nhất 8 ký tự.',
   'network-request-failed' =>
     'Không kết nối được máy chủ. Kiểm tra mạng và thử lại.',
   'too-many-requests' => 'Bạn đã thử quá nhiều lần. Vui lòng thử lại sau.',
@@ -80,7 +83,32 @@ class FirebaseAuthRepository implements AuthRepository {
     required String email,
     required String password,
     required String displayName,
-  }) async => throw const AppException('Đăng ký sẽ được tích hợp ở T11.');
+  }) async {
+    try {
+      final credential = await auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      final user = credential.user;
+      if (user == null) {
+        throw const AppException(
+          'Không tạo được tài khoản. Vui lòng thử lại.',
+          code: 'account-not-created',
+        );
+      }
+      try {
+        await user.updateDisplayName(displayName.trim());
+      } on FirebaseAuthException catch (error) {
+        throw AppException(
+          'Tài khoản đã được tạo nhưng chưa lưu được tên hiển thị. '
+          'Bạn có thể đăng nhập và cập nhật lại.',
+          code: error.code,
+        );
+      }
+    } on FirebaseAuthException catch (error) {
+      throw authFailure(error.code);
+    }
+  }
 }
 
 /// Never invents a successful authentication when Firebase is unavailable.
@@ -102,5 +130,7 @@ class UnavailableAuthRepository implements AuthRepository {
     required String email,
     required String password,
     required String displayName,
-  }) async => throw const AppException('Đăng ký sẽ được tích hợp ở T11.');
+  }) async => throw const AppException(
+    'Dịch vụ đăng ký chưa được khởi tạo. Vui lòng thử lại sau.',
+  );
 }

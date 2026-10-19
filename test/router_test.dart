@@ -194,7 +194,9 @@ void main() {
       );
       expect(
         find.text(
-          route.isAdmin
+          route == AppRoute.register
+              ? 'Tạo tài khoản'
+              : route.isAdmin
               ? 'Không có quyền truy cập. Quyền quản trị chưa được xác minh.'
               : 'Chức năng chưa triển khai · ${route.task}.',
         ),

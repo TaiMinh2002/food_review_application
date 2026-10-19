@@ -30,7 +30,7 @@ Screen ID đầy đủ nằm ở mục 7 của kế hoạch. Nhãn Stitch dướ
 | 05 All Reviews | `/restaurants/:restaurantId/reviews` | Review list + summary đúng quán | Placeholder T09a |
 | 07 Restaurant Gallery | `/restaurants/:restaurantId/gallery` | Ảnh, query `index` | Placeholder T09b |
 | 13 Login | `/login` | Auth state, email/password, `returnTo` | Màn thông báo cũ; chờ T10 |
-| 14 Register | `/register` | Auth + tạo profile | Placeholder T11 |
+| 14 Register | `/register` | Auth + tạo profile | T11 đã có UI/adapter Auth; Firestore profile còn chờ |
 | 15 Forgot Password | `/forgot-password` | Email + reset service | Placeholder T12 |
 | 06 Write Review | `/restaurants/:restaurantId/reviews/create` | Quán, session, draft, upload | Placeholder T13 |
 | Form edit dùng lại 06 | `/reviews/:reviewId/edit` | Review, owner, định danh quán | Placeholder T14 |

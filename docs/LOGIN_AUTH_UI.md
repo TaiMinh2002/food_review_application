@@ -1,8 +1,8 @@
 # T10 — Login/Auth
 
 Ngày triển khai: 19/10/2026. Branch: `feat/login-auth`, từ `dev` đã merge T09b.
-Trạng thái: UI và adapter Firebase Auth đã triển khai, chờ duyệt UI và nghiệm thu
-Email/Password bằng tài khoản thật. Task UI tiếp theo: **T11 — Register**, rồi T12.
+Trạng thái: UI và adapter Firebase Auth đã triển khai, chờ nghiệm thu
+Email/Password bằng tài khoản thật. T11 — Register đã triển khai; task tiếp theo là T12.
 
 ## Thiết kế và UI
 
@@ -66,7 +66,7 @@ nghiệm thu ở các luồng backend tương ứng; client guard không thay th
   **không tự toggle sau login**. Repository RAM reset khi account thay đổi/logout,
   không nhập favorites guest vào tài khoản. Chưa lưu Firestore/qua restart (T15).
 - Liên kết đăng ký/quên mật khẩu giữ returnTo/action; Back giữ draft Login.
-  T11/T12 vẫn là placeholder. signUp hiện báo chưa tích hợp; reset password sẽ nối ở T12.
+  Register đã có route riêng và giữ returnTo/action; reset password sẽ nối ở T12.
 
 ## File và trách nhiệm
 
@@ -76,6 +76,7 @@ nghiệm thu ở các luồng backend tương ứng; client guard không thay th
 | `lib/features/auth/domain/auth_validation.dart` | Validation đăng nhập thuần Dart |
 | `lib/features/auth/presentation/auth_providers.dart` | DI, session stream, controller sign-in/logout |
 | `lib/features/auth/presentation/sign_in_screen.dart` | Form/draft/lifecycle, UI trạng thái, returnTo và links |
+| `lib/features/auth/presentation/register_screen.dart` | Form đăng ký, điều khoản, validation, retry và returnTo |
 | `lib/features/auth/presentation/login_widgets.dart` | Header, thẻ ẩm thực mẫu, thông báo lỗi |
 | `lib/features/auth/presentation/auth_gate.dart` | Loading/error/guest, chặn private content trước session |
 | `lib/core/router/app_route.dart`, `app_router.dart` | Danh sách route riêng, redirect/refresh và query Login |
@@ -90,8 +91,8 @@ nghiệm thu ở các luồng backend tương ứng; client guard không thay th
    [hướng dẫn Firebase](https://firebase.google.com/docs/auth/flutter/password-auth).
 3. Dùng tài khoản thử nghiệm đã có trong project để kiểm tra đúng/sai credential,
    mạng lỗi, restart khôi phục phiên, signOut và đổi user trên Android/iOS.
-4. Không commit password, token hoặc tài khoản thử nghiệm. T11 mới thêm tạo account/profile;
-   T12 mới gửi reset email. Không yêu cầu người dùng đưa password vào chat/tài liệu.
+4. Không commit password, token hoặc tài khoản thử nghiệm. T12 mới gửi reset email;
+   Firestore profile document vẫn cần tích hợp riêng. Không yêu cầu người dùng đưa password vào chat/tài liệu.
 
 Chưa có tài khoản thử nghiệm thật được cung cấp; chưa xác minh Console đã bật provider,
 không báo đã nghiệm thu đăng nhập production. Web vẫn cần FirebaseOptions riêng.

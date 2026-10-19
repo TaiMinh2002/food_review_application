@@ -128,7 +128,7 @@ void main() {
               .queryParameters['returnTo'],
           target,
         );
-        await tester.pageBack();
+        await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
         expect(
           tester

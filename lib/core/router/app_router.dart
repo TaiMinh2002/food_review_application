@@ -6,6 +6,7 @@ import '../../app/app_shell.dart';
 import '../../features/places/domain/gallery.dart';
 import '../../features/places/presentation/gallery_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
+import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/auth_providers.dart';
 import '../../features/auth/presentation/auth_gate.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
@@ -210,6 +211,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        name: AppRoute.register.name,
+        path: AppRoute.register.path,
+        parentNavigatorKey: rootNavigatorKey,
+        redirect: (_, state) {
+          final requested = state.uri.queryParameters['returnTo'];
+          if (requested == null || safeReturnTo(requested) != null) return null;
+          final query = Map<String, String>.of(state.uri.queryParameters)
+            ..remove('returnTo');
+          return state.uri.replace(queryParameters: query).toString();
+        },
+        builder: (_, state) => RouteBackScope(
+          child: RegisterScreen(
+            returnTo: safeReturnTo(state.uri.queryParameters['returnTo']),
+            action: state.uri.queryParameters['action'],
+            scope: state.pageKey.value,
+          ),
+        ),
+      ),
+      GoRoute(
         name: AppRoute.gallery.name,
         path: AppRoute.gallery.path,
         parentNavigatorKey: rootNavigatorKey,
@@ -223,7 +243,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       for (final route in AppRoute.values)
-        if (route.task != null && route != AppRoute.map)
+        if (route.task != null &&
+            route != AppRoute.map &&
+            route != AppRoute.register)
           GoRoute(
             name: route.name,
             path: route.path,
