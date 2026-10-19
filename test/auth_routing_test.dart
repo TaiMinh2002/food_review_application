@@ -233,19 +233,19 @@ void main() {
     (tester) async {
       final repo = ControlledAuth(user: authTestUser);
       final container = await mountAuth(tester, repo, route: '/my-reviews');
-      expect(find.text('Chức năng chưa triển khai · T19.'), findsOneWidget);
+      expect(find.text('Đánh giá của tôi'), findsOneWidget);
       repo.initialReady = false;
       container.invalidate(authSessionProvider);
       await tester.pumpAndSettle();
-      expect(find.text('Chức năng chưa triển khai · T19.'), findsNothing);
+      expect(find.text('Đánh giá của tôi'), findsNothing);
       repo.events.addError(const AppException('Phiên chưa xác định'));
       await tester.pumpAndSettle();
       expect(find.text('Phiên chưa xác định'), findsOneWidget);
-      expect(find.text('Chức năng chưa triển khai · T19.'), findsNothing);
+      expect(find.text('Đánh giá của tôi'), findsNothing);
       repo.initialReady = true;
       await tester.tap(find.text('Thử lại'));
       await tester.pumpAndSettle();
-      expect(find.text('Chức năng chưa triển khai · T19.'), findsOneWidget);
+      expect(find.text('Đánh giá của tôi'), findsOneWidget);
     },
   );
 }

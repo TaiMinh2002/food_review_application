@@ -11,17 +11,21 @@ import '../../../core/router/route_placeholder_screen.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../../places/domain/place.dart';
 import '../../places/presentation/place_providers.dart';
+import '../domain/review.dart';
 import 'review_write_controller.dart';
+import 'review_providers.dart';
 part 'write_review_widgets.dart';
 
 class WriteReviewScreen extends ConsumerStatefulWidget {
   const WriteReviewScreen({
     super.key,
     required this.placeId,
+    this.reviewId,
     this.scope = 'write-review',
   });
 
   final String placeId;
+  final String? reviewId;
   final String scope;
 
   @override
@@ -45,6 +49,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   String? _companion = 'Bạn bè';
   DateTime? _visitDate = DateTime.now();
   bool _seededPhotos = false;
+  bool _seededReview = false;
 
   static const _ratingLabels = <int, String>{
     1: 'Chưa hài lòng',
@@ -81,6 +86,21 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       place.imageUrls
           .take(2)
           .map((url) => _ReviewPhoto(url: url, label: 'Ảnh món ăn')),
+    );
+  }
+
+  void _seedReview(Review review) {
+    if (_seededReview) return;
+    _seededReview = true;
+    _rating = review.rating;
+    _title.text = review.title ?? '';
+    _body.text = review.content;
+    _visitDate = review.visitDate;
+    _companion = review.companion;
+    _photos.addAll(
+      review.imageUrls.map(
+        (url) => _ReviewPhoto(url: url, label: 'Ảnh đánh giá'),
+      ),
     );
   }
 
@@ -126,18 +146,45 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     final controller = ref.read(
       reviewWriteControllerProvider(widget.scope).notifier,
     );
-    await controller.submit(
-      placeId: widget.placeId,
-      rating: _rating,
-      title: _title.text,
-      content: _body.text,
-      visitDate: _visitDate,
-      companion: _companion,
-      imageUrls: _photos
-          .map((photo) => photo.url ?? '')
-          .where((url) => url.isNotEmpty)
-          .toList(),
-    );
+    if (widget.reviewId case final reviewId?) {
+      final existing = ref
+          .read(
+            reviewForEditProvider((
+              placeId: widget.placeId,
+              reviewId: reviewId,
+            )),
+          )
+          .asData
+          ?.value;
+      if (existing == null) return;
+      await controller.updateReview(
+        placeId: widget.placeId,
+        reviewId: reviewId,
+        rating: _rating,
+        title: _title.text,
+        content: _body.text,
+        visitDate: _visitDate,
+        companion: _companion,
+        createdAt: existing.createdAt,
+        imageUrls: _photos
+            .map((photo) => photo.url ?? '')
+            .where((url) => url.isNotEmpty)
+            .toList(),
+      );
+    } else {
+      await controller.submit(
+        placeId: widget.placeId,
+        rating: _rating,
+        title: _title.text,
+        content: _body.text,
+        visitDate: _visitDate,
+        companion: _companion,
+        imageUrls: _photos
+            .map((photo) => photo.url ?? '')
+            .where((url) => url.isNotEmpty)
+            .toList(),
+      );
+    }
     if (!mounted) return;
     if (!ref.read(reviewWriteControllerProvider(widget.scope)).hasError) {
       if (context.canPop()) {
@@ -156,11 +203,19 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   Widget build(BuildContext context) {
     final placeState = ref.watch(placeProvider(widget.placeId));
     final operation = ref.watch(reviewWriteControllerProvider(widget.scope));
+    final reviewState = widget.reviewId == null
+        ? const AsyncData<Review?>(null)
+        : ref.watch(
+            reviewForEditProvider((
+              placeId: widget.placeId,
+              reviewId: widget.reviewId!,
+            )),
+          );
     final busy = operation.isLoading;
     return Scaffold(
       appBar: AppBar(
         leading: const RouteBackButton(),
-        title: const Text('Viết đánh giá'),
+        title: Text(widget.reviewId == null ? 'Viết đánh giá' : 'Sửa đánh giá'),
         actions: [
           IconButton(
             tooltip: 'Xem trang quán',
@@ -173,37 +228,71 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _SubmitBar(busy: busy, onSubmit: _submit),
+      bottomNavigationBar: _SubmitBar(
+        busy: busy,
+        onSubmit: _submit,
+        edit: widget.reviewId != null,
+      ),
       body: SafeArea(
         top: false,
         bottom: false,
-        child: placeState.when(
+        child: reviewState.when(
           loading: () => const Center(
             child: CircularProgressIndicator(
-              semanticsLabel: 'Đang tải thông tin quán',
+              semanticsLabel: 'Đang tải đánh giá',
             ),
           ),
           error: (error, _) => AppErrorState(
             message: AppErrorMessage.from(
               error,
-              fallback: 'Không tải được thông tin quán.',
+              fallback: 'Không tải được đánh giá.',
             ),
-            onRetry: () => ref.invalidate(placeProvider(widget.placeId)),
+            onRetry: () => ref.invalidate(
+              reviewForEditProvider((
+                placeId: widget.placeId,
+                reviewId: widget.reviewId!,
+              )),
+            ),
           ),
-          data: (place) => place == null
-              ? const AppEmptyState(
-                  title: 'Không tìm thấy quán.',
-                  message: 'Vui lòng quay lại và chọn một quán khác.',
-                  icon: Icons.storefront_outlined,
-                )
-              : _content(place, busy, operation),
+          data: (review) {
+            if (review == null && widget.reviewId != null) {
+              return const AppEmptyState(
+                title: 'Không tìm thấy đánh giá.',
+                message:
+                    'Đánh giá có thể đã bị xóa hoặc không thuộc tài khoản này.',
+                icon: Icons.rate_review_outlined,
+              );
+            }
+            if (review != null) _seedReview(review);
+            return placeState.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(
+                  semanticsLabel: 'Đang tải thông tin quán',
+                ),
+              ),
+              error: (error, _) => AppErrorState(
+                message: AppErrorMessage.from(
+                  error,
+                  fallback: 'Không tải được thông tin quán.',
+                ),
+                onRetry: () => ref.invalidate(placeProvider(widget.placeId)),
+              ),
+              data: (place) => place == null
+                  ? const AppEmptyState(
+                      title: 'Không tìm thấy quán.',
+                      message: 'Vui lòng quay lại và chọn một quán khác.',
+                      icon: Icons.storefront_outlined,
+                    )
+                  : _content(place, busy, operation),
+            );
+          },
         ),
       ),
     );
   }
 
   Widget _content(Place place, bool busy, AsyncValue<void> operation) {
-    _seedPhotos(place);
+    if (widget.reviewId == null) _seedPhotos(place);
     return CustomScrollView(
       key: PageStorageKey('write-review-${place.id}'),
       slivers: [

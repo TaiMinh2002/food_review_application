@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 19/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T09b đã có UI/demo; T10 Login, T11 Register, T12 Forgot Password và T13 Write Review đã có UI/adapter, chưa nghiệm thu tài khoản thật/backend review. T07 được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T14 — Edit/Delete Review**. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md), [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md), [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md), [WRITE_REVIEW_UI.md](WRITE_REVIEW_UI.md), [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 20/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T09b đã có UI/demo; T10 Login, T11 Register, T12 Forgot Password, T13 Write Review và T14 Edit/Delete Review đã có UI/adapter, chưa nghiệm thu tài khoản thật/backend review. T07 được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T15 — Favorites**. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md), [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md), [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md), [WRITE_REVIEW_UI.md](WRITE_REVIEW_UI.md), [MY_REVIEWS_UI.md](MY_REVIEWS_UI.md), [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -24,7 +24,7 @@ Bao phủ toàn bộ luồng tài liệu, kể cả collections, reports và adm
 | Dữ liệu quán | DemoPlaceRepository + PlaceSearchRepository query/filter/sort/cursor; Place có foodCategories | Backend query/index/cursor thật; dữ liệu quán có nguồn |
 | Yêu thích | Repository RAM, auth gate, reset khi logout/đổi user, không auto-toggle sau login | Firestore theo tài khoản, async và rollback khi lỗi |
 | Auth / profile | T10: form Login, Firebase adapter/session/guard/logout, tên/avatar Auth | Bật Email/Password/nghiệm thu thật; T11 đăng ký, T12 reset password, profile backend |
-| Review | Model/contract + preview repository demo giới hạn hai review | List/form/edit/delete, tải theo ID, my reviews, upload, quyền sở hữu |
+| Review | Model/contract + preview/list/form/edit/delete với repository demo owner-scoped | Firestore/rules, upload/retry ảnh thật, aggregate backend và nghiệm thu tài khoản |
 | Firebase | `main.dart` initialize; Auth sign-in/out/session qua adapter T10 | Nghiệm thu Auth với tài khoản thật; Firestore chưa tích hợp |
 | Search / Filter | T05–T06: query/filter/sort riêng, form nháp, danh sách/phân trang, recent trong phiên | Backend, dữ liệu GPS/open-now đáng tin cậy; xem SEARCH_UI.md |
 | Category | T07: root scope, banner/chip/card ảnh lớn, tìm/lọc/sort/paging, giữ shell/Back | Backend taxonomy/query/index; xem CATEGORY_UI.md |
@@ -193,6 +193,11 @@ màn nhỏ, text scale, lỗi và submit trùng; Firebase Console/email thật v
 auth guard, submit chống trùng và demo repository lưu trong RAM đã triển khai. Đã kiểm tra light/dark,
 320/390/428px, text scale, validation và quay về màn nguồn; upload backend, Firestore và quyền sở hữu review vẫn chờ tích hợp. Xem [WRITE_REVIEW_UI.md](WRITE_REVIEW_UI.md).
 
+**Trạng thái T14:** UI theo “18 - My Reviews”, danh sách review theo phiên, menu sửa/xóa, dialog xác nhận,
+owner-scoped lookup, edit prefill qua form T13 và demo repository update/delete đã triển khai. Đã kiểm tra
+owner mismatch, not-found, auth refresh/error, edit, delete và route có `restaurantId`; backend Firestore/rules,
+upload ảnh thật và đồng bộ aggregate vẫn chờ tích hợp. Xem [MY_REVIEWS_UI.md](MY_REVIEWS_UI.md).
+
 ### Đợt D — Review và nội dung của người dùng
 
 #### T13 — Viết đánh giá `/restaurants/:restaurantId/reviews/create`
@@ -206,14 +211,14 @@ auth guard, submit chống trùng và demo repository lưu trong RAM đã triể
 
 **Đạt khi:** đăng và đọc lại được đánh giá; loading và lỗi upload/lưu riêng; không có toast “đã đăng” khi mới lưu local demo.
 
-#### T14 — Sửa/xóa đánh giá `/reviews/:reviewId/edit`
+#### T14 — Sửa/xóa đánh giá `/my-reviews` và `/reviews/:reviewId/edit`
 
-- [ ] Dùng lại form T13 ở mode edit, prefill; lấy review bằng repository theo ID và xác minh owner.
-- [ ] Giải quyết định danh: review ID là uid trong path quán nên không đủ duy nhất toàn app. Theo đề xuất BACKEND_SETUP.md, thêm query `restaurantId` bắt buộc cho route edit và dùng cặp `(placeId, reviewId)` trong lookup/report/notification; nối helper/validation và test trước khi dùng.
-- [ ] Xác nhận trước xóa, xử lý ảnh giữ/thêm/bỏ, trạng thái not-found/không có quyền.
-- [ ] Refresh các màn bị ảnh hưởng; backend bảo vệ owner và thống kê rating.
+- [x] Dùng lại form T13 ở mode edit, prefill; lấy review bằng repository theo cặp `(placeId, reviewId)` và xác minh owner.
+- [x] Thêm My Reviews, menu edit/delete, query `restaurantId` bắt buộc cho route edit và trạng thái not-found/không có quyền.
+- [x] Xác nhận trước xóa, giữ/xóa ảnh đã có trong demo, loading/error, refresh danh sách và test owner mismatch.
+- [ ] Nối Firestore/rules, upload ảnh thật và thống kê rating backend.
 
-**Đạt khi:** user B không sửa/xóa review của A; review của mình mở đúng quán; hủy/lỗi giữ dữ liệu, thành công cập nhật danh sách.
+**Đạt UI/demo:** user B không mở được form review của A; review của mình mở đúng quán; hủy/lỗi giữ dữ liệu, thành công cập nhật danh sách. Quyền backend và dữ liệu thật vẫn là phần tích hợp sau.
 
 ### Đợt E — Lưu địa điểm và tài khoản
 

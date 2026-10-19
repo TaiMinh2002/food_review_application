@@ -5,7 +5,11 @@ import '../domain/review_feed_repository.dart';
 
 /// Preview fixtures, never submitted reviews or verified customer claims.
 class DemoReviewRepository
-    implements ReviewRepository, ReviewFeedRepository, ReviewMediaRepository {
+    implements
+        ReviewRepository,
+        ReviewFeedRepository,
+        ReviewMediaRepository,
+        ReviewManagementRepository {
   DemoReviewRepository({List<Review>? data})
     : _data = List<Review>.from(data ?? _reviews);
   final List<Review> _data;
@@ -145,5 +149,45 @@ class DemoReviewRepository
       throw const AppException('Đánh giá này đã được gửi.');
     }
     _data.insert(0, review);
+  }
+
+  @override
+  Stream<List<Review>> watchForUser(String userId) => Stream.value(
+    List.unmodifiable(_data.where((review) => review.userId == userId)),
+  );
+
+  @override
+  Future<void> update(Review review) async {
+    final index = _data.indexWhere(
+      (item) => item.placeId == review.placeId && item.id == review.id,
+    );
+    if (index < 0) {
+      throw const AppException('Không tìm thấy đánh giá để cập nhật.');
+    }
+    if (_data[index].userId != review.userId) {
+      throw const AppException('Bạn không có quyền sửa đánh giá này.');
+    }
+    if (review.content.trim().length < 10) {
+      throw const AppException('Nội dung đánh giá cần ít nhất 10 ký tự.');
+    }
+    _data[index] = review;
+  }
+
+  @override
+  Future<void> delete({
+    required String userId,
+    required String placeId,
+    required String reviewId,
+  }) async {
+    final index = _data.indexWhere(
+      (item) =>
+          item.userId == userId &&
+          item.placeId == placeId &&
+          item.id == reviewId,
+    );
+    if (index < 0) {
+      throw const AppException('Bạn không có quyền xóa đánh giá này.');
+    }
+    _data.removeAt(index);
   }
 }

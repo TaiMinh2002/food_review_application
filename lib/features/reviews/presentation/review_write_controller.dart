@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/presentation/auth_providers.dart';
 import '../domain/review.dart';
+import '../domain/review_repository.dart';
 import 'review_providers.dart';
 
 final reviewWriteControllerProvider = NotifierProvider.autoDispose
@@ -51,6 +52,54 @@ class ReviewWriteController extends Notifier<AsyncValue<void>> {
       imageUrls: imageUrls,
     );
     final result = await AsyncValue.guard(() => repository.create(review));
+    if (reference.mounted) state = result;
+  }
+
+  Future<void> updateReview({
+    required String placeId,
+    required String reviewId,
+    required int rating,
+    required String content,
+    String? title,
+    DateTime? visitDate,
+    String? companion,
+    List<String> imageUrls = const [],
+    required DateTime createdAt,
+  }) async {
+    if (state.isLoading) return;
+    final user = ref.read(authSessionProvider).asData?.value;
+    final repository = ref.read(reviewRepositoryProvider);
+    if (user == null) {
+      state = AsyncError(
+        StateError('Vui lòng đăng nhập để sửa đánh giá.'),
+        StackTrace.current,
+      );
+      return;
+    }
+    if (repository is! ReviewManagementRepository) {
+      state = AsyncError(
+        StateError('Nguồn dữ liệu hiện tại chưa hỗ trợ sửa đánh giá.'),
+        StackTrace.current,
+      );
+      return;
+    }
+    final management = repository as ReviewManagementRepository;
+    final reference = ref;
+    state = const AsyncLoading();
+    final review = Review(
+      id: reviewId,
+      placeId: placeId,
+      userId: user.id,
+      authorName: user.displayName,
+      rating: rating,
+      title: title?.trim().isEmpty == true ? null : title?.trim(),
+      content: content.trim(),
+      createdAt: createdAt,
+      visitDate: visitDate,
+      companion: companion,
+      imageUrls: imageUrls,
+    );
+    final result = await AsyncValue.guard(() => management.update(review));
     if (reference.mounted) state = result;
   }
 }

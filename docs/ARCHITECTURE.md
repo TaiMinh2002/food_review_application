@@ -19,7 +19,7 @@ Flutter/Dart cho Android/iOS; Riverpod quản lý dependency/state; go_router gi
 Material 3 và Inter cho UI. Firebase Auth quản lý danh tính, Firestore lưu dữ liệu,
 Cloudinary + HTTP/image_picker cho ảnh, flutter_map/OSM + geolocator/latlong2 cho vị trí.
 Package đã khai báo không đồng nghĩa đã tích hợp; Firebase native đã khởi tạo nhưng
-T10/T11/T12 đã có adapter Auth email/password/session/logout/register/reset password; T13 đã nối form review với contract demo; Firestore vẫn chưa tích hợp.
+T10/T11/T12 đã có adapter Auth email/password/session/logout/register/reset password; T13/T14 đã nối form và quản lý review với contract demo; Firestore vẫn chưa tích hợp.
 Web cần FirebaseOptions riêng. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 Không thêm code generation, service locator hoặc base repository tổng quát khi chưa cần.
 Phạm vi/trạng thái/lộ trình ở [FEATURES.md](FEATURES.md); schema, query và phân quyền ở
@@ -48,7 +48,9 @@ không đọc GPS trong build. Xem [MAP_UI.md](MAP_UI.md).
 T09a dùng capability `ReviewFeedRepository` từ cùng nguồn inject: summary toàn quán,
 filter/sort và cursor paging. `reviewFeedControllerProvider` giữ state theo route/quán,
 retry độc lập, chặn stale response và dữ liệu sai quán; không tải toàn backend để lọc.
-Preview và All Reviews dùng chung `RestaurantReviewCard`. T13 mới nối tạo review và Auth.
+Preview và All Reviews dùng chung `RestaurantReviewCard`. T13/T14 dùng `ReviewRepository` và
+`ReviewManagementRepository`; owner check được áp dụng ở adapter demo và phải được lặp lại trong
+Firestore rules.
 Xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md).
 
 T09b dùng `galleryRepositoryProvider` ghép media snapshot của Place và exact review
@@ -79,6 +81,8 @@ controller sign-in/out gọi AuthRepository, UI không gọi Firebase trực ti�
 - `/register`: T11 theo Stitch 14; tạo Firebase Auth account, displayName, validation/loading/error và giữ returnTo/action. Xem [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).
 - `/forgot-password`: T12 theo Stitch 15; email, reset password, trạng thái gửi chung, retry và quay về Login. Xem [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md).
 - `/restaurants/:restaurantId/reviews/create`: T13 theo Stitch Write Review; auth guard, form review và submit qua `ReviewRepository`. Xem [WRITE_REVIEW_UI.md](WRITE_REVIEW_UI.md).
+- `/my-reviews`: T14 theo Stitch 18 - My Reviews; stream review theo user, edit qua form T13 và delete có xác nhận. Xem [MY_REVIEWS_UI.md](MY_REVIEWS_UI.md).
+- `/reviews/:reviewId/edit?restaurantId=...`: T14 lookup theo cặp `(restaurantId, reviewId)`, kiểm tra owner và cập nhật qua `ReviewManagementRepository`.
 
 Bốn tab dùng indexed stack giữ search/filter khi chuyển tab. Router thuộc provider và được dispose.
 `AppRoute` định nghĩa route có tên và helper encode tham số. URL `/places`, `/places/:placeId`,
