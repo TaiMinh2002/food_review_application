@@ -32,6 +32,10 @@ class AppSectionHeader extends StatelessWidget {
         ? null
         : TextButton.icon(
             onPressed: onAction,
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(48, 44),
+            ),
             iconAlignment: IconAlignment.end,
             icon: const Icon(Icons.arrow_forward, size: 18),
             label: Text(actionLabel),
@@ -50,9 +54,7 @@ class AppSectionHeader extends StatelessWidget {
           children: [
             Expanded(child: heading),
             const SizedBox(width: 8),
-            Flexible(
-              child: Align(alignment: Alignment.centerRight, child: action),
-            ),
+            action,
           ],
         );
       },

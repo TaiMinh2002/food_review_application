@@ -6,7 +6,7 @@ import '../../app/app_shell.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/places/presentation/place_detail_screen.dart';
-import '../../features/places/presentation/places_screen.dart';
+import '../../features/places/presentation/home_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../shared/design_system/design_system_screen.dart';
 import '../../shared/widgets/app_message.dart';
@@ -63,8 +63,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 name: AppRoute.home.name,
                 path: AppRoute.home.path,
-                // T03 will replace the existing discovery UI with Home.
-                builder: (_, _) => const PlacesScreen(),
+                // Home retains local demo search until the dedicated T05 flow.
+                builder: (_, _) => const HomeScreen(),
               ),
             ],
           ),

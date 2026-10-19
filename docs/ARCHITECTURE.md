@@ -37,7 +37,7 @@ Không bọc API Firestore async bằng contract đồng bộ hiện tại.
 
 ## Routing
 
-- `/home`: màn khám phá hiện có; Home theo Stitch chờ T03.
+- `/home`: Home theo Stitch (T03), giữ tìm/lọc demo tại chỗ và cuộn khi chuyển tab.
 - `/restaurants/:restaurantId`: chi tiết; map ID sang `placeId` trong domain, xử lý ID không tồn tại.
 - `/map`: tab placeholder, chờ T08.
 - `/favorites`: quán đã lưu trong phiên.
