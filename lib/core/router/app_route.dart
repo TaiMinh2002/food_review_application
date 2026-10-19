@@ -18,7 +18,7 @@ enum AppRoute {
     task: 'T13',
   ),
   editReview('/reviews/:reviewId/edit', 'Sửa đánh giá', task: 'T14'),
-  gallery('/restaurants/:restaurantId/gallery', 'Thư viện ảnh', task: 'T09b'),
+  gallery('/restaurants/:restaurantId/gallery', 'Thư viện ảnh'),
   wantToVisit('/want-to-visit', 'Muốn ghé thăm', task: 'T16'),
   editProfile('/profile/edit', 'Chỉnh sửa hồ sơ', task: 'T18'),
   myReviews('/my-reviews', 'Đánh giá của tôi', task: 'T19'),

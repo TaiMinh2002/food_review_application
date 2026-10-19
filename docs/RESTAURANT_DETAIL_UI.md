@@ -50,7 +50,7 @@ Palette linen/forest và dark dùng design system của repository.
 | Back | Pop về nguồn; direct link fallback Home |
 | Tim trên toolbar / Lưu yêu thích | Chung favoriteIdsProvider; lưu trong RAM và đồng bộ Home/Favorites |
 | Ảnh / chỉ số ảnh | Mở T09b, truyền restaurantId và index bắt đầu từ 0 |
-| Ảnh trong review | Mở T09b với restaurantId, index, source=review và reviewId; T09b cần xử lý nguồn này |
+| Ảnh trong review | Mở T09b với restaurantId, index, source=review và reviewId; T09b hiện lấy đúng review và mở viewer |
 | Thực đơn | Cuộn tới section món |
 | Xem tất cả món | Bottom sheet danh sách món hiện có |
 | Biểu tượng thông tin món | Bottom sheet ảnh/mô tả/giá; không phải nút đặt món |
@@ -63,7 +63,9 @@ Palette linen/forest và dark dùng design system của repository.
 | Viết đánh giá | Mở T13 đúng restaurantId; Auth gate chờ T10 |
 | Chỉ đường / Xem bản đồ | Chuyển tab Map với restaurantId; GPS, marker và chỉ đường thật chờ T08 |
 
-T09a/T09b/T10/T13/T24/T25 chưa triển khai ở task này. Route placeholder ghi rõ
+Ở thời điểm task T04, T09a/T09b/T10/T13/T24/T25 chưa triển khai. Hiện T09a và T09b
+đã có UI/demo; xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md) và [GALLERY_UI.md](GALLERY_UI.md).
+Route placeholder còn lại ghi rõ
 task còn thiếu; không giả lưu backend, đăng review, chia sẻ hay gửi báo cáo.
 Backend phải xác minh quyền và dữ liệu khi các luồng đó được triển khai.
 

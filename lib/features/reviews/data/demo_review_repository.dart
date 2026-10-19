@@ -4,10 +4,15 @@ import '../domain/review_repository.dart';
 import '../domain/review_feed_repository.dart';
 
 /// Preview fixtures, never submitted reviews or verified customer claims.
-class DemoReviewRepository implements ReviewRepository, ReviewFeedRepository {
+class DemoReviewRepository
+    implements ReviewRepository, ReviewFeedRepository, ReviewMediaRepository {
   DemoReviewRepository({List<Review>? data})
     : _data = List.unmodifiable(data ?? _reviews);
   final List<Review> _data;
+  @override
+  Future<Review?> getReview(String placeId, String reviewId) async => _data
+      .where((review) => review.placeId == placeId && review.id == reviewId)
+      .firstOrNull;
   static final _reviews = [
     Review(
       id: 'review-linh-demo',
