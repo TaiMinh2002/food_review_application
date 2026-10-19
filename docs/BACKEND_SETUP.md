@@ -20,7 +20,7 @@ T10 cần bật Email/Password ở Firebase Console → Authentication → Sign-
 Chưa xác minh cấu hình Console/tài khoản thật; native build/run không thay thế kiểm thử
 đăng nhập, khôi phục phiên và logout. Không lưu password/token riêng. Auth guard phía
 client không cấp quyền Firestore/admin; rules backend vẫn cần kiểm tra UID/owner/role.
-Register đã gọi Firebase Auth và lưu displayName trên Auth; Firestore profile và reset password
+Register đã gọi Firebase Auth và lưu displayName trên Auth; Forgot Password đã gọi reset password; Firestore profile
 thuộc các phần tiếp theo. Favorites hiện gate + RAM theo user, chưa Firestore.
   Không đặt service account, Cloudinary API Secret hoặc khóa ký trong Flutter.
 
@@ -88,7 +88,7 @@ và cập nhật aggregate khi tạo/sửa/xóa/moderate; fixture Place và Revi
 
 Giữ hướng Screen → Provider → Repository contract → Data implementation → SDK/HTTP.
 
-- Auth: triển khai email/password, auth stream và đăng ký; reset password sẽ nối ở T12.
+- Auth: triển khai email/password, auth stream, đăng ký và `sendPasswordResetEmail`; cần bật provider, authorized domains và kiểm tra email template trong Firebase Console.
   Register không đăng ký lại account khi chỉ bước cập nhật displayName thất bại; Firestore
   profile document cần implementation riêng.
 - Place/Search: query theo danh mục, status và sort; chuẩn hóa tên khi seed/cập nhật,

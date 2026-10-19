@@ -19,7 +19,7 @@ Flutter/Dart cho Android/iOS; Riverpod quản lý dependency/state; go_router gi
 Material 3 và Inter cho UI. Firebase Auth quản lý danh tính, Firestore lưu dữ liệu,
 Cloudinary + HTTP/image_picker cho ảnh, flutter_map/OSM + geolocator/latlong2 cho vị trí.
 Package đã khai báo không đồng nghĩa đã tích hợp; Firebase native đã khởi tạo nhưng
-T10/T11 đã có adapter Auth email/password/session/logout/register; Firestore vẫn chưa tích hợp.
+T10/T11/T12 đã có adapter Auth email/password/session/logout/register/reset password; Firestore vẫn chưa tích hợp.
 Web cần FirebaseOptions riêng. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 Không thêm code generation, service locator hoặc base repository tổng quát khi chưa cần.
 Phạm vi/trạng thái/lộ trình ở [FEATURES.md](FEATURES.md); schema, query và phân quyền ở
@@ -77,6 +77,7 @@ controller sign-in/out gọi AuthRepository, UI không gọi Firebase trực ti�
 - `/profile`: trang khởi đầu hồ sơ.
 - `/login`: T10 theo Stitch 13; email/password, validation/loading/error, returnTo và links T11/T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 - `/register`: T11 theo Stitch 14; tạo Firebase Auth account, displayName, validation/loading/error và giữ returnTo/action. Xem [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).
+- `/forgot-password`: T12 theo Stitch 15; email, reset password, trạng thái gửi chung, retry và quay về Login. Xem [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md).
 
 Bốn tab dùng indexed stack giữ search/filter khi chuyển tab. Router thuộc provider và được dispose.
 `AppRoute` định nghĩa route có tên và helper encode tham số. URL `/places`, `/places/:placeId`,

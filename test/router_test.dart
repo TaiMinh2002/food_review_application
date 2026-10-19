@@ -196,6 +196,8 @@ void main() {
         find.text(
           route == AppRoute.register
               ? 'Tạo tài khoản'
+              : route == AppRoute.forgotPassword
+              ? 'Quên mật khẩu?'
               : route.isAdmin
               ? 'Không có quyền truy cập. Quyền quản trị chưa được xác minh.'
               : 'Chức năng chưa triển khai · ${route.task}.',

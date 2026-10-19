@@ -8,9 +8,11 @@ class LoginBrand extends StatelessWidget {
     this.title = 'Chào mừng trở lại!',
     this.description =
         'Đăng nhập để khám phá và lưu lại những quán ăn yêu thích.',
+    this.middle,
   });
   final String title;
   final String description;
+  final Widget? middle;
   @override
   Widget build(BuildContext context) => Column(
     children: [
@@ -67,6 +69,7 @@ class LoginBrand extends StatelessWidget {
         ],
       ),
       const SizedBox(height: 8),
+      if (middle != null) ...[middle!, const SizedBox(height: 8)],
       Text(
         title,
         textAlign: TextAlign.center,
@@ -84,6 +87,60 @@ class LoginBrand extends StatelessWidget {
         ),
       ),
     ],
+  );
+}
+
+class ResetMailIllustration extends StatelessWidget {
+  const ResetMailIllustration({super.key});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 80,
+    height: 80,
+    child: Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            color: context.colors.surfaceContainerLow,
+            shape: BoxShape.circle,
+          ),
+        ),
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: context.colors.primaryFixed,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.mark_email_read_outlined,
+            color: context.colors.primary,
+            size: 28,
+          ),
+        ),
+        Positioned(
+          right: -4,
+          bottom: -4,
+          child: Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: context.colors.secondaryContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.lock_reset,
+              color: context.colors.onSecondary,
+              size: 16,
+            ),
+          ),
+        ),
+      ],
+    ),
   );
 }
 
