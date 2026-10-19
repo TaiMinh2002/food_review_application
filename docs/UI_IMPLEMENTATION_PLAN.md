@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 19/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T09b đã có UI/demo; T10 Login và T11 Register đã có UI/adapter Firebase Auth, chưa nghiệm thu tài khoản thật. T07 được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T12 — Forgot Password**. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md), [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md), [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 19/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T09b đã có UI/demo; T10 Login, T11 Register và T12 Forgot Password đã có UI/adapter Firebase Auth, chưa nghiệm thu tài khoản thật. T07 được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T13 — Write Review**. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md), [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md), [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md), [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -158,7 +158,7 @@ write/profile/report vẫn là task riêng. Gallery T09b hiện đã có UI/demo
 lọc/lưới ảnh, viewer swipe/zoom, index đúng từ Detail/Review, share và Back giữ state.
 Đã kiểm tra light/dark, màn nhỏ/chữ lớn, ảnh lỗi/empty/retry và build/run iOS;
 xem [GALLERY_UI.md](GALLERY_UI.md). Chưa duyệt UI hoặc tích hợp backend/upload/lưu ảnh.
-Task tiếp theo: **T10 — Login/Auth**, sau đó T11/T12 và T13 viết review/upload.
+T10 Login/Auth, T11 Register và T12 Forgot Password đã triển khai; tiếp theo là T13 viết review/upload.
 
 T09a và T09b là hai lượt UI riêng. Không cần làm đồng thời để hoàn thành một màn.
 
@@ -184,6 +184,10 @@ nghiệm thu production. T11 Register đã triển khai theo “14 - Register”
 displayName, validation, điều khoản, loading/error/retry, route returnTo/action và
 liên kết Login đã triển khai. Đã kiểm tra light/dark, 320/390/428px, chữ lớn, bàn phím
 và lỗi/retry; Firestore profile document và tài khoản thật vẫn chờ nghiệm thu.
+
+**Trạng thái T12:** UI theo “15 - Forgot Password”, reset password qua Auth contract/provider/Firebase adapter,
+trạng thái gửi thành công chung, retry và giữ `returnTo`/`action` đã triển khai. Đã kiểm tra light/dark,
+màn nhỏ, text scale, lỗi và submit trùng; Firebase Console/email thật vẫn chờ nghiệm thu. Xem [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md).
 
 ### Đợt D — Review và nội dung của người dùng
 

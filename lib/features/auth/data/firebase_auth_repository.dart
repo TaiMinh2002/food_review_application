@@ -109,6 +109,17 @@ class FirebaseAuthRepository implements AuthRepository {
       throw authFailure(error.code);
     }
   }
+
+  @override
+  Future<void> resetPassword({required String email}) async {
+    try {
+      await auth.sendPasswordResetEmail(email: email.trim());
+    } on FirebaseAuthException catch (error) {
+      // Do not reveal whether an account exists for a reset request.
+      if (error.code == 'user-not-found') return;
+      throw authFailure(error.code);
+    }
+  }
 }
 
 /// Never invents a successful authentication when Firebase is unavailable.
@@ -133,4 +144,10 @@ class UnavailableAuthRepository implements AuthRepository {
   }) async => throw const AppException(
     'Dịch vụ đăng ký chưa được khởi tạo. Vui lòng thử lại sau.',
   );
+
+  @override
+  Future<void> resetPassword({required String email}) async =>
+      throw const AppException(
+        'Dịch vụ khôi phục mật khẩu chưa được khởi tạo. Vui lòng thử lại sau.',
+      );
 }

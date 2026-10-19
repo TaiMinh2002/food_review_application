@@ -2,7 +2,7 @@
 
 Ngày triển khai: 19/10/2026. Branch: `feat/login-auth`, từ `dev` đã merge T09b.
 Trạng thái: UI và adapter Firebase Auth đã triển khai, chờ nghiệm thu
-Email/Password bằng tài khoản thật. T11 — Register đã triển khai; task tiếp theo là T12.
+Email/Password bằng tài khoản thật. T11 — Register và T12 — Forgot Password đã triển khai; tài khoản thật vẫn chờ nghiệm thu.
 
 ## Thiết kế và UI
 
@@ -66,7 +66,7 @@ nghiệm thu ở các luồng backend tương ứng; client guard không thay th
   **không tự toggle sau login**. Repository RAM reset khi account thay đổi/logout,
   không nhập favorites guest vào tài khoản. Chưa lưu Firestore/qua restart (T15).
 - Liên kết đăng ký/quên mật khẩu giữ returnTo/action; Back giữ draft Login.
-  Register đã có route riêng và giữ returnTo/action; reset password sẽ nối ở T12.
+  Register và Forgot Password có route riêng, giữ returnTo/action; reset password dùng Auth repository và phản hồi chung.
 
 ## File và trách nhiệm
 
@@ -91,7 +91,7 @@ nghiệm thu ở các luồng backend tương ứng; client guard không thay th
    [hướng dẫn Firebase](https://firebase.google.com/docs/auth/flutter/password-auth).
 3. Dùng tài khoản thử nghiệm đã có trong project để kiểm tra đúng/sai credential,
    mạng lỗi, restart khôi phục phiên, signOut và đổi user trên Android/iOS.
-4. Không commit password, token hoặc tài khoản thử nghiệm. T12 mới gửi reset email;
+4. Không commit password, token hoặc tài khoản thử nghiệm. Reset email chỉ gửi khi Firebase đã cấu hình;
    Firestore profile document vẫn cần tích hợp riêng. Không yêu cầu người dùng đưa password vào chat/tài liệu.
 
 Chưa có tài khoản thử nghiệm thật được cung cấp; chưa xác minh Console đã bật provider,

@@ -35,6 +35,7 @@ class SdkCredential extends Fake implements UserCredential {
 class SdkAuth extends Fake implements FirebaseAuth {
   final changes = StreamController<User?>();
   String? email, password, failure;
+  String? resetEmail;
   SdkUser? createdUser;
   bool signedOut = false;
   @override
@@ -66,6 +67,15 @@ class SdkAuth extends Fake implements FirebaseAuth {
   Future<void> signOut() async {
     signedOut = true;
   }
+
+  @override
+  Future<void> sendPasswordResetEmail({
+    ActionCodeSettings? actionCodeSettings,
+    required String email,
+  }) async {
+    resetEmail = email;
+    if (failure != null) throw FirebaseAuthException(code: failure!);
+  }
 }
 
 void main() {
@@ -95,6 +105,8 @@ void main() {
       expect(sdk.email, 'register@example.com');
       expect(sdk.password, 'password');
       expect(sdk.createdUser?.updatedDisplayName, 'Người dùng');
+      await repo.resetPassword(email: ' reset@example.com ');
+      expect(sdk.resetEmail, 'reset@example.com');
       sdk.failure = 'wrong-password';
       expect(
         () => repo.signIn(email: 'a@example.com', password: 'x'),
@@ -121,6 +133,8 @@ void main() {
           ),
         ),
       );
+      sdk.failure = 'user-not-found';
+      await repo.resetPassword(email: 'unknown@example.com');
     },
   );
   test(

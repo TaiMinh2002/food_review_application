@@ -21,9 +21,10 @@ class ControlledAuth implements AuthRepository {
   bool autoSignIn = false;
   int signIns = 0, signOuts = 0;
   int signUps = 0;
-  String? email, password, displayName;
+  int resetRequests = 0;
+  String? email, password, displayName, resetEmail;
   bool autoSignUp = false;
-  Completer<void>? pendingSignIn, pendingSignOut, pendingSignUp;
+  Completer<void>? pendingSignIn, pendingSignOut, pendingSignUp, pendingReset;
   final events = StreamController<UserProfile?>.broadcast();
   void setUser(UserProfile? value) {
     user = value;
@@ -69,6 +70,13 @@ class ControlledAuth implements AuthRepository {
     this.displayName = displayName;
     if (pendingSignUp != null) await pendingSignUp!.future;
     if (autoSignUp) setUser(authTestUser);
+  }
+
+  @override
+  Future<void> resetPassword({required String email}) async {
+    resetRequests++;
+    resetEmail = email;
+    if (pendingReset != null) await pendingReset!.future;
   }
 }
 

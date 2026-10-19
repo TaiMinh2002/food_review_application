@@ -6,9 +6,9 @@
 
 ## 1. Mục tiêu
 
-Hiện trạng triển khai T11 (19/10/2026): Login và Register đã có Firebase Auth adapter,
+Hiện trạng triển khai T12 (19/10/2026): Login, Register và Forgot Password đã có Firebase Auth adapter,
 session loading/error/guest/user, guard route riêng và returnTo. Favorite yêu cầu
-đăng nhập rồi chạm lại tim; logout/đổi tài khoản reset RAM. Reset password vẫn chờ T12.
+đăng nhập rồi chạm lại tim; logout/đổi tài khoản reset RAM. Reset password dùng `sendPasswordResetEmail` và phản hồi chung.
 Chi tiết: [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md) và [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).
 
 Tài liệu này mô tả:

@@ -8,5 +8,6 @@ abstract interface class AuthRepository {
     required String password,
     required String displayName,
   });
+  Future<void> resetPassword({required String email});
   Future<void> signOut();
 }

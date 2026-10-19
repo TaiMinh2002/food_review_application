@@ -21,6 +21,6 @@ Các file chính:
 - `lib/core/router/app_router.dart`: route `/register`, giữ returnTo/action.
 - `test/register_screen_test.dart`, `test/auth_repository_test.dart`: kiểm tra responsive, validation, retry, context và SDK mapping.
 
-Giới hạn còn lại: chưa kiểm thử bằng tài khoản thật vì chưa có tài khoản thử nghiệm và chưa xác nhận Email/Password đã bật trong Firebase Console; chưa có Firestore profile repository. T12 — Forgot Password sẽ nối `sendPasswordResetEmail` vào contract Auth.
+Giới hạn còn lại: chưa kiểm thử bằng tài khoản thật vì chưa có tài khoản thử nghiệm và chưa xác nhận Email/Password đã bật trong Firebase Console; chưa có Firestore profile repository. T12 Forgot Password đã nối `sendPasswordResetEmail`; xem [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md).
 
 Ảnh đối chiếu: [light](screenshots/register-light.png), [dark](screenshots/register-dark.png). Tái tạo bằng `flutter test test/register_screen_test.dart --dart-define=REGISTER_CAPTURE=true`.
