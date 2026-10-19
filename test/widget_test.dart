@@ -25,6 +25,8 @@ void main() {
     await tester.tap(find.text('Phở Nhà Mình'));
     await tester.pumpAndSettle();
     expect(find.text('Chi tiết quán'), findsOneWidget);
+    await tester.ensureVisible(find.text('Lưu yêu thích'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Lưu yêu thích'));
     await tester.pumpAndSettle();
     expect(find.text('Bỏ yêu thích'), findsOneWidget);

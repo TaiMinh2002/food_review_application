@@ -8,10 +8,11 @@ class AppRating extends StatelessWidget {
     required this.value,
     this.count,
     this.showStars = false,
+    this.showValue = true,
   });
   final double value;
   final int? count;
-  final bool showStars;
+  final bool showStars, showValue;
   @override
   Widget build(BuildContext context) => Semantics(
     label:
@@ -38,7 +39,11 @@ class AppRating extends StatelessWidget {
               size: 18,
               color: context.semanticColors.rating,
             ),
-          Text(value.toStringAsFixed(1), style: context.textStyles.labelMedium),
+          if (showValue)
+            Text(
+              value.toStringAsFixed(1),
+              style: context.textStyles.labelMedium,
+            ),
           if (count != null)
             Text(
               '($count)',
@@ -102,7 +107,7 @@ class AppRatingSummary extends StatelessWidget {
                 value.toStringAsFixed(1),
                 style: context.textStyles.headlineLarge,
               ),
-              AppRating(value: value, showStars: true),
+              AppRating(value: value, showStars: true, showValue: false),
             ],
           ),
           const SizedBox(width: 16),

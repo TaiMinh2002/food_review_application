@@ -6,6 +6,8 @@ class Review {
     required this.rating,
     required this.content,
     required this.createdAt,
+    this.authorName = 'Thành viên',
+    this.isDemo = false,
     List<String> imageUrls = const [],
   }) : imageUrls = List.unmodifiable(imageUrls) {
     if (rating < 1 || rating > 5) {
@@ -16,6 +18,8 @@ class Review {
     }
   }
 
+  final String authorName;
+  final bool isDemo;
   final String id;
   final String placeId;
   final String userId;
