@@ -54,6 +54,16 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
           const SizedBox(height: 24),
+          if (user != null) ...[
+            AppButton(
+              label: 'Đánh giá của tôi',
+              icon: Icons.rate_review_outlined,
+              variant: AppButtonVariant.secondary,
+              expanded: true,
+              onPressed: () => context.push(AppRoute.myReviews.path),
+            ),
+            const SizedBox(height: 12),
+          ],
           AppButton(
             variant: AppButtonVariant.outline,
             label: user == null ? 'Đăng nhập' : 'Đăng xuất',

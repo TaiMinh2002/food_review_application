@@ -200,6 +200,10 @@ void main() {
               ? 'Quên mật khẩu?'
               : route == AppRoute.createReview
               ? 'Không tìm thấy quán.'
+              : route == AppRoute.editReview
+              ? 'Không tìm thấy đánh giá.'
+              : route == AppRoute.myReviews
+              ? 'Đánh giá của tôi'
               : route.isAdmin
               ? 'Không có quyền truy cập. Quyền quản trị chưa được xác minh.'
               : 'Chức năng chưa triển khai · ${route.task}.',

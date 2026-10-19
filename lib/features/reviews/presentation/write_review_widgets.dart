@@ -1,8 +1,13 @@
 part of 'write_review_screen.dart';
 
 class _SubmitBar extends StatelessWidget {
-  const _SubmitBar({required this.busy, required this.onSubmit});
+  const _SubmitBar({
+    required this.busy,
+    required this.onSubmit,
+    this.edit = false,
+  });
   final bool busy;
+  final bool edit;
   final VoidCallback onSubmit;
   @override
   Widget build(BuildContext context) => Material(
@@ -20,7 +25,7 @@ class _SubmitBar extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 680),
           child: AppButton(
-            label: 'Gửi đánh giá',
+            label: edit ? 'Lưu thay đổi' : 'Gửi đánh giá',
             icon: Icons.send,
             iconAlignment: IconAlignment.end,
             expanded: true,
