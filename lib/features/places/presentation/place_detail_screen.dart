@@ -59,8 +59,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
     final state = ref.watch(placeProvider(widget.placeId));
     final place = state.asData?.value;
     final favorite = ref.watch(favoriteIdsProvider).contains(widget.placeId);
-    void toggleFavorite() =>
-        ref.read(favoriteIdsProvider.notifier).toggle(widget.placeId);
+    void toggleFavorite() => requestFavorite(context, ref, widget.placeId);
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 64,

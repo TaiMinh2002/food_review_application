@@ -9,11 +9,18 @@ và hướng tích hợp tương ứng, **chưa phải backend đã triển khai
 - Android dùng `android/app/google-services.json` và Google Services plugin;
   iOS dùng `ios/Runner/GoogleService-Info.plist` thuộc Runner/Copy Bundle Resources.
 - `lib/main.dart` đã gọi `Firebase.initializeApp()` trước `runApp`. Khởi tạo native
-  không đồng nghĩa đã có Auth/Firestore repository; provider quán vẫn dùng demo.
+  không đồng nghĩa đã có Firestore repository; provider quán vẫn dùng demo. T10 đã có
+  FirebaseAuthRepository cho email/password/session/logout; xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 - Web chưa có `FirebaseOptions`; cần cấu hình riêng trước khi chạy Web.
 - Khi tích hợp: bật email/password, tạo Firestore, tách development/production,
   triển khai repository qua Riverpod; seed quán bằng admin tool ngoài app.
 - Cấu hình công khai/secret theo [ENVIRONMENT.md](ENVIRONMENT.md).
+
+T10 cần bật Email/Password ở Firebase Console → Authentication → Sign-in method.
+Chưa xác minh cấu hình Console/tài khoản thật; native build/run không thay thế kiểm thử
+đăng nhập, khôi phục phiên và logout. Không lưu password/token riêng. Auth guard phía
+client không cấp quyền Firestore/admin; rules backend vẫn cần kiểm tra UID/owner/role.
+Register và reset password thuộc T11/T12; favorites hiện gate + RAM theo user, chưa Firestore.
   Không đặt service account, Cloudinary API Secret hoặc khóa ký trong Flutter.
 
 ## 2. Schema đề xuất theo phạm vi

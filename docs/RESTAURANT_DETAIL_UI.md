@@ -60,7 +60,7 @@ Palette linen/forest và dark dùng design system của repository.
 | Tên/avatar tác giả | Mở T24 đúng userId |
 | Tùy chọn nhận xét | Mở T25 với targetType=review, restaurantId, reviewId |
 | Báo cáo quán | Mở T25 với targetType=place, restaurantId |
-| Viết đánh giá | Mở T13 đúng restaurantId; Auth gate chờ T10 |
+| Viết đánh giá | Mở T13 đúng restaurantId; T10 đã có Auth gate và returnTo, khách cần đăng nhập |
 | Chỉ đường / Xem bản đồ | Chuyển tab Map với restaurantId; GPS, marker và chỉ đường thật chờ T08 |
 
 Ở thời điểm task T04, T09a/T09b/T10/T13/T24/T25 chưa triển khai. Hiện T09a và T09b

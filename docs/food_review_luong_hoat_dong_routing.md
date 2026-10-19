@@ -6,6 +6,11 @@
 
 ## 1. Mục tiêu
 
+Hiện trạng triển khai T10 (19/10/2026): Login đã có Firebase Auth adapter,
+session loading/error/guest/user, guard route riêng và returnTo. Favorite yêu cầu
+đăng nhập rồi chạm lại tim; logout/đổi tài khoản reset RAM. Đăng ký/reset password
+vẫn chờ T11/T12. Chi tiết, ảnh kiểm tra và giới hạn: [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
+
 Tài liệu này mô tả:
 - Luồng khởi động và xác thực người dùng.
 - Điều hướng giữa 4 tab chính.

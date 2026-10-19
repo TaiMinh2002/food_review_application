@@ -2,7 +2,8 @@
 
 Ngày triển khai: 19/10/2026. Branch: `feat/all-reviews-ui`.
 Trạng thái: UI/demo đã triển khai và kiểm tra; chưa được người dùng duyệt UI,
-chưa tích hợp Firestore/Auth. T09b Gallery hiện đã triển khai; xem [GALLERY_UI.md](GALLERY_UI.md).
+chưa tích hợp Firestore. T09b Gallery đã triển khai; xem [GALLERY_UI.md](GALLERY_UI.md).
+T10 đã có Auth/guard cho CTA riêng; xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 
 ## Thiết kế và bố cục
 

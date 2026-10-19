@@ -55,8 +55,7 @@ class PlaceCard extends ConsumerWidget {
             ),
           );
         },
-        onFavorite: () =>
-            ref.read(favoriteIdsProvider.notifier).toggle(place.id),
+        onFavorite: () => requestFavorite(context, ref, place.id),
       ),
     );
   }

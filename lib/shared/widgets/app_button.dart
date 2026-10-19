@@ -11,6 +11,7 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     this.variant = AppButtonVariant.primary,
     this.icon,
+    this.iconAlignment = IconAlignment.start,
     this.isLoading = false,
     this.expanded = false,
   });
@@ -18,6 +19,7 @@ class AppButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final AppButtonVariant variant;
   final IconData? icon;
+  final IconAlignment iconAlignment;
   final bool isLoading, expanded;
 
   @override
@@ -42,7 +44,7 @@ class AppButton extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-        ] else if (icon != null) ...[
+        ] else if (icon != null && iconAlignment == IconAlignment.start) ...[
           Icon(icon, size: 20),
           const SizedBox(width: 8),
         ],
@@ -52,6 +54,12 @@ class AppButton extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
+        if (!isLoading &&
+            icon != null &&
+            iconAlignment == IconAlignment.end) ...[
+          const SizedBox(width: 8),
+          Icon(icon, size: 20),
+        ],
       ],
     );
     final loadingStyle = isLoading

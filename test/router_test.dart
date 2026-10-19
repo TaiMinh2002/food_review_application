@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'support/auth_fixtures.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:food_review/app/food_review_app.dart';
 import 'package:food_review/core/router/app_route.dart';
@@ -11,9 +14,12 @@ import 'package:food_review/features/places/presentation/map_controller.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
-  Future<GoRouter> mount(WidgetTester tester) async {
+  Future<GoRouter> mount(WidgetTester tester, {bool signedIn = true}) async {
     final container = ProviderContainer(
-      overrides: [mapTilesEnabledProvider.overrideWithValue(false)],
+      overrides: [
+        mapTilesEnabledProvider.overrideWithValue(false),
+        signedIn ? signedInSession : guestSession,
+      ],
     );
     addTearDown(container.dispose);
     await tester.pumpWidget(
@@ -92,7 +98,7 @@ void main() {
   testWidgets('Legacy URLs redirect and preserve login action context', (
     tester,
   ) async {
-    final router = await mount(tester);
+    final router = await mount(tester, signedIn: false);
     router.go('/places?category=pho');
     await tester.pumpAndSettle();
     expect(
@@ -130,7 +136,7 @@ void main() {
   testWidgets('Detail pushed from Favorites returns to the same tab', (
     tester,
   ) async {
-    final container = ProviderContainer();
+    final container = ProviderContainer(overrides: [signedInSession]);
     addTearDown(container.dispose);
     container.read(favoriteIdsProvider.notifier).toggle('pho-demo');
     await tester.pumpWidget(

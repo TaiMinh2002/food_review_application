@@ -6,6 +6,8 @@ import '../../app/app_shell.dart';
 import '../../features/places/domain/gallery.dart';
 import '../../features/places/presentation/gallery_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
+import '../../features/auth/presentation/auth_providers.dart';
+import '../../features/auth/presentation/auth_gate.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/reviews/presentation/all_reviews_screen.dart';
 import '../../features/reviews/domain/review_feed_repository.dart';
@@ -24,7 +26,29 @@ import 'route_placeholder_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final rootNavigatorKey = GlobalKey<NavigatorState>();
+  final authRefresh = ValueNotifier(0);
+  ref.listen(authSessionProvider, (_, _) => authRefresh.value++);
+  ref.onDispose(authRefresh.dispose);
   final router = GoRouter(
+    refreshListenable: authRefresh,
+    redirect: (_, state) {
+      final session = ref.read(authSessionProvider);
+      final private = AppRoute.values.any(
+        (route) =>
+            route.requiresAuth &&
+            RegExp('^${route.path.replaceAll(RegExp(r':\w+'), r'[^/]+')}\$')
+                .hasMatch(state.uri.path),
+      );
+      if (private &&
+          !session.isLoading &&
+          !session.hasError &&
+          session.asData?.value == null) {
+        return AppRoute.login.location(
+          query: {'returnTo': state.uri.toString()},
+        );
+      }
+      return null;
+    },
     navigatorKey: rootNavigatorKey,
     initialLocation: AppRoute.home.path,
     errorBuilder: (_, _) => const RouteBackScope(
@@ -177,7 +201,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ..remove('returnTo');
           return state.uri.replace(queryParameters: query).toString();
         },
-        builder: (_, _) => const RouteBackScope(child: SignInScreen()),
+        builder: (_, state) => RouteBackScope(
+          child: SignInScreen(
+            returnTo: safeReturnTo(state.uri.queryParameters['returnTo']),
+            action: state.uri.queryParameters['action'],
+            scope: state.pageKey.value,
+          ),
+        ),
       ),
       GoRoute(
         name: AppRoute.gallery.name,
@@ -199,8 +229,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: route.path,
             parentNavigatorKey: rootNavigatorKey,
             // Denied until T26 verifies backend roles; no admin data is loaded.
-            builder: (_, _) =>
-                RouteBackScope(child: RoutePlaceholderScreen(route: route)),
+            builder: (_, state) => RouteBackScope(
+              child: route.requiresAuth
+                  ? AuthGate(
+                      returnTo: state.uri.toString(),
+                      child: RoutePlaceholderScreen(route: route),
+                    )
+                  : RoutePlaceholderScreen(route: route),
+            ),
           ),
     ],
   );

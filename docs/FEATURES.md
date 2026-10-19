@@ -11,8 +11,9 @@ luồng ở [routing](food_review_luong_hoat_dong_routing.md), dữ liệu/quy�
   route và placeholder cho các màn dự kiến; khu vực admin từ chối truy cập mặc định.
 - Demo có danh sách quán; Search tìm tên quán/món không dấu, query/filter/sort/phân trang và recent trong phiên; chi tiết,
   yêu thích đồng bộ trong RAM và loading/empty/error/retry/not-found.
-- Firebase đã khởi tạo trên Android/iOS; chưa có repository Auth/Firestore thật.
-  Review đã có preview demo giới hạn hai nhận xét trên chi tiết quán; Auth/Profile là màn khởi đầu.
+- Firebase đã khởi tạo trên Android/iOS; T10 đã có adapter Auth email/password/session/logout,
+  UI Login, guard/returnTo và reset favorites theo user. Chưa nghiệm thu tài khoản thật;
+  Firestore vẫn chưa tích hợp. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 - T08 Map đã có truy vấn vùng/marker/card quán demo, lọc, GPS foreground theo yêu cầu và mở chỉ đường ngoài; xem [MAP_UI.md](MAP_UI.md). Chưa nghiệm thu GPS/chỉ đường trên thiết bị thực và nền OSM đang bị lỗi DNS trong môi trường kiểm tra.
 - T07 Category đã có banner, món con, tìm kiếm/lọc/sort, query scope và phân trang;
   giữ trạng thái qua Detail/Back và đổi tab. Dùng dữ liệu demo hiện có, chưa tích hợp backend;
@@ -22,7 +23,7 @@ luồng ở [routing](food_review_luong_hoat_dong_routing.md), dữ liệu/quy�
   Xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md).
 - T09b Gallery đã có lọc/lưới, viewer swipe/zoom, exact review media, index/Back và
   chia sẻ; dùng ảnh demo, upload/lưu ảnh chưa tích hợp. Xem [GALLERY_UI.md](GALLERY_UI.md).
-  Task tiếp theo là T10 Login/Auth.
+  T10 Login/Auth đã triển khai UI/adapter; task tiếp theo là T11 Register rồi T12 Forgot Password.
 - T03 Home, T04 Chi tiết quán và T05–T06 Search/Filter đã triển khai UI/demo (xem HOME_UI.md, RESTAURANT_DETAIL_UI.md, SEARCH_UI.md); backend và các luồng phụ thuộc chưa hoàn tất. Yêu thích và lựa chọn theme chưa lưu qua restart;
   tọa độ/ảnh demo không phải dữ liệu quán đã xác minh. Web chưa có FirebaseOptions.
 

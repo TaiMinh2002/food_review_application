@@ -5,31 +5,72 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/theme_mode_provider.dart';
 import '../../../core/router/app_route.dart';
 import '../../../shared/design_system/design_system.dart';
+import '../../auth/presentation/auth_providers.dart';
+import '../../../core/errors/app_error_message.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final session = ref.watch(authSessionProvider);
+    final user = session.asData?.value;
+    final logout = ref.watch(signOutControllerProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Hồ sơ')),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          const Center(
-            child: AppAvatar(name: 'Chào bạn', size: AppAvatarSize.large),
+          Center(
+            child: AppAvatar(
+              name: user?.displayName ?? 'Chào bạn',
+              imageUrl: user?.photoUrl,
+              size: AppAvatarSize.large,
+            ),
           ),
           const SizedBox(height: 24),
-          const Text('Chào bạn!', textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          const Text(
-            'Hiện đang dùng bản demo. Đăng nhập và review cá nhân sẽ được bổ sung khi kết nối Firebase.',
+          Text(
+            user == null ? 'Chào bạn!' : 'Chào ${user.displayName}!',
+            textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 12),
+          Text(
+            user == null ? 'Đăng nhập để quản lý nội dung và quán đã lưu.' : 'Bạn đã đăng nhập. Danh sách quán hiện dùng dữ liệu mẫu; yêu thích chỉ lưu trong phiên, chưa đồng bộ máy chủ.',
+          ),
+          if (session.isLoading) const LinearProgressIndicator(),
+          if (session.hasError)
+            AppErrorState(
+              message: AppErrorMessage.from(
+                session.error!,
+                fallback: 'Không kiểm tra được phiên đăng nhập.',
+              ),
+              onRetry: () => ref.invalidate(authSessionProvider),
+            ),
+          if (logout.hasError)
+            Text(
+              AppErrorMessage.from(
+                logout.error!,
+                fallback: 'Không đăng xuất được. Vui lòng thử lại.',
+              ),
+            ),
           const SizedBox(height: 24),
           AppButton(
             variant: AppButtonVariant.outline,
-            label: 'Thông tin đăng nhập',
-            onPressed: () => context.push(AppRoute.login.path),
+            label: user == null ? 'Đăng nhập' : 'Đăng xuất',
+            isLoading: logout.isLoading,
+            onPressed: session.isLoading || session.hasError
+                ? null
+                : () {
+                    if (user == null) {
+                      context.push(
+                        AppRoute.login.location(
+                          query: {'returnTo': AppRoute.profile.path},
+                        ),
+                      );
+                    } else {
+                      ref.read(signOutControllerProvider.notifier).submit();
+                    }
+                  },
           ),
           const SizedBox(height: 24),
           DropdownButtonFormField<ThemeMode>(

@@ -2,7 +2,8 @@
 
 Ngày triển khai: 19/10/2026. Branch: `feat/gallery-ui`.
 Trạng thái: UI/demo đã triển khai, chờ người dùng duyệt và tích hợp backend.
-Task tiếp theo theo kế hoạch là **T10 — Login/Auth**, trước các thao tác cá nhân.
+T10 Login/Auth hiện đã có UI/adapter và guard; xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
+Task UI tiếp theo là **T11 — Register**.
 
 ## Nguồn và bố cục
 

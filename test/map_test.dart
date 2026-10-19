@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'support/auth_fixtures.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:food_review/app/food_review_app.dart';
 import 'package:food_review/core/errors/app_exception.dart';
@@ -192,6 +195,7 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         mapTilesEnabledProvider.overrideWithValue(false),
+        signedInSession,
         userLocationRepositoryProvider.overrideWithValue(
           location ?? FakeLocation(),
         ),

@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 19/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03–T09b đã triển khai UI/demo, còn các tích hợp phụ thuộc. T07 đã được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T10 — Login/Auth**. Xem [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 19/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T09b đã có UI/demo; T10 đã có UI Login và adapter Firebase Auth, chưa nghiệm thu tài khoản thật. T07 được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T11 — Register**, rồi T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md), [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -18,14 +18,14 @@ Bao phủ toàn bộ luồng tài liệu, kể cả collections, reports và adm
 | Hạng mục | Đã có trong code | Cần thực hiện |
 | --- | --- | --- |
 | Design system | Tokens, Inter, light/dark, button/input/card/rating/overlay/navigation | Tái sử dụng, bổ sung chỉ khi màn cụ thể cần |
-| Điều hướng | GoRouter, indexed stack 4 tab, route/placeholder và return-to nền T02 | Nối guard Auth và nội dung màn thật; giữ stack/Back theo nguồn |
+| Điều hướng | GoRouter, indexed stack 4 tab, auth refresh/guard, returnTo và Back nguồn | Nghiệm thu native/account thật và nội dung các màn còn thiếu |
 | Home | `HomeScreen` theo Stitch; tìm tên, lọc danh mục, gợi ý, ảnh, favorite và giữ cuộn | Tách Search/Category thành màn riêng; nối dữ liệu thật và các CTA phụ thuộc |
 | Chi tiết quán | UI T04: ảnh, thông tin, món, review preview, favorite, CTA và thanh giá/chỉ đường | Backend, Auth và nội dung thật của T08/T09/T13/T24/T25 |
 | Dữ liệu quán | DemoPlaceRepository + PlaceSearchRepository query/filter/sort/cursor; Place có foodCategories | Backend query/index/cursor thật; dữ liệu quán có nguồn |
-| Yêu thích | Repository RAM, state đồng bộ giữa các màn | Auth gate, lưu theo tài khoản, async và rollback khi lỗi |
-| Auth / profile | Auth contract, profile model, màn khởi đầu | Form thật, auth state, hồ sơ, duy trì phiên và logout |
+| Yêu thích | Repository RAM, auth gate, reset khi logout/đổi user, không auto-toggle sau login | Firestore theo tài khoản, async và rollback khi lỗi |
+| Auth / profile | T10: form Login, Firebase adapter/session/guard/logout, tên/avatar Auth | Bật Email/Password/nghiệm thu thật; T11 đăng ký, T12 reset password, profile backend |
 | Review | Model/contract + preview repository demo giới hạn hai review | List/form/edit/delete, tải theo ID, my reviews, upload, quyền sở hữu |
-| Firebase | `main.dart` đã initialize Firebase; dependencies/config native đã chuẩn bị | Chưa có repository Auth/Firestore thực thi các luồng nghiệp vụ |
+| Firebase | `main.dart` initialize; Auth sign-in/out/session qua adapter T10 | Nghiệm thu Auth với tài khoản thật; Firestore chưa tích hợp |
 | Search / Filter | T05–T06: query/filter/sort riêng, form nháp, danh sách/phân trang, recent trong phiên | Backend, dữ liệu GPS/open-now đáng tin cậy; xem SEARCH_UI.md |
 | Category | T07: root scope, banner/chip/card ảnh lớn, tìm/lọc/sort/paging, giữ shell/Back | Backend taxonomy/query/index; xem CATEGORY_UI.md |
 | Map | T08: OSM/marker/card, tìm theo vùng, filter, GPS foreground và chỉ đường ngoài | Backend spatial query; kiểm tra native GPS/chỉ đường; nền OSM bị lỗi DNS trong môi trường kiểm tra |
@@ -171,6 +171,13 @@ T09a và T09b là hai lượt UI riêng. Không cần làm đồng thời để 
 | T12 | Forgot Password `/forgot-password` | Email, submit, trạng thái đã gửi, quay về login; bổ sung resetPassword vào contract Auth | Lỗi giữ dữ liệu; trạng thái thành công đúng phản hồi dịch vụ; không khẳng định đã nhận email |
 
 Auth gate ưu tiên giữ ý định, không tự gửi review/report hoặc tự xác nhận thao tác sau đăng nhập. Với favorite/want-to-visit, chốt rõ có tiếp tục đúng một lần hay để người dùng xác nhận lại; kiểm tra không toggle hai lần.
+
+**Trạng thái T10:** UI theo “13 - Login”, FirebaseAuthRepository cho sign-in/out/session,
+validation/loading/error/retry, links T11/T12, router refresh/guard và returnTo đã triển khai.
+Favorite yêu cầu đăng nhập và chạm lại tim để xác nhận; RAM reset khi logout/đổi user.
+Đã kiểm tra UI light/dark/màn nhỏ/keyboard và build/run iOS; xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
+Chưa duyệt UI, chưa xác minh Console/tài khoản thật hoặc Firestore; không coi đây là
+nghiệm thu production. Tiếp theo: **T11 — Register**, sau đó **T12 — Forgot Password**.
 
 ### Đợt D — Review và nội dung của người dùng
 
