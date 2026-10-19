@@ -20,8 +20,10 @@ class ControlledAuth implements AuthRepository {
   bool initialReady;
   bool autoSignIn = false;
   int signIns = 0, signOuts = 0;
-  String? email, password;
-  Completer<void>? pendingSignIn, pendingSignOut;
+  int signUps = 0;
+  String? email, password, displayName;
+  bool autoSignUp = false;
+  Completer<void>? pendingSignIn, pendingSignOut, pendingSignUp;
   final events = StreamController<UserProfile?>.broadcast();
   void setUser(UserProfile? value) {
     user = value;
@@ -60,7 +62,14 @@ class ControlledAuth implements AuthRepository {
     required String email,
     required String password,
     required String displayName,
-  }) async => throw UnimplementedError();
+  }) async {
+    signUps++;
+    this.email = email;
+    this.password = password;
+    this.displayName = displayName;
+    if (pendingSignUp != null) await pendingSignUp!.future;
+    if (autoSignUp) setUser(authTestUser);
+  }
 }
 
 final loginCaptureKey = GlobalKey();
@@ -140,4 +149,44 @@ Future<void> fillLogin(WidgetTester tester) async {
     ),
     ' secret ',
   );
+}
+
+Future<void> fillRegister(
+  WidgetTester tester, {
+  bool acceptTerms = true,
+}) async {
+  await tester.enterText(
+    find.descendant(
+      of: find.byKey(const ValueKey('register-name')),
+      matching: find.byType(TextFormField),
+    ),
+    'Người dùng thử',
+  );
+  await tester.enterText(
+    find.descendant(
+      of: find.byKey(const ValueKey('register-email')),
+      matching: find.byType(TextFormField),
+    ),
+    'tester@example.com',
+  );
+  await tester.enterText(
+    find.descendant(
+      of: find.byKey(const ValueKey('register-password')),
+      matching: find.byType(TextFormField),
+    ),
+    'password',
+  );
+  await tester.enterText(
+    find.descendant(
+      of: find.byKey(const ValueKey('register-confirmation')),
+      matching: find.byType(TextFormField),
+    ),
+    'password',
+  );
+  if (acceptTerms) {
+    await tester.ensureVisible(find.byType(Checkbox));
+    await tester.pump();
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+  }
 }

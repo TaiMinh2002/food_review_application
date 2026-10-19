@@ -36,6 +36,38 @@ class SignInController extends Notifier<AsyncValue<void>> {
   }
 }
 
+final registerControllerProvider = NotifierProvider.autoDispose
+    .family<RegisterController, AsyncValue<void>, String>(
+      RegisterController.new,
+    );
+
+class RegisterController extends Notifier<AsyncValue<void>> {
+  RegisterController(this.scope);
+  final String scope;
+
+  @override
+  AsyncValue<void> build() => const AsyncData(null);
+
+  Future<void> submit({
+    required String displayName,
+    required String email,
+    required String password,
+  }) async {
+    if (state.isLoading) return;
+    final repository = ref.read(authRepositoryProvider);
+    final reference = ref;
+    state = const AsyncLoading();
+    final result = await AsyncValue.guard(
+      () => repository.signUp(
+        displayName: displayName.trim(),
+        email: email.trim(),
+        password: password,
+      ),
+    );
+    if (reference.mounted) state = result;
+  }
+}
+
 final signOutControllerProvider =
     NotifierProvider.autoDispose<SignOutController, AsyncValue<void>>(
       SignOutController.new,

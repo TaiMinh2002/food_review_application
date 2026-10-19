@@ -3,7 +3,14 @@ import 'package:flutter/material.dart';
 import '../../../shared/design_system/design_system.dart';
 
 class LoginBrand extends StatelessWidget {
-  const LoginBrand({super.key});
+  const LoginBrand({
+    super.key,
+    this.title = 'Chào mừng trở lại!',
+    this.description =
+        'Đăng nhập để khám phá và lưu lại những quán ăn yêu thích.',
+  });
+  final String title;
+  final String description;
   @override
   Widget build(BuildContext context) => Column(
     children: [
@@ -61,7 +68,7 @@ class LoginBrand extends StatelessWidget {
       ),
       const SizedBox(height: 8),
       Text(
-        'Chào mừng trở lại!',
+        title,
         textAlign: TextAlign.center,
         style: context.textStyles.headlineLarge,
       ),
@@ -69,7 +76,7 @@ class LoginBrand extends StatelessWidget {
       ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 310),
         child: Text(
-          'Đăng nhập để khám phá và lưu lại những quán ăn yêu thích.',
+          description,
           textAlign: TextAlign.center,
           style: context.textStyles.bodyMedium?.copyWith(
             color: context.colors.onSurfaceVariant,

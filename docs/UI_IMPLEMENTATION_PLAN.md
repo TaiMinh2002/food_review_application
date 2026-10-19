@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 19/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T09b đã có UI/demo; T10 đã có UI Login và adapter Firebase Auth, chưa nghiệm thu tài khoản thật. T07 được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T11 — Register**, rồi T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md), [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 19/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T09b đã có UI/demo; T10 Login và T11 Register đã có UI/adapter Firebase Auth, chưa nghiệm thu tài khoản thật. T07 được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T12 — Forgot Password**. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md), [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md), [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -177,7 +177,13 @@ validation/loading/error/retry, links T11/T12, router refresh/guard và returnTo
 Favorite yêu cầu đăng nhập và chạm lại tim để xác nhận; RAM reset khi logout/đổi user.
 Đã kiểm tra UI light/dark/màn nhỏ/keyboard và build/run iOS; xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 Chưa duyệt UI, chưa xác minh Console/tài khoản thật hoặc Firestore; không coi đây là
-nghiệm thu production. Tiếp theo: **T11 — Register**, sau đó **T12 — Forgot Password**.
+nghiệm thu production. T11 Register đã triển khai theo “14 - Register”; xem
+[REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md). Tiếp theo: **T12 — Forgot Password**.
+
+**Trạng thái T11:** UI theo “14 - Register”, tạo Firebase Auth account, cập nhật
+displayName, validation, điều khoản, loading/error/retry, route returnTo/action và
+liên kết Login đã triển khai. Đã kiểm tra light/dark, 320/390/428px, chữ lớn, bàn phím
+và lỗi/retry; Firestore profile document và tài khoản thật vẫn chờ nghiệm thu.
 
 ### Đợt D — Review và nội dung của người dùng
 

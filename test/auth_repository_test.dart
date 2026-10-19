@@ -19,13 +19,23 @@ class SdkUser extends Fake implements User {
   String? get displayName => '  Tên hợp lệ  ';
   @override
   String? get photoURL => 'https://example.com/avatar.jpg';
+  String? updatedDisplayName;
+  @override
+  Future<void> updateDisplayName(String? displayName) async {
+    updatedDisplayName = displayName;
+  }
 }
 
-class SdkCredential extends Fake implements UserCredential {}
+class SdkCredential extends Fake implements UserCredential {
+  SdkCredential(this.user);
+  @override
+  final User? user;
+}
 
 class SdkAuth extends Fake implements FirebaseAuth {
   final changes = StreamController<User?>();
   String? email, password, failure;
+  SdkUser? createdUser;
   bool signedOut = false;
   @override
   Stream<User?> authStateChanges() => changes.stream;
@@ -37,7 +47,19 @@ class SdkAuth extends Fake implements FirebaseAuth {
     this.email = email;
     this.password = password;
     if (failure != null) throw FirebaseAuthException(code: failure!);
-    return SdkCredential();
+    return SdkCredential(null);
+  }
+
+  @override
+  Future<UserCredential> createUserWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    this.email = email;
+    this.password = password;
+    if (failure != null) throw FirebaseAuthException(code: failure!);
+    createdUser = SdkUser();
+    return SdkCredential(createdUser);
   }
 
   @override
@@ -65,6 +87,14 @@ void main() {
       expect(sdk.password, ' secret ');
       await repo.signOut();
       expect(sdk.signedOut, isTrue);
+      await repo.signUp(
+        displayName: '  Người dùng  ',
+        email: ' register@example.com ',
+        password: 'password',
+      );
+      expect(sdk.email, 'register@example.com');
+      expect(sdk.password, 'password');
+      expect(sdk.createdUser?.updatedDisplayName, 'Người dùng');
       sdk.failure = 'wrong-password';
       expect(
         () => repo.signIn(email: 'a@example.com', password: 'x'),
@@ -73,6 +103,21 @@ void main() {
             (e) => e.message,
             'safe message',
             'Email hoặc mật khẩu không chính xác.',
+          ),
+        ),
+      );
+      sdk.failure = 'email-already-in-use';
+      expect(
+        () => repo.signUp(
+          displayName: 'Người dùng',
+          email: 'used@example.com',
+          password: 'password',
+        ),
+        throwsA(
+          isA<AppException>().having(
+            (e) => e.message,
+            'duplicate email message',
+            contains('đã được đăng ký'),
           ),
         ),
       );
@@ -108,6 +153,14 @@ void main() {
       expect(AuthValidation.email(' user@example.com '), isNull);
       expect(AuthValidation.password(''), isNotNull);
       expect(AuthValidation.password(' x '), isNull);
+      expect(AuthValidation.displayName(''), isNotNull);
+      expect(AuthValidation.registrationPassword('short'), isNotNull);
+      expect(AuthValidation.registrationPassword('password'), isNull);
+      expect(
+        AuthValidation.passwordConfirmation('different', 'password'),
+        isNotNull,
+      );
+      expect(AuthValidation.terms(false), isNotNull);
     },
   );
   test('Sign-in blocks duplicates, retains error, and ignores completion after disposal', () async {

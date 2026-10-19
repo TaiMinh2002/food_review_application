@@ -9,8 +9,8 @@ và hướng tích hợp tương ứng, **chưa phải backend đã triển khai
 - Android dùng `android/app/google-services.json` và Google Services plugin;
   iOS dùng `ios/Runner/GoogleService-Info.plist` thuộc Runner/Copy Bundle Resources.
 - `lib/main.dart` đã gọi `Firebase.initializeApp()` trước `runApp`. Khởi tạo native
-  không đồng nghĩa đã có Firestore repository; provider quán vẫn dùng demo. T10 đã có
-  FirebaseAuthRepository cho email/password/session/logout; xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
+  không đồng nghĩa đã có Firestore repository; provider quán vẫn dùng demo. T10/T11 đã có
+  FirebaseAuthRepository cho email/password/session/logout/register; xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md) và [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).
 - Web chưa có `FirebaseOptions`; cần cấu hình riêng trước khi chạy Web.
 - Khi tích hợp: bật email/password, tạo Firestore, tách development/production,
   triển khai repository qua Riverpod; seed quán bằng admin tool ngoài app.
@@ -20,7 +20,8 @@ T10 cần bật Email/Password ở Firebase Console → Authentication → Sign-
 Chưa xác minh cấu hình Console/tài khoản thật; native build/run không thay thế kiểm thử
 đăng nhập, khôi phục phiên và logout. Không lưu password/token riêng. Auth guard phía
 client không cấp quyền Firestore/admin; rules backend vẫn cần kiểm tra UID/owner/role.
-Register và reset password thuộc T11/T12; favorites hiện gate + RAM theo user, chưa Firestore.
+Register đã gọi Firebase Auth và lưu displayName trên Auth; Firestore profile và reset password
+thuộc các phần tiếp theo. Favorites hiện gate + RAM theo user, chưa Firestore.
   Không đặt service account, Cloudinary API Secret hoặc khóa ký trong Flutter.
 
 ## 2. Schema đề xuất theo phạm vi
@@ -87,8 +88,9 @@ và cập nhật aggregate khi tạo/sửa/xóa/moderate; fixture Place và Revi
 
 Giữ hướng Screen → Provider → Repository contract → Data implementation → SDK/HTTP.
 
-- Auth: triển khai email/password, auth stream, reset password và tạo profile có retry;
-  không đăng ký lại account khi chỉ bước ghi profile thất bại.
+- Auth: triển khai email/password, auth stream và đăng ký; reset password sẽ nối ở T12.
+  Register không đăng ký lại account khi chỉ bước cập nhật displayName thất bại; Firestore
+  profile document cần implementation riêng.
 - Place/Search: query theo danh mục, status và sort; chuẩn hóa tên khi seed/cập nhật,
   dùng cursor/phân trang. Tìm không dấu, toàn văn và gần tôi cần chiến lược query riêng;
   không lọc cục bộ một trang rồi coi đó là kết quả toàn bộ dữ liệu.
