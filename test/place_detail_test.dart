@@ -16,6 +16,7 @@ import 'package:food_review/features/favorites/presentation/favorite_providers.d
 import 'package:food_review/features/places/domain/place.dart';
 import 'package:food_review/features/places/domain/place_repository.dart';
 import 'package:food_review/features/places/presentation/place_providers.dart';
+import 'package:food_review/features/places/presentation/map_controller.dart';
 import 'package:food_review/features/places/presentation/place_detail_overview.dart';
 import 'package:food_review/features/reviews/domain/review.dart';
 import 'package:food_review/shared/widgets/app_review_card.dart';
@@ -55,6 +56,7 @@ void main() {
     addTearDown(tester.view.resetPadding);
     final container = ProviderContainer(
       overrides: [
+        mapTilesEnabledProvider.overrideWithValue(false),
         if (places != null) placeRepositoryProvider.overrideWithValue(places),
         if (reviews != null)
           reviewRepositoryProvider.overrideWithValue(reviews),

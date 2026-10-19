@@ -1,7 +1,7 @@
 /// Canonical destinations. A task marks a feature that is not built yet.
 enum AppRoute {
   home('/home', 'Trang chủ'),
-  map('/map', 'Bản đồ', task: 'T08'),
+  map('/map', 'Bản đồ'),
   favorites('/favorites', 'Yêu thích'),
   profile('/profile', 'Cá nhân'),
   login('/login', 'Đăng nhập'),

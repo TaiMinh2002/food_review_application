@@ -3,10 +3,12 @@ import '../domain/place_menu_item.dart';
 import '../domain/place_repository.dart';
 import '../domain/place_search.dart';
 import '../domain/place_search_repository.dart';
+import '../domain/place_map_repository.dart';
 import '../../../core/errors/app_exception.dart';
 
 /// Illustrative data only. Replace through placeRepositoryProvider for Firestore.
-class DemoPlaceRepository implements PlaceRepository, PlaceSearchRepository {
+class DemoPlaceRepository
+    implements PlaceRepository, PlaceSearchRepository, PlaceMapRepository {
   DemoPlaceRepository({List<Place> data = places})
     : _places = List.unmodifiable(data);
 
@@ -107,6 +109,27 @@ class DemoPlaceRepository implements PlaceRepository, PlaceSearchRepository {
       if (place.id == id) return place;
     }
     return null;
+  }
+
+  @override
+  Future<PlaceMapResult> findInViewport(
+    MapViewport viewport, {
+    required PlaceSearchRequest filters,
+    GeoPoint? near,
+    int limit = 50,
+  }) async {
+    final bounded = _places.where((place) {
+      final point = GeoPoint(place.latitude, place.longitude);
+      return viewport.contains(point) &&
+          (near == null || near.distanceTo(point) < 1000);
+    }).toList();
+    final page = await DemoPlaceRepository(data: bounded)
+        .searchPlaces(filters, pageSize: limit);
+    return PlaceMapResult(
+      places: page.items,
+      hasMore: page.nextCursor != null,
+      isDemo: true,
+    );
   }
 
   @override

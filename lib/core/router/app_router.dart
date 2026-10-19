@@ -7,6 +7,7 @@ import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/places/presentation/place_detail_screen.dart';
 import '../../features/places/presentation/home_screen.dart';
+import '../../features/places/presentation/map_screen.dart';
 import '../../features/places/presentation/search_screen.dart';
 import '../../features/places/presentation/search_filters_screen.dart';
 import '../../features/places/domain/place_search.dart';
@@ -76,8 +77,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 name: AppRoute.map.name,
                 path: AppRoute.map.path,
-                builder: (_, _) =>
-                    const RoutePlaceholderScreen(route: AppRoute.map),
+                builder: (_, state) => PlaceMapScreen(
+                  restaurantId: state.uri.queryParameters['restaurantId'],
+                ),
               ),
             ],
           ),

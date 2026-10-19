@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 19/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03–T06 đã triển khai UI/demo, còn các tích hợp phụ thuộc. Xem [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 19/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03–T06 và T08 đã triển khai UI/demo, còn các tích hợp phụ thuộc. T08 được thực hiện trước T07 theo yêu cầu người dùng. Xem [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -27,7 +27,8 @@ Bao phủ toàn bộ luồng tài liệu, kể cả collections, reports và adm
 | Review | Model/contract + preview repository demo giới hạn hai review | List/form/edit/delete, tải theo ID, my reviews, upload, quyền sở hữu |
 | Firebase | `main.dart` đã initialize Firebase; dependencies/config native đã chuẩn bị | Chưa có repository Auth/Firestore thực thi các luồng nghiệp vụ |
 | Search / Filter | T05–T06: query/filter/sort riêng, form nháp, danh sách/phân trang, recent trong phiên | Backend, dữ liệu GPS/open-now đáng tin cậy; xem SEARCH_UI.md |
-| Các feature khác | Chưa có UI chức năng tương ứng | Map, want-to-visit, collections, notifications, reports/admin |
+| Map | T08: OSM/marker/card, tìm theo vùng, filter, GPS foreground và chỉ đường ngoài | Backend spatial query; kiểm tra native GPS/chỉ đường; nền OSM bị lỗi DNS trong môi trường kiểm tra |
+| Các feature khác | Chưa có UI chức năng tương ứng | want-to-visit, collections, notifications, reports/admin |
 
 MVP và các đợt mở rộng được phân loại tại FEATURES.md. T16, T21–T27 thuộc phần mở rộng đã có kế hoạch; T28–T29 nghiệm thu theo phạm vi phát hành. Mốc 4–5 tuần cũ không áp dụng cho toàn bộ kế hoạch.
 
@@ -141,6 +142,8 @@ Nguồn: `02 - Home`, screen `be51296ba5444ed0b0fc92ac5495ad7a`.
 | T09b | Gallery `/restaurants/:restaurantId/gallery` | Lưới ảnh, xem lớn, swipe, chỉ số ảnh ban đầu qua query `index`; xử lý ảnh hỏng | Tap ảnh thứ N mở đúng ảnh; kiểm tra index ngoài phạm vi; zero ảnh/Back đúng |
 
 **Trạng thái T04:** UI/demo đã triển khai và kiểm tra; xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Chưa nghiệm thu backend/Auth và các màn đích. T05–T06 đã được triển khai cùng nhau theo yêu cầu người dùng; xem [SEARCH_UI.md](SEARCH_UI.md). Task UI tiếp theo: **T07 — Category**.
+
+**Trạng thái T08:** triển khai trước T07 theo yêu cầu người dùng; xem [MAP_UI.md](MAP_UI.md). UI/demo và unit/widget tests đã kiểm tra; chưa duyệt UI, chưa nghiệm thu backend/GPS native. Build/run iOS thành công nhưng nền OSM bị lỗi DNS, chưa đối chiếu được nền bản đồ trực tuyến. T07 vẫn chưa làm; T09a/T09b vẫn là các task riêng.
 
 T09a và T09b là hai lượt UI riêng. Không cần làm đồng thời để hoàn thành một màn.
 

@@ -68,7 +68,7 @@ AppReviewCard ẩn helpful/replies khi chưa có callback, tránh hiển thị t
 
 `MaterialApp.router` đã dùng light/dark/system. Màn hình khám phá dùng search/chip/card/skeleton mới; màn chi tiết T04 dùng ảnh/menu/review preview và thanh giá/chỉ đường (xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md)); các màn tải dữ liệu dùng error mapper và retry chung. Tab hồ sơ có chọn giao diện và nút **Xem UI Kit** (`/design-system`). Catalog bao gồm toàn bộ 10 nhóm để phát triển tính năng tiếp theo.
 
-App shell có 4 tab theo T02; Bản đồ hiện là placeholder chờ T08, Trang chủ đã dựng theo Stitch T03; xem [HOME_UI.md](HOME_UI.md) cho bằng chứng và các tích hợp còn thiếu. Component điều hướng hỗ trợ danh sách tùy ý; catalog minh hoạ 4 tab theo thiết kế. Các card không tự tạo dữ liệu giá, khoảng cách hoặc ảnh nếu repository chưa cung cấp.
+App shell có 4 tab theo T02; Bản đồ T08 dùng marker giá và card quán với theme light/dark, Trang chủ theo Stitch T03; xem [MAP_UI.md](MAP_UI.md) và [HOME_UI.md](HOME_UI.md) cho bằng chứng và các tích hợp còn thiếu. Component điều hướng hỗ trợ danh sách tùy ý; catalog minh hoạ 4 tab theo thiết kế. Các card không tự tạo dữ liệu giá, khoảng cách hoặc ảnh nếu repository chưa cung cấp.
 
 Skeleton tôn trọng giảm chuyển động và TickerMode. Password toggle, rating, icon buttons có nhãn trợ năng; form error/toast hỗ trợ thông báo trạng thái. Nút có vùng chạm tối thiểu 48px, icon button 44px; bố cục tránh khoá chiều cao để hỗ trợ chữ lớn.
 
