@@ -155,6 +155,12 @@ Tài liệu dịch vụ để đối chiếu lúc tích hợp:
 
 ## Search T05–T06: contract hiện có
 
+T07 mở rộng cùng contract bằng `PlaceSearchRequest.categoryScope` (ID ổn định).
+Backend phải áp dụng **root scope AND bộ lọc món con/query/giá/điểm/tiện ích** trước
+sort/count/limit/cursor. Có thể lưu category IDs/ancestor IDs đã chuẩn hóa để query theo
+taxonomy `PlaceCategory`; không coi root và món con là một tập OR hoặc lọc bù sau paging.
+ID không tồn tại cần lỗi an toàn. Demo minh họa cách kết hợp, chưa phải Firestore index/query.
+
 UI/demo đã dùng PlaceSearchRepository.searchPlaces(request, cursor, pageSize).
 Khi thay DemoPlaceRepository, implement capability này hoặc override
 placeSearchRepositoryProvider cùng nguồn dữ liệu. Backend phải áp dụng category

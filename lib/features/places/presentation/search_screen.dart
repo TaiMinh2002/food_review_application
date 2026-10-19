@@ -6,7 +6,7 @@ import '../../../core/router/app_route.dart';
 import '../../../core/router/route_placeholder_screen.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../domain/place_search.dart';
-import 'place_card.dart';
+import 'search_results.dart';
 import 'search_controller.dart';
 import 'search_widgets.dart';
 
@@ -101,7 +101,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(searchControllerProvider(widget.seed));
     final request = state.request;
-    const inset = EdgeInsets.symmetric(horizontal: AppSpacing.margin);
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 64,
@@ -221,67 +220,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ),
                   ),
                 ),
-                if (state.isLoading)
-                  const SliverPadding(
-                    padding: inset,
-                    sliver: SliverToBoxAdapter(
-                      child: Column(
-                        children: [
-                          AppRestaurantSkeleton(),
-                          SizedBox(height: 12),
-                          AppRestaurantSkeleton(),
-                        ],
-                      ),
-                    ),
-                  )
-                else if (state.error != null)
-                  SliverPadding(
-                    padding: inset,
-                    sliver: SliverToBoxAdapter(
-                      child: AppErrorState(
-                        message: state.error!,
-                        onRetry: _controller.retry,
-                      ),
-                    ),
-                  )
-                else if (state.items.isEmpty)
-                  SliverToBoxAdapter(
-                    child: AppEmptyState(
-                      title: 'Không tìm thấy quán phù hợp.',
-                      message: 'Thử từ khóa khác hoặc bỏ bớt điều kiện lọc.',
-                      icon: Icons.search_off,
-                      actionLabel: 'Xóa tìm kiếm và bộ lọc',
-                      onAction: _reset,
-                    ),
-                  )
-                else
-                  SliverPadding(
-                    padding: inset,
-                    sliver: SliverList.builder(
-                      itemCount: state.items.length,
-                      itemBuilder: (context, index) => PlaceCard(
-                        place: state.items[index],
-                        onOpen: _remember,
-                      ),
-                    ),
-                  ),
-                SliverPadding(
-                  padding: const EdgeInsets.all(20),
-                  sliver: SliverToBoxAdapter(
-                    child: state.pageError != null
-                        ? AppErrorState(
-                            message: state.pageError!,
-                            onRetry: _controller.loadMore,
-                          )
-                        : state.nextCursor == null
-                        ? const SizedBox.shrink()
-                        : AppButton(
-                            label: 'Tải thêm quán',
-                            isLoading: state.isLoadingMore,
-                            onPressed: _controller.loadMore,
-                            expanded: true,
-                          ),
-                  ),
+                PlaceSearchResults(
+                  state: state,
+                  onRetry: _controller.retry,
+                  onLoadMore: _controller.loadMore,
+                  onReset: _reset,
+                  onOpen: _remember,
                 ),
               ],
             ),

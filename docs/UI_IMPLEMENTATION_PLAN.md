@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 19/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03–T06 và T08 đã triển khai UI/demo, còn các tích hợp phụ thuộc. T08 được thực hiện trước T07 theo yêu cầu người dùng. Xem [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 19/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03–T08 đã triển khai UI/demo, còn các tích hợp phụ thuộc. T07 đã được bổ sung sau T08 theo yêu cầu người dùng. Xem [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -27,6 +27,7 @@ Bao phủ toàn bộ luồng tài liệu, kể cả collections, reports và adm
 | Review | Model/contract + preview repository demo giới hạn hai review | List/form/edit/delete, tải theo ID, my reviews, upload, quyền sở hữu |
 | Firebase | `main.dart` đã initialize Firebase; dependencies/config native đã chuẩn bị | Chưa có repository Auth/Firestore thực thi các luồng nghiệp vụ |
 | Search / Filter | T05–T06: query/filter/sort riêng, form nháp, danh sách/phân trang, recent trong phiên | Backend, dữ liệu GPS/open-now đáng tin cậy; xem SEARCH_UI.md |
+| Category | T07: root scope, banner/chip/card ảnh lớn, tìm/lọc/sort/paging, giữ shell/Back | Backend taxonomy/query/index; xem CATEGORY_UI.md |
 | Map | T08: OSM/marker/card, tìm theo vùng, filter, GPS foreground và chỉ đường ngoài | Backend spatial query; kiểm tra native GPS/chỉ đường; nền OSM bị lỗi DNS trong môi trường kiểm tra |
 | Các feature khác | Chưa có UI chức năng tương ứng | want-to-visit, collections, notifications, reports/admin |
 
@@ -127,7 +128,7 @@ Nguồn: `02 - Home`, screen `be51296ba5444ed0b0fc92ac5495ad7a`.
 
 **Đạt khi:** ảnh chụp đối chiếu đủ các khối Home, không overflow; card mở đúng quán. CTA đến feature chưa xong được theo dõi và kiểm chứng lại khi feature hoàn tất.
 
-**Bằng chứng T03:** [HOME_UI.md](HOME_UI.md). Search/lọc danh mục tại chỗ được giữ theo yêu cầu; submit mở T05, filter mở T06. Auth gate, danh mục T07 và thống kê tuần chưa hoàn tất. UI đã kiểm tra bằng render/test, chưa có xác nhận duyệt của người dùng.
+**Bằng chứng T03:** [HOME_UI.md](HOME_UI.md). Search/lọc danh mục tại chỗ được giữ theo yêu cầu; submit mở T05, filter mở T06; “Xem danh mục” mở T07 theo lựa chọn hiện tại. Auth gate và thống kê tuần chưa hoàn tất. UI đã kiểm tra bằng render/test, chưa có xác nhận duyệt của người dùng.
 
 ### Đợt B — Khám phá và đọc nội dung
 
@@ -141,9 +142,11 @@ Nguồn: `02 - Home`, screen `be51296ba5444ed0b0fc92ac5495ad7a`.
 | T09a | All Reviews `/restaurants/:restaurantId/reviews` | Summary, danh sách, sort/filter đúng thiết kế và contract; avatar mở hồ sơ công khai, CTA viết review | Đúng quán; phân trang/loading/empty/error; không bịa phân bố số sao từ average |
 | T09b | Gallery `/restaurants/:restaurantId/gallery` | Lưới ảnh, xem lớn, swipe, chỉ số ảnh ban đầu qua query `index`; xử lý ảnh hỏng | Tap ảnh thứ N mở đúng ảnh; kiểm tra index ngoài phạm vi; zero ảnh/Back đúng |
 
-**Trạng thái T04:** UI/demo đã triển khai và kiểm tra; xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Chưa nghiệm thu backend/Auth và các màn đích. T05–T06 đã được triển khai cùng nhau theo yêu cầu người dùng; xem [SEARCH_UI.md](SEARCH_UI.md). Task UI tiếp theo: **T07 — Category**.
+**Trạng thái T04:** UI/demo đã triển khai và kiểm tra; xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Chưa nghiệm thu backend/Auth và các màn đích. T05–T06 đã được triển khai cùng nhau; xem [SEARCH_UI.md](SEARCH_UI.md).
 
-**Trạng thái T08:** triển khai trước T07 theo yêu cầu người dùng; xem [MAP_UI.md](MAP_UI.md). UI/demo và unit/widget tests đã kiểm tra; chưa duyệt UI, chưa nghiệm thu backend/GPS native. Build/run iOS thành công nhưng nền OSM bị lỗi DNS, chưa đối chiếu được nền bản đồ trực tuyến. T07 vẫn chưa làm; T09a/T09b vẫn là các task riêng.
+**Trạng thái T07:** UI/demo đã bổ sung theo “17 - Category Results”; xem [CATEGORY_UI.md](CATEGORY_UI.md). Đã kiểm tra root scope/subtype, query/sort/form/paging, lỗi/empty/ID sai, favorite/Back/tab và layout light/dark. Chưa duyệt UI hay nghiệm thu backend. Task UI tiếp theo: **T09a — All Reviews**.
+
+**Trạng thái T08:** đã triển khai trước T07; xem [MAP_UI.md](MAP_UI.md). UI/demo và unit/widget tests đã kiểm tra; chưa duyệt UI, chưa nghiệm thu backend/GPS native. Build/run iOS thành công nhưng nền OSM bị lỗi DNS, tạm hoãn xử lý theo yêu cầu người dùng. T07 hiện đã bổ sung; T09a/T09b vẫn là các task riêng.
 
 T09a và T09b là hai lượt UI riêng. Không cần làm đồng thời để hoàn thành một màn.
 

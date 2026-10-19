@@ -7,6 +7,7 @@ import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/places/presentation/place_detail_screen.dart';
 import '../../features/places/presentation/home_screen.dart';
+import '../../features/places/presentation/category_screen.dart';
 import '../../features/places/presentation/map_screen.dart';
 import '../../features/places/presentation/search_screen.dart';
 import '../../features/places/presentation/search_filters_screen.dart';
@@ -69,6 +70,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: AppRoute.home.path,
                 // Home keeps quick filtering; submit opens the dedicated search flow.
                 builder: (_, _) => const HomeScreen(),
+              ),
+              GoRoute(
+                name: AppRoute.category.name,
+                path: AppRoute.category.path,
+                builder: (_, state) => RouteBackScope(
+                  child: CategoryScreen(
+                    categoryId: state.pathParameters['categoryId']!,
+                    uri: state.uri,
+                    scope: state.pageKey.value,
+                  ),
+                ),
               ),
             ],
           ),

@@ -15,6 +15,7 @@ enum PlaceSearchSort {
 class PlaceSearchRequest {
   PlaceSearchRequest({
     this.query = '',
+    this.categoryScope,
     Set<String> categories = const {},
     this.sort = PlaceSearchSort.relevance,
     this.minRating,
@@ -24,6 +25,9 @@ class PlaceSearchRequest {
   }) : categories = Set.unmodifiable(categories),
        amenities = Set.unmodifiable(amenities);
   final String query;
+
+  /// Required category scope, ANDed with optional subtype filters before paging.
+  final String? categoryScope;
   final Set<String> categories, amenities;
   final PlaceSearchSort sort;
   final double? minRating;
@@ -41,6 +45,7 @@ class PlaceSearchRequest {
     final rating = double.tryParse(params['rating'] ?? '');
     return PlaceSearchRequest(
       query: params['q'] ?? '',
+      categoryScope: params['scope'],
       categories: (uri.queryParametersAll['category'] ?? [])
           .where((item) => item.isNotEmpty)
           .toSet(),
@@ -56,6 +61,7 @@ class PlaceSearchRequest {
 
   PlaceSearchRequest copyWith({
     String? query,
+    String? categoryScope,
     Set<String>? categories,
     PlaceSearchSort? sort,
     double? minRating,
@@ -66,6 +72,7 @@ class PlaceSearchRequest {
     Set<String>? amenities,
   }) => PlaceSearchRequest(
     query: query ?? this.query,
+    categoryScope: categoryScope ?? this.categoryScope,
     categories: categories ?? this.categories,
     sort: sort ?? this.sort,
     minRating: clearRating ? null : minRating ?? this.minRating,
@@ -83,6 +90,7 @@ class PlaceSearchRequest {
 
   Map<String, dynamic> get queryParameters => {
     if (query.trim().isNotEmpty) 'q': query.trim(),
+    'scope': ?categoryScope,
     if (categories.isNotEmpty) 'category': categories.toList()..sort(),
     if (amenities.isNotEmpty) 'amenity': amenities.toList()..sort(),
     if (sort != PlaceSearchSort.relevance) 'sort': sort.name,
@@ -95,6 +103,7 @@ class PlaceSearchRequest {
   bool operator ==(Object other) =>
       other is PlaceSearchRequest &&
       query == other.query &&
+      categoryScope == other.categoryScope &&
       sort == other.sort &&
       minRating == other.minRating &&
       minPrice == other.minPrice &&
@@ -106,6 +115,7 @@ class PlaceSearchRequest {
   @override
   int get hashCode => Object.hash(
     query,
+    categoryScope,
     sort,
     minRating,
     minPrice,

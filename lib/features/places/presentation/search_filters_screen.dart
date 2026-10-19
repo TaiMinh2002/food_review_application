@@ -7,6 +7,7 @@ import '../../../core/router/app_route.dart';
 import '../../../core/router/route_placeholder_screen.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../domain/place_search.dart';
+import '../domain/place_category.dart';
 import 'search_controller.dart';
 import 'search_widgets.dart';
 
@@ -77,7 +78,15 @@ class _SearchFiltersScreenState extends ConsumerState<SearchFiltersScreen> {
       bottomNavigationBar: MediaQuery.viewInsetsOf(context).bottom > 0
           ? null
           : SearchBottomBar(
-              onReset: () => _change(PlaceSearchRequest(query: _draft.query)),
+              onReset: () => _change(
+                PlaceSearchRequest(
+                  query: _draft.query,
+                  categoryScope: widget.initialRequest.categoryScope,
+                  sort: widget.initialRequest.categoryScope == null
+                      ? PlaceSearchSort.relevance
+                      : PlaceSearchSort.rating,
+                ),
+              ),
               onSubmit: options.hasValue ? _apply : null,
               label: 'Áp dụng bộ lọc',
               icon: Icons.filter_alt_outlined,
@@ -102,6 +111,14 @@ class _SearchFiltersScreenState extends ConsumerState<SearchFiltersScreen> {
                   },
                 ),
                 const SizedBox(height: 8),
+                if (PlaceCategory.byId(_draft.categoryScope) case final scope?)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Trong danh mục ${scope.label}',
+                      style: context.textStyles.titleMedium,
+                    ),
+                  ),
                 SearchActiveFilters(request: _draft, onChanged: _change),
                 const SizedBox(height: 16),
                 SearchRecentSection(
@@ -123,12 +140,21 @@ class _SearchFiltersScreenState extends ConsumerState<SearchFiltersScreen> {
                   data: (page) => Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      SearchCategorySection(
-                        categories: page.categories,
-                        selected: _draft.categories,
-                        onToggle: _toggleCategory,
-                      ),
-                      const SizedBox(height: 24),
+                      if ((PlaceCategory.byId(_draft.categoryScope)
+                                      ?.subcategories ??
+                                  page.categories)
+                              .isNotEmpty ||
+                          _draft.categories.isNotEmpty) ...[
+                        SearchCategorySection(
+                          categories:
+                              PlaceCategory.byId(_draft.categoryScope)
+                                  ?.subcategories ??
+                              page.categories,
+                          selected: _draft.categories,
+                          onToggle: _toggleCategory,
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                       const AppSectionHeader(title: 'Bộ lọc chi tiết'),
                       const SizedBox(height: 12),
                       _FilterGroup(
