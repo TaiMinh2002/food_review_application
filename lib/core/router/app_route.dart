@@ -11,11 +11,7 @@ enum AppRoute {
   filters('/search/filters', 'Bộ lọc và sắp xếp'),
   category('/categories/:categoryId', 'Kết quả danh mục'),
   restaurant('/restaurants/:restaurantId', 'Chi tiết quán'),
-  reviews(
-    '/restaurants/:restaurantId/reviews',
-    'Tất cả đánh giá',
-    task: 'T09a',
-  ),
+  reviews('/restaurants/:restaurantId/reviews', 'Tất cả đánh giá'),
   createReview(
     '/restaurants/:restaurantId/reviews/create',
     'Viết đánh giá',

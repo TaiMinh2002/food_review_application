@@ -64,6 +64,9 @@ Tiện ích bổ sung:
 
 AppRating có `showValue: false` để dùng dải sao trong summary/review mà không lặp điểm.
 AppReviewCard ẩn helpful/replies khi chưa có callback, tránh hiển thị thao tác không khả dụng.
+T09a dùng `AppReviewCard.expandedImages`: ảnh hai cột 4:3, gap 8, góc 8,
+card góc 12 và tag món trước nội dung; preview thumbnail cũ giữ nguyên.
+Summary/chip/sheet/thanh viết dùng các token và overlay chung; xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md).
 
 ## Tích hợp và xem thử
 

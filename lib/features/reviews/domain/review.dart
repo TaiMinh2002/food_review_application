@@ -9,7 +9,9 @@ class Review {
     this.authorName = 'Thành viên',
     this.isDemo = false,
     List<String> imageUrls = const [],
-  }) : imageUrls = List.unmodifiable(imageUrls) {
+    List<String> dishes = const [],
+  }) : imageUrls = List.unmodifiable(imageUrls),
+       dishes = List.unmodifiable(dishes) {
     if (rating < 1 || rating > 5) {
       throw ArgumentError.value(rating, 'rating', 'Phải từ 1 đến 5');
     }
@@ -27,4 +29,5 @@ class Review {
   final String content;
   final DateTime createdAt;
   final List<String> imageUrls;
+  final List<String> dishes;
 }

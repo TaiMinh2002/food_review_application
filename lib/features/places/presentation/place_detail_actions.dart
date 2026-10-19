@@ -9,13 +9,14 @@ import '../domain/place_menu_item.dart';
 
 Future<void> showPlaceShare(
   BuildContext context,
-  Place place,
-) => showAppBottomSheet<void>(
+  Place place, {
+  String? location,
+}) => showAppBottomSheet<void>(
   context,
   title: 'Chia sẻ quán',
   builder: (sheetContext) {
     final info =
-        '${place.name}\n${place.address}\n${AppRoute.restaurant.location(parameters: {'restaurantId': place.id})}';
+        '${place.name}\n${place.address}\n${location ?? AppRoute.restaurant.location(parameters: {'restaurantId': place.id})}';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

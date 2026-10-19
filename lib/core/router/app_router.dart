@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../app/app_shell.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
+import '../../features/reviews/presentation/all_reviews_screen.dart';
+import '../../features/reviews/domain/review_feed_repository.dart';
 import '../../features/places/presentation/place_detail_screen.dart';
 import '../../features/places/presentation/home_screen.dart';
 import '../../features/places/presentation/category_screen.dart';
@@ -145,6 +147,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => RouteBackScope(
           child: PlaceDetailScreen(
             placeId: state.pathParameters['restaurantId']!,
+          ),
+        ),
+      ),
+      GoRoute(
+        name: AppRoute.reviews.name,
+        path: AppRoute.reviews.path,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) => RouteBackScope(
+          child: AllReviewsScreen(
+            seed: (
+              placeId: state.pathParameters['restaurantId']!,
+              scope: state.pageKey.value,
+              filters: ReviewFilters.fromUri(state.uri),
+            ),
           ),
         ),
       ),

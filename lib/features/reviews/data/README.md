@@ -1,7 +1,10 @@
 # Reviews data
 
-T04 đã có DemoReviewRepository chỉ cấp preview minh họa và từ chối create.
-Khi nối backend, thay qua reviewRepositoryProvider; áp dụng limit tại query.
+DemoReviewRepository cấp preview và capability đọc T09a (summary, filter, sort,
+paging) bằng bốn nhận xét minh họa; vẫn từ chối create.
+Khi nối backend, thay qua reviewRepositoryProvider, triển khai ReviewFeedRepository;
+áp dụng scope/filter/order/count/limit tại query. Summary toàn bộ quán tính phía server,
+không suy histogram từ average hoặc trang hiện tại. Xem docs/ALL_REVIEWS_UI.md.
 
 Thêm FirestoreReviewRepository và mapper Timestamp khi triển khai backend.
 Image upload service sử dụng HTTP client inject được, không gọi network từ widget.

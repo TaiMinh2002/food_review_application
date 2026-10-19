@@ -46,6 +46,13 @@ cho toàn bộ ý tưởng P1–P5. Không dùng OSM làm nguồn mặc định 
 
 ## 3. Review, định danh và thống kê
 
+T09a đã có capability `ReviewFeedRepository` (xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md)).
+Khi nối Firestore, query theo quán + trạng thái hiển thị, lọc sao/có ảnh và sort ổn định
+trước cursor/limit; count phải phản ánh toàn bộ kết quả lọc. Summary/histogram/số bài
+có ảnh là aggregate toàn bộ review hiển thị của quán, không chỉ page đã tải.
+Thiếu histogram thì trả null; không suy phân bố từ average. Chuẩn bị index tương ứng
+và cập nhật aggregate khi tạo/sửa/xóa/moderate; fixture Place và Review hiện còn độc lập.
+
 - Giữ thiết kế một review/người/quán: document ID là UID, `userId` bằng UID đăng nhập,
   `placeId` bằng ID quán trong path. Hai trường này và `createdAt` bất biến khi update.
 - UID không phải review ID duy nhất toàn app. Đề xuất cho T14: route edit giữ
