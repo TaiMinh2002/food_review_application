@@ -50,6 +50,12 @@ retry độc lập, chặn stale response và dữ liệu sai quán; không tả
 Preview và All Reviews dùng chung `RestaurantReviewCard`. T13 mới nối tạo review và Auth.
 Xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md).
 
+T09b dùng `galleryRepositoryProvider` ghép media snapshot của Place và exact review
+lookup qua `ReviewMediaRepository`. Không quét toàn bộ review hay thay nguồn inject
+bằng demo ngầm. `galleryProvider(request)` autoDispose theo quán/nguồn, kiểm tra quán
+trước khi đọc ảnh; screen giữ filter/scroll và dialog giữ PageController/zoom.
+Xem [GALLERY_UI.md](GALLERY_UI.md).
+
 `FavoriteRepository` hiện là contract đồng bộ dành cho demo RAM. Trước khi nối Firestore,
 đổi sang `watchPlaceIds(userId)` và async `setFavorite(userId, placeId, value)`;
 chuyển notifier sang async state, xử lý lỗi ghi và reset khi đăng xuất.
@@ -62,6 +68,7 @@ Không bọc API Firestore async bằng contract đồng bộ hiện tại.
 - `/categories/:categoryId`: T07 trong branch Home, giữ thanh bốn tab; Home có lối “Xem danh mục”. ID sai không gọi query. Detail push trên root và Back giữ bộ lọc/vị trí cuộn của danh mục.
 - `/restaurants/:restaurantId`: chi tiết Stitch T04 với gallery, menu, review preview và thanh giá/chỉ đường; map ID sang `placeId` trong domain, xử lý ID không tồn tại. Xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md).
 - `/map`: T08 dùng flutter_map/OSM, marker và card quán; `restaurantId` chọn quán từ chi tiết. Camera/selection giữ trong indexed stack. Xem [MAP_UI.md](MAP_UI.md).
+- `/restaurants/:restaurantId/gallery`: T09b trên root; `index` mở viewer, `source=review&reviewId=...` chọn ảnh review đúng scope. Đóng viewer về lưới, Back về nguồn. Xem [GALLERY_UI.md](GALLERY_UI.md).
 - `/favorites`: quán đã lưu trong phiên.
 - `/profile`: trang khởi đầu hồ sơ.
 - `/login`: thông báo tích hợp Auth đang chờ cấu hình.

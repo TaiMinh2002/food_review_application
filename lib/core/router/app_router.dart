@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/app_shell.dart';
+import '../../features/places/domain/gallery.dart';
+import '../../features/places/presentation/gallery_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/reviews/presentation/all_reviews_screen.dart';
@@ -176,6 +178,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return state.uri.replace(queryParameters: query).toString();
         },
         builder: (_, _) => const RouteBackScope(child: SignInScreen()),
+      ),
+      GoRoute(
+        name: AppRoute.gallery.name,
+        path: AppRoute.gallery.path,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) => RouteBackScope(
+          child: GalleryScreen(
+            request: GalleryRequest.fromUri(
+              state.pathParameters['restaurantId']!,
+              state.uri,
+            ),
+          ),
+        ),
       ),
       for (final route in AppRoute.values)
         if (route.task != null && route != AppRoute.map)

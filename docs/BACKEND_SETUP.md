@@ -46,6 +46,12 @@ cho toàn bộ ý tưởng P1–P5. Không dùng OSM làm nguồn mặc định 
 
 ## 3. Review, định danh và thống kê
 
+T09b đọc media snapshot có giới hạn từ Place và exact review bằng cặp ID qua
+`ReviewMediaRepository`. Backend lookup phải kiểm tra quán/status hiển thị/quyền;
+không scan toàn bộ review để tìm ảnh. Metadata category/caption/author cần nguồn
+đã xác minh, không lấy tác giả/likes từ mẫu Stitch. Album lớn cần media query/cursor
+riêng; UI demo hiện dùng snapshot nhỏ. Xem [GALLERY_UI.md](GALLERY_UI.md).
+
 T09a đã có capability `ReviewFeedRepository` (xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md)).
 Khi nối Firestore, query theo quán + trạng thái hiển thị, lọc sao/có ảnh và sort ổn định
 trước cursor/limit; count phải phản ánh toàn bộ kết quả lọc. Summary/histogram/số bài

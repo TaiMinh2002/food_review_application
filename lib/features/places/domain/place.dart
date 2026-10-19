@@ -1,4 +1,5 @@
 import 'place_menu_item.dart';
+import 'gallery.dart';
 
 class Place {
   const Place({
@@ -19,6 +20,7 @@ class Place {
     this.menuItems = const [],
     this.isDemo = false,
     this.foodCategories = const [],
+    this.galleryPhotos = const [],
   });
 
   final String id;
@@ -36,4 +38,5 @@ class Place {
   final List<String> amenities, foodCategories;
   final List<PlaceMenuItem> menuItems;
   final bool isDemo;
+  final List<GalleryPhoto> galleryPhotos;
 }

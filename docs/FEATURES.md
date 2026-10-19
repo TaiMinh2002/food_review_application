@@ -19,7 +19,10 @@ luồng ở [routing](food_review_luong_hoat_dong_routing.md), dữ liệu/quy�
   xem [CATEGORY_UI.md](CATEGORY_UI.md).
 - T09a All Reviews đã có summary, histogram, lọc/sort, cursor paging, chia sẻ và CTA
   theo quán; dùng bốn review demo, chưa tích hợp backend/Auth hay màn viết/gallery/profile/report.
-  Xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md). Task UI tiếp theo là T09b Gallery.
+  Xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md).
+- T09b Gallery đã có lọc/lưới, viewer swipe/zoom, exact review media, index/Back và
+  chia sẻ; dùng ảnh demo, upload/lưu ảnh chưa tích hợp. Xem [GALLERY_UI.md](GALLERY_UI.md).
+  Task tiếp theo là T10 Login/Auth.
 - T03 Home, T04 Chi tiết quán và T05–T06 Search/Filter đã triển khai UI/demo (xem HOME_UI.md, RESTAURANT_DETAIL_UI.md, SEARCH_UI.md); backend và các luồng phụ thuộc chưa hoàn tất. Yêu thích và lựa chọn theme chưa lưu qua restart;
   tọa độ/ảnh demo không phải dữ liệu quán đã xác minh. Web chưa có FirebaseOptions.
 

@@ -6,6 +6,7 @@ import '../domain/place_search.dart';
 import '../domain/place_search_repository.dart';
 import '../domain/place_map_repository.dart';
 import '../../../core/errors/app_exception.dart';
+import 'demo_gallery_photos.dart';
 
 /// Illustrative data only. Replace through placeRepositoryProvider for Firestore.
 class DemoPlaceRepository
@@ -18,6 +19,7 @@ class DemoPlaceRepository
   static const places = [
     Place(
       id: 'pho-demo',
+      galleryPhotos: demoPhoPhotos,
       foodCategories: ['Phở'],
       isDemo: true,
       openingHours: '06:00 – 20:30',

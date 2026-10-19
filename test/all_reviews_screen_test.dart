@@ -225,6 +225,9 @@ void main() {
       containsPair('reviewId', 'review-linh-demo'),
     );
     expect(router.state.uri.queryParameters, containsPair('index', '1'));
+    expect(find.text('2 / 2'), findsOneWidget);
+    await tester.tap(find.byTooltip('Đóng ảnh'));
+    await tester.pumpAndSettle();
     router.pop();
     await tester.pumpAndSettle();
     await reveal(tester, find.text('Hoàng Linh'));

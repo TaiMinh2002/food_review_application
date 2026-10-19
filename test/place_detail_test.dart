@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:food_review/features/places/presentation/gallery_screen.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -151,11 +152,12 @@ void main() {
     expect(find.text('2/4 ảnh'), findsOneWidget);
     await tester.tap(find.text('2/4 ảnh'));
     await tester.pumpAndSettle();
-    final state = GoRouterState.of(
-      tester.element(find.byType(RoutePlaceholderScreen)),
-    );
+    final state = GoRouterState.of(tester.element(find.byType(GalleryScreen)));
     expect(state.uri.path, '/restaurants/pho-demo/gallery');
     expect(state.uri.queryParameters['index'], '1');
+    expect(find.text('2 / 7'), findsOneWidget);
+    await tester.tap(find.byTooltip('Đóng ảnh'));
+    await tester.pumpAndSettle();
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(find.text('2/4 ảnh'), findsOneWidget);

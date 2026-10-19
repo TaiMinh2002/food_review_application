@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 19/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03–T09a đã triển khai UI/demo, còn các tích hợp phụ thuộc. T07 đã được bổ sung sau T08 theo yêu cầu người dùng. Task UI tiếp theo: **T09b — Gallery**. Xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 19/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03–T09b đã triển khai UI/demo, còn các tích hợp phụ thuộc. T07 đã được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T10 — Login/Auth**. Xem [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -152,7 +152,13 @@ Nguồn: `02 - Home`, screen `be51296ba5444ed0b0fc92ac5495ad7a`.
 histogram thật từ fixture, lọc/sort, cursor paging, lỗi/retry độc lập, link đúng ID và Back
 giữ state. Đã kiểm tra light/dark, màn nhỏ/chữ lớn, build/run iOS và ảnh render;
 xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md). Chưa duyệt UI, chưa tích hợp backend/Auth;
-write/gallery/profile/report vẫn là task riêng. Tiếp theo: **T09b — Gallery**.
+write/profile/report vẫn là task riêng. Gallery T09b hiện đã có UI/demo.
+
+**Trạng thái T09b:** UI/demo theo “07 - Restaurant Gallery” đã triển khai: featured,
+lọc/lưới ảnh, viewer swipe/zoom, index đúng từ Detail/Review, share và Back giữ state.
+Đã kiểm tra light/dark, màn nhỏ/chữ lớn, ảnh lỗi/empty/retry và build/run iOS;
+xem [GALLERY_UI.md](GALLERY_UI.md). Chưa duyệt UI hoặc tích hợp backend/upload/lưu ảnh.
+Task tiếp theo: **T10 — Login/Auth**, sau đó T11/T12 và T13 viết review/upload.
 
 T09a và T09b là hai lượt UI riêng. Không cần làm đồng thời để hoàn thành một màn.
 

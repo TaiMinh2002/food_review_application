@@ -58,6 +58,8 @@ Các component chỉ nhận dữ liệu và callback; không phụ thuộc route
 Tiện ích bổ sung:
 
 - `AppImage`: ảnh mạng hoặc assets với placeholder/fallback theo theme khi không có ảnh, đang tải hoặc lỗi.
+  T09b thêm `fit` (mặc định cover, viewer dùng contain) và `loadingFallback` để tách
+  tải ảnh khỏi lỗi/retry, giữ hành vi mặc định của các màn cũ.
 - `AppErrorMessage.from`: chuyển lỗi ứng dụng sang nội dung cho người dùng; exception ngoài `AppException` dùng fallback, không hiện chi tiết SDK. `AppException.message` phải là nội dung an toàn để hiển thị, được tạo tại repository boundary.
 - `AppFormatters.price`, `priceRange`, `distance`: định dạng VN; giá trong card dùng tabular figures.
 - `AppMessage` giữ tương thích các màn hình cũ và chuyển sang empty/error component mới.

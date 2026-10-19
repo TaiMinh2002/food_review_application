@@ -9,12 +9,15 @@ class AppImage extends StatelessWidget {
     this.url,
     this.semanticLabel,
     this.fallback,
+    this.loadingFallback,
     this.width,
     this.height,
+    this.fit = BoxFit.cover,
   });
   final String? url, semanticLabel;
-  final Widget? fallback;
+  final Widget? fallback, loadingFallback;
   final double? width, height;
+  final BoxFit fit;
   @override
   Widget build(BuildContext context) {
     final placeholder = ColoredBox(
@@ -36,7 +39,7 @@ class AppImage extends StatelessWidget {
         url!,
         width: width,
         height: height,
-        fit: BoxFit.cover,
+        fit: fit,
         semanticLabel: semanticLabel,
         errorBuilder: (_, _, _) =>
             SizedBox(width: width, height: height, child: placeholder),
@@ -46,13 +49,17 @@ class AppImage extends StatelessWidget {
       url!,
       width: width,
       height: height,
-      fit: BoxFit.cover,
+      fit: fit,
       semanticLabel: semanticLabel,
       errorBuilder: (_, _, _) =>
           SizedBox(width: width, height: height, child: placeholder),
       loadingBuilder: (_, child, progress) => progress == null
           ? child
-          : SizedBox(width: width, height: height, child: placeholder),
+          : SizedBox(
+              width: width,
+              height: height,
+              child: loadingFallback ?? placeholder,
+            ),
     );
   }
 }

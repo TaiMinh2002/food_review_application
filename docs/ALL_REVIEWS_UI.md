@@ -2,7 +2,7 @@
 
 Ngày triển khai: 19/10/2026. Branch: `feat/all-reviews-ui`.
 Trạng thái: UI/demo đã triển khai và kiểm tra; chưa được người dùng duyệt UI,
-chưa tích hợp Firestore/Auth. T09b Gallery là task UI tiếp theo.
+chưa tích hợp Firestore/Auth. T09b Gallery hiện đã triển khai; xem [GALLERY_UI.md](GALLERY_UI.md).
 
 ## Thiết kế và bố cục
 
@@ -32,7 +32,7 @@ SafeArea, cuộn lazy, chữ lớn và thanh CTA co theo nội dung được h�
   response cũ và dữ liệu sai quán. Back từ màn con giữ filter/vị trí cuộn.
 - Avatar mở T24 với userId; tùy chọn mở T25 với restaurantId/reviewId;
   ảnh mở T09b với reviewId và index đúng ảnh; CTA mở T13 với restaurantId.
-  Các màn đích vẫn thông báo chưa triển khai. Nếu T13 sau này trả `true` khi lưu
+  Gallery T09b đã có viewer thật và giữ đúng nguồn/index; T13/T24/T25 vẫn thông báo chưa triển khai. Nếu T13 sau này trả `true` khi lưu
   thành công, màn tự tải lại summary/danh sách. Chưa tạo review hay thêm Auth gate.
 
 ## Dữ liệu mẫu và giới hạn
