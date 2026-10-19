@@ -7,6 +7,9 @@ class Review {
     required this.content,
     required this.createdAt,
     this.authorName = 'Thành viên',
+    this.title,
+    this.visitDate,
+    this.companion,
     this.isDemo = false,
     List<String> imageUrls = const [],
     List<String> dishes = const [],
@@ -21,6 +24,9 @@ class Review {
   }
 
   final String authorName;
+  final String? title;
+  final DateTime? visitDate;
+  final String? companion;
   final bool isDemo;
   final String id;
   final String placeId;

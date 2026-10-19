@@ -88,8 +88,9 @@ void main() {
           container.read(appRouterProvider).state.uri.path,
           authenticated ? '/restaurants/pho-demo/reviews/create' : '/login',
         );
+        expect(find.text('Chức năng chưa triển khai · T13.'), findsNothing);
         expect(
-          find.text('Chức năng chưa triển khai · T13.'),
+          find.text('Bạn đánh giá quán thế nào?'),
           authenticated ? findsOneWidget : findsNothing,
         );
       },

@@ -342,7 +342,7 @@ void main() {
       expect(find.textContaining('hiện chưa gửi hay lưu ảnh'), findsOneWidget);
       await tester.tap(find.text('Mở màn viết đánh giá'));
       await tester.pumpAndSettle();
-      expect(find.text('Chức năng chưa triển khai · T13.'), findsOneWidget);
+      expect(find.text('Bạn đánh giá quán thế nào?'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );

@@ -7,7 +7,7 @@ import '../domain/review_feed_repository.dart';
 class DemoReviewRepository
     implements ReviewRepository, ReviewFeedRepository, ReviewMediaRepository {
   DemoReviewRepository({List<Review>? data})
-    : _data = List.unmodifiable(data ?? _reviews);
+    : _data = List<Review>.from(data ?? _reviews);
   final List<Review> _data;
   @override
   Future<Review?> getReview(String placeId, String reviewId) async => _data
@@ -137,7 +137,13 @@ class DemoReviewRepository
   }
 
   @override
-  Future<void> create(Review review) async => throw const AppException(
-    'Đăng đánh giá chưa được hỗ trợ trong bản demo.',
-  );
+  Future<void> create(Review review) async {
+    if (review.content.trim().length < 10) {
+      throw const AppException('Nội dung đánh giá cần ít nhất 10 ký tự.');
+    }
+    if (_data.any((item) => item.id == review.id)) {
+      throw const AppException('Đánh giá này đã được gửi.');
+    }
+    _data.insert(0, review);
+  }
 }

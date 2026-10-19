@@ -10,6 +10,8 @@ import 'package:food_review/core/theme/theme_mode_provider.dart';
 import 'package:food_review/features/auth/domain/auth_repository.dart';
 import 'package:food_review/features/auth/presentation/auth_providers.dart';
 import 'package:food_review/features/places/presentation/map_controller.dart';
+import 'package:food_review/features/reviews/domain/review_repository.dart';
+import 'package:food_review/features/reviews/presentation/review_providers.dart';
 import 'package:food_review/features/profile/domain/user_profile.dart';
 
 const authTestUser = UserProfile(id: 'user-a', displayName: 'Người thử nghiệm');
@@ -99,6 +101,7 @@ Future<ProviderContainer> mountAuth(
   double height = 844,
   double scale = 1,
   ThemeMode mode = ThemeMode.light,
+  ReviewRepository? reviews,
 }) async {
   tester.view.physicalSize = Size(width, height);
   tester.view.devicePixelRatio = 1;
@@ -108,6 +111,7 @@ Future<ProviderContainer> mountAuth(
     overrides: [
       authRepositoryProvider.overrideWithValue(repository),
       mapTilesEnabledProvider.overrideWithValue(false),
+      if (reviews != null) reviewRepositoryProvider.overrideWithValue(reviews),
     ],
   );
   addTearDown(() async {

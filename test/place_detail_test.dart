@@ -26,6 +26,7 @@ import 'package:food_review/features/reviews/domain/review.dart';
 import 'package:food_review/shared/widgets/app_review_card.dart';
 import 'package:food_review/features/reviews/domain/review_repository.dart';
 import 'package:food_review/features/reviews/presentation/review_providers.dart';
+import 'package:food_review/features/reviews/presentation/write_review_screen.dart';
 
 void main() {
   final captureKey = GlobalKey();
@@ -212,9 +213,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Viết đánh giá'));
     await tester.pumpAndSettle();
-    state = GoRouterState.of(
-      tester.element(find.byType(RoutePlaceholderScreen)),
-    );
+    state = GoRouterState.of(tester.element(find.byType(WriteReviewScreen)));
     expect(state.uri.path, '/restaurants/pho-demo/reviews/create');
     await tester.pageBack();
     await tester.pumpAndSettle();

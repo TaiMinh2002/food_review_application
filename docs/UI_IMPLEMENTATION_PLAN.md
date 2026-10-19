@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 19/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T09b đã có UI/demo; T10 Login, T11 Register và T12 Forgot Password đã có UI/adapter Firebase Auth, chưa nghiệm thu tài khoản thật. T07 được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T13 — Write Review**. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md), [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md), [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md), [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 19/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T09b đã có UI/demo; T10 Login, T11 Register, T12 Forgot Password và T13 Write Review đã có UI/adapter, chưa nghiệm thu tài khoản thật/backend review. T07 được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T14 — Edit/Delete Review**. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md), [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md), [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md), [WRITE_REVIEW_UI.md](WRITE_REVIEW_UI.md), [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -158,7 +158,7 @@ write/profile/report vẫn là task riêng. Gallery T09b hiện đã có UI/demo
 lọc/lưới ảnh, viewer swipe/zoom, index đúng từ Detail/Review, share và Back giữ state.
 Đã kiểm tra light/dark, màn nhỏ/chữ lớn, ảnh lỗi/empty/retry và build/run iOS;
 xem [GALLERY_UI.md](GALLERY_UI.md). Chưa duyệt UI hoặc tích hợp backend/upload/lưu ảnh.
-T10 Login/Auth, T11 Register và T12 Forgot Password đã triển khai; tiếp theo là T13 viết review/upload.
+T10 Login/Auth, T11 Register, T12 Forgot Password và T13 Write Review đã triển khai; tiếp theo là T14 sửa/xóa review.
 
 T09a và T09b là hai lượt UI riêng. Không cần làm đồng thời để hoàn thành một màn.
 
@@ -188,6 +188,10 @@ và lỗi/retry; Firestore profile document và tài khoản thật vẫn chờ 
 **Trạng thái T12:** UI theo “15 - Forgot Password”, reset password qua Auth contract/provider/Firebase adapter,
 trạng thái gửi thành công chung, retry và giữ `returnTo`/`action` đã triển khai. Đã kiểm tra light/dark,
 màn nhỏ, text scale, lỗi và submit trùng; Firebase Console/email thật vẫn chờ nghiệm thu. Xem [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md).
+
+**Trạng thái T13:** UI theo “Food Review — Write Review”, form sao/nội dung/tag/ảnh/ngày ghé/người đi cùng,
+auth guard, submit chống trùng và demo repository lưu trong RAM đã triển khai. Đã kiểm tra light/dark,
+320/390/428px, text scale, validation và quay về màn nguồn; upload backend, Firestore và quyền sở hữu review vẫn chờ tích hợp. Xem [WRITE_REVIEW_UI.md](WRITE_REVIEW_UI.md).
 
 ### Đợt D — Review và nội dung của người dùng
 
