@@ -37,6 +37,7 @@ Các component chỉ nhận dữ liệu và callback; không phụ thuộc route
 - Inter variable TTF được bundle offline, hỗ trợ tiếng Việt. Giấy phép SIL OFL nằm trong `assets/fonts/OFL.txt`. Font từ google/fonts, không tải font lúc runtime.
 - Kiểu chữ: headline 24/32, 20/28, 18/26; title 16/22; body 16/24 và 14/20; label 13/18, 12/16, caption 11/14. Giữ text scaling của hệ điều hành.
 - Dùng `context.colors`, `context.textStyles`, `context.semanticColors`; không hardcode màu nền/chữ trong feature.
+- `semanticColors.onImage` là chữ sáng trên ảnh có scrim tối, khai báo cả light/dark và hỗ trợ copyWith/lerp; dùng cho banner Category.
 - `themeModeProvider`: mặc định `ThemeMode.system`, có thể đổi light/dark ngay trên toàn ứng dụng bằng `ref.read(themeModeProvider.notifier).setMode(...)`. Lựa chọn hiện lưu trong phiên ứng dụng, chưa lưu xuống thiết bị.
 
 ## Thành phần theo UI Kit
@@ -73,6 +74,10 @@ App shell có 4 tab theo T02; Bản đồ T08 dùng marker giá và card quán v
 Skeleton tôn trọng giảm chuyển động và TickerMode. Password toggle, rating, icon buttons có nhãn trợ năng; form error/toast hỗ trợ thông báo trạng thái. Nút có vùng chạm tối thiểu 48px, icon button 44px; bố cục tránh khoá chiều cao để hỗ trợ chữ lớn.
 
 Search/Filter T05–T06 tái sử dụng field/chip/section/card/overlay và thanh CTA theo Stitch; xem [SEARCH_UI.md](SEARCH_UI.md).
+Category T07 dùng `AppRestaurantCard.insetImage`: ảnh có padding 12/góc 8, card góc 12,
+title/tag, rating, giá và địa chỉ xuống dòng theo độ rộng; variant cũ giữ nguyên.
+Search và Category chia sẻ `PlaceSearchResults` với SliverList lazy, skeleton/empty/error/retry/paging;
+`SearchActiveFilters.defaultSort` cho phép Category mặc định đánh giá cao. Xem [CATEGORY_UI.md](CATEGORY_UI.md).
 
 ## Kiểm tra
 

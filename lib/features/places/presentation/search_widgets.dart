@@ -107,9 +107,15 @@ String searchPriceLabel(PlaceSearchRequest request) {
 }
 
 class SearchActiveFilters extends StatelessWidget {
-  const SearchActiveFilters({super.key, required this.request, this.onChanged});
+  const SearchActiveFilters({
+    super.key,
+    required this.request,
+    this.onChanged,
+    this.defaultSort = PlaceSearchSort.relevance,
+  });
   final PlaceSearchRequest request;
   final ValueChanged<PlaceSearchRequest>? onChanged;
+  final PlaceSearchSort defaultSort;
   @override
   Widget build(BuildContext context) {
     final filters = <(String, PlaceSearchRequest)>[
@@ -132,8 +138,8 @@ class SearchActiveFilters extends StatelessWidget {
           amenity,
           request.copyWith(amenities: {...request.amenities}..remove(amenity)),
         ),
-      if (request.sort != PlaceSearchSort.relevance)
-        (request.sort.label, request.copyWith(sort: PlaceSearchSort.relevance)),
+      if (request.sort != defaultSort)
+        (request.sort.label, request.copyWith(sort: defaultSort)),
     ];
     return Wrap(
       spacing: 6,

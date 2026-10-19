@@ -37,6 +37,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     required this.warningContainer,
     required this.rating,
     required this.canvas,
+    required this.onImage,
   });
   final Color success,
       onSuccess,
@@ -45,7 +46,8 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       onWarning,
       warningContainer,
       rating,
-      canvas;
+      canvas,
+      onImage;
 
   static const light = AppSemanticColors(
     success: Color(0xFF2F7D4B),
@@ -56,6 +58,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     warningContainer: Color(0xFFFFEBC5),
     rating: AppColors.gold,
     canvas: AppColors.linen,
+    onImage: Colors.white,
   );
   static const dark = AppSemanticColors(
     success: Color(0xFF97D5AA),
@@ -66,6 +69,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     warningContainer: Color(0xFF493619),
     rating: AppColors.gold,
     canvas: Color(0xFF141A16),
+    onImage: Colors.white,
   );
 
   @override
@@ -78,6 +82,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     Color? warningContainer,
     Color? rating,
     Color? canvas,
+    Color? onImage,
   }) => AppSemanticColors(
     success: success ?? this.success,
     onSuccess: onSuccess ?? this.onSuccess,
@@ -87,6 +92,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     warningContainer: warningContainer ?? this.warningContainer,
     rating: rating ?? this.rating,
     canvas: canvas ?? this.canvas,
+    onImage: onImage ?? this.onImage,
   );
 
   @override
@@ -109,6 +115,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       )!,
       rating: Color.lerp(rating, other.rating, t)!,
       canvas: Color.lerp(canvas, other.canvas, t)!,
+      onImage: Color.lerp(onImage, other.onImage, t)!,
     );
   }
 }

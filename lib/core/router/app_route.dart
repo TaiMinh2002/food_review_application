@@ -9,7 +9,7 @@ enum AppRoute {
   forgotPassword('/forgot-password', 'Quên mật khẩu', task: 'T12'),
   search('/search', 'Tìm kiếm'),
   filters('/search/filters', 'Bộ lọc và sắp xếp'),
-  category('/categories/:categoryId', 'Kết quả danh mục', task: 'T07'),
+  category('/categories/:categoryId', 'Kết quả danh mục'),
   restaurant('/restaurants/:restaurantId', 'Chi tiết quán'),
   reviews(
     '/restaurants/:restaurantId/reviews',

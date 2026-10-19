@@ -1,4 +1,5 @@
 import '../domain/place.dart';
+import '../domain/place_category.dart';
 import '../domain/place_menu_item.dart';
 import '../domain/place_repository.dart';
 import '../domain/place_search.dart';
@@ -148,6 +149,12 @@ class DemoPlaceRepository
       );
     }
     final query = normalizePlaceSearchText(request.query);
+    final scope = PlaceCategory.byId(request.categoryScope);
+    if (request.categoryScope != null && scope == null) {
+      throw const AppException(
+        'Danh mục không tồn tại. Vui lòng chọn lại danh mục.',
+      );
+    }
     final tokens = query.split(' ').where((token) => token.isNotEmpty);
     final matches = _places.where((place) {
       final names = normalizePlaceSearchText(
@@ -169,7 +176,8 @@ class DemoPlaceRepository
                   place.maxPrice! >= request.minPrice!) &&
               (request.maxPrice == null ||
                   place.minPrice! <= request.maxPrice!);
-      return matchesCategory &&
+      return (scope == null || scope.contains(place)) &&
+          matchesCategory &&
           matchesRating &&
           matchesPrice &&
           request.amenities.every(place.amenities.contains) &&
@@ -199,16 +207,18 @@ class DemoPlaceRepository
     final items = matches.skip(offset).take(pageSize).toList();
     return PlaceSearchPage(
       items: items,
-      categories: const [
-        'Phở',
-        'Bún',
-        'Cơm',
-        'Bánh mì',
-        'Đồ nướng',
-        'Lẩu',
-        'Cà phê',
-        'Món chay',
-      ],
+      categories:
+          scope?.subcategories ??
+          const [
+            'Phở',
+            'Bún',
+            'Cơm',
+            'Bánh mì',
+            'Đồ nướng',
+            'Lẩu',
+            'Cà phê',
+            'Món chay',
+          ],
       amenities: _places.expand((place) => place.amenities).toSet().toList()
         ..sort(),
       totalCount: matches.length,

@@ -7,6 +7,7 @@ import '../../../core/router/app_route.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../../../shared/widgets/app_message.dart';
 import '../domain/place.dart';
+import '../domain/place_category.dart';
 import '../domain/place_search.dart';
 import 'home_sections.dart';
 import 'place_card.dart';
@@ -143,6 +144,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
+                  Padding(
+                    padding: inset,
+                    child: AppSectionHeader(
+                      title: 'Danh mục ẩm thực',
+                      actionLabel: 'Xem danh mục',
+                      onAction: () => context.push(
+                        AppRoute.category.location(
+                          parameters: {
+                            'categoryId':
+                                (PlaceCategory.byLabel(
+                                          _category ?? 'Món Việt',
+                                        ) ??
+                                        PlaceCategory.values.first)
+                                    .id,
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     padding: inset,

@@ -16,11 +16,13 @@ class PlaceCard extends ConsumerWidget {
     this.compact = true,
     this.onOpen,
     this.imageAspectRatio = 16 / 9,
+    this.insetImage = false,
   });
 
   final Place place;
   final VoidCallback? onOpen;
   final bool compact;
+  final bool insetImage;
   final double imageAspectRatio;
 
   @override
@@ -30,14 +32,17 @@ class PlaceCard extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: AppRestaurantCard(
         name: place.name,
-        category: place.category,
-        address: compact ? place.address : null,
+        category: insetImage
+            ? place.foodCategories.firstOrNull ?? place.category
+            : place.category,
+        address: compact || insetImage ? place.address : null,
         badge: compact || !place.isDemo ? null : 'Minh họa',
         imageUrl: place.imageUrls.firstOrNull,
         rating: place.averageRating,
         reviewCount: place.reviewCount,
         compact: compact,
         imageAspectRatio: imageAspectRatio,
+        insetImage: insetImage,
         priceLabel: place.minPrice != null && place.maxPrice != null
             ? AppFormatters.priceRange(place.minPrice!, place.maxPrice!)
             : null,

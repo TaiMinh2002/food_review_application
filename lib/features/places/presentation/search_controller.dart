@@ -104,7 +104,13 @@ class PlaceSearchController extends Notifier<PlaceSearchState> {
   void apply(PlaceSearchRequest request) => _start(request);
   void setSort(PlaceSearchSort sort) =>
       _start(state.request.copyWith(sort: sort));
-  void reset() => _start(PlaceSearchRequest());
+  void reset() => _start(
+    PlaceSearchRequest(
+      sort: seed.request.categoryScope == null
+          ? PlaceSearchSort.relevance
+          : PlaceSearchSort.rating,
+    ),
+  );
   void retry() => _start(state.request);
 
   void submit(String query) {
@@ -116,6 +122,9 @@ class PlaceSearchController extends Notifier<PlaceSearchState> {
   }
 
   void _start(PlaceSearchRequest request, {bool debounce = false}) {
+    if (seed.request.categoryScope != null) {
+      request = request.copyWith(categoryScope: seed.request.categoryScope);
+    }
     _debounce?.cancel();
     final generation = ++_generation;
     state = PlaceSearchState(
