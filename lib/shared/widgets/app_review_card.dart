@@ -90,7 +90,7 @@ class AppReviewCard extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 12),
-          AppRating(value: rating, showStars: true),
+          AppRating(value: rating, showStars: true, showValue: false),
           const SizedBox(height: 8),
           Text(content, style: context.textStyles.bodyMedium),
           if (dishes.isNotEmpty)
@@ -131,27 +131,30 @@ class AppReviewCard extends StatelessWidget {
                 ),
               ),
             ),
-          const Divider(),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              TextButton.icon(
-                onPressed: onHelpful,
-                icon: Icon(
-                  isHelpful ? Icons.thumb_up : Icons.thumb_up_outlined,
-                  size: 16,
-                ),
-                label: Text('Hữu ích ($helpfulCount)'),
-              ),
-              if (onReplies != null)
-                TextButton.icon(
-                  onPressed: onReplies,
-                  icon: const Icon(Icons.chat_bubble_outline, size: 16),
-                  label: Text('$replyCount phản hồi'),
-                ),
-            ],
-          ),
+          if (onHelpful != null || onReplies != null) ...[
+            const Divider(),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                if (onHelpful != null)
+                  TextButton.icon(
+                    onPressed: onHelpful,
+                    icon: Icon(
+                      isHelpful ? Icons.thumb_up : Icons.thumb_up_outlined,
+                      size: 16,
+                    ),
+                    label: Text('Hữu ích ($helpfulCount)'),
+                  ),
+                if (onReplies != null)
+                  TextButton.icon(
+                    onPressed: onReplies,
+                    icon: const Icon(Icons.chat_bubble_outline, size: 16),
+                    label: Text('$replyCount phản hồi'),
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
     ),

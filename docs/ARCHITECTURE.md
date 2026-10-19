@@ -29,6 +29,9 @@ Phạm vi/trạng thái/lộ trình ở [FEATURES.md](FEATURES.md); schema, quer
 `ProviderScope` ở main; `placeRepositoryProvider` đang cấp `DemoPlaceRepository`.
 Khi có Firestore, thêm implementation mới ở places/data và đổi provider.
 Không tạo Firestore instance trong widget. Test có thể override provider mà không kết nối mạng.
+`reviewRepositoryProvider` cấp `DemoReviewRepository`; `reviewPreviewProvider(placeId)`
+đọc tối đa hai review qua contract `watchForPlace(placeId, limit: 2)`, có lỗi/retry riêng.
+T09a mới triển khai danh sách đầy đủ/phân trang; T13 mới nối tạo review và Auth.
 
 `FavoriteRepository` hiện là contract đồng bộ dành cho demo RAM. Trước khi nối Firestore,
 đổi sang `watchPlaceIds(userId)` và async `setFavorite(userId, placeId, value)`;
@@ -38,7 +41,7 @@ Không bọc API Firestore async bằng contract đồng bộ hiện tại.
 ## Routing
 
 - `/home`: Home theo Stitch (T03), giữ tìm/lọc demo tại chỗ và cuộn khi chuyển tab.
-- `/restaurants/:restaurantId`: chi tiết; map ID sang `placeId` trong domain, xử lý ID không tồn tại.
+- `/restaurants/:restaurantId`: chi tiết Stitch T04 với gallery, menu, review preview và thanh giá/chỉ đường; map ID sang `placeId` trong domain, xử lý ID không tồn tại. Xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md).
 - `/map`: tab placeholder, chờ T08.
 - `/favorites`: quán đã lưu trong phiên.
 - `/profile`: trang khởi đầu hồ sơ.

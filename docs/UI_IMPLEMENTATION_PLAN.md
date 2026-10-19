@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 18/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03 đã triển khai UI/demo, còn các tích hợp phụ thuộc. Xem [HOME_UI.md](HOME_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 19/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03–T04 đã triển khai UI/demo, còn các tích hợp phụ thuộc. Xem [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -19,12 +19,12 @@ Bao phủ toàn bộ luồng tài liệu, kể cả collections, reports và adm
 | --- | --- | --- |
 | Design system | Tokens, Inter, light/dark, button/input/card/rating/overlay/navigation | Tái sử dụng, bổ sung chỉ khi màn cụ thể cần |
 | Điều hướng | GoRouter, indexed stack 4 tab, route/placeholder và return-to nền T02 | Nối guard Auth và nội dung màn thật; giữ stack/Back theo nguồn |
-| Home | `PlacesScreen`: danh sách, tìm tên và lọc danh mục tại chỗ | UI Home theo Stitch, tách Search và Category thành màn riêng |
-| Chi tiết quán | Load theo ID, rating, nút favorite, not-found | Ảnh, các khối nội dung, links review/gallery/map/report theo thiết kế |
+| Home | `HomeScreen` theo Stitch; tìm tên, lọc danh mục, gợi ý, ảnh, favorite và giữ cuộn | Tách Search/Category thành màn riêng; nối dữ liệu thật và các CTA phụ thuộc |
+| Chi tiết quán | UI T04: ảnh, thông tin, món, review preview, favorite, CTA và thanh giá/chỉ đường | Backend, Auth và nội dung thật của T08/T09/T13/T24/T25 |
 | Dữ liệu quán | `DemoPlaceRepository`, model `Place` cơ bản | Contract tìm/lọc/phân trang; bổ sung trường có nguồn dữ liệu |
 | Yêu thích | Repository RAM, state đồng bộ giữa các màn | Auth gate, lưu theo tài khoản, async và rollback khi lỗi |
 | Auth / profile | Auth contract, profile model, màn khởi đầu | Form thật, auth state, hồ sơ, duy trì phiên và logout |
-| Review | Model + contract đọc theo quán/tạo | List/form/edit/delete, tải theo ID, my reviews, upload, quyền sở hữu |
+| Review | Model/contract + preview repository demo giới hạn hai review | List/form/edit/delete, tải theo ID, my reviews, upload, quyền sở hữu |
 | Firebase | `main.dart` đã initialize Firebase; dependencies/config native đã chuẩn bị | Chưa có repository Auth/Firestore thực thi các luồng nghiệp vụ |
 | Các feature khác | Chưa có UI chức năng tương ứng | Map, want-to-visit, collections, notifications, reports/admin |
 
@@ -138,6 +138,8 @@ Nguồn: `02 - Home`, screen `be51296ba5444ed0b0fc92ac5495ad7a`.
 | T08 | Map `/map` | Bản đồ, marker, chọn marker/card preview, về vị trí của tôi, mở chi tiết; lọc theo vùng nếu nằm trong phạm vi | Từ chối GPS/tắt vị trí vẫn dùng được; không gọi vị trí nền; giữ marker/camera khi đổi tab; attribution và cấu hình tile phù hợp |
 | T09a | All Reviews `/restaurants/:restaurantId/reviews` | Summary, danh sách, sort/filter đúng thiết kế và contract; avatar mở hồ sơ công khai, CTA viết review | Đúng quán; phân trang/loading/empty/error; không bịa phân bố số sao từ average |
 | T09b | Gallery `/restaurants/:restaurantId/gallery` | Lưới ảnh, xem lớn, swipe, chỉ số ảnh ban đầu qua query `index`; xử lý ảnh hỏng | Tap ảnh thứ N mở đúng ảnh; kiểm tra index ngoài phạm vi; zero ảnh/Back đúng |
+
+**Trạng thái T04:** UI/demo đã triển khai và kiểm tra; xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Chưa nghiệm thu backend/Auth và các màn đích. Task UI tiếp theo: **T05 — Search**.
 
 T09a và T09b là hai lượt UI riêng. Không cần làm đồng thời để hoàn thành một màn.
 

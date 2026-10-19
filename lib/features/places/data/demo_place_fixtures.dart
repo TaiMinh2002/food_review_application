@@ -19,6 +19,10 @@ abstract final class DemoPlaceFixtures {
         reviewCount: place.reviewCount,
         minPrice: place.minPrice,
         maxPrice: place.maxPrice,
+        isDemo: place.isDemo,
+        openingHours: place.openingHours,
+        amenities: place.amenities,
+        menuItems: place.menuItems,
       ),
   ];
 
@@ -42,6 +46,10 @@ abstract final class DemoPlaceFixtures {
         reviewCount: withoutImages[i].reviewCount,
         minPrice: withoutImages[i].minPrice,
         maxPrice: withoutImages[i].maxPrice,
+        isDemo: withoutImages[i].isDemo,
+        openingHours: withoutImages[i].openingHours,
+        amenities: withoutImages[i].amenities,
+        menuItems: withoutImages[i].menuItems,
       ),
   ]);
 }

@@ -1,6 +1,6 @@
 # Food Review — Tính năng chính và hướng phát triển
 
-Bản tổng hợp phạm vi sản phẩm, cập nhật 18/10/2026. Đây là nguồn duy nhất về danh sách
+Bản tổng hợp phạm vi sản phẩm, cập nhật 19/10/2026. Đây là nguồn duy nhất về danh sách
 và mức ưu tiên tính năng; chi tiết màn hình ở [kế hoạch UI](UI_IMPLEMENTATION_PLAN.md),
 luồng ở [routing](food_review_luong_hoat_dong_routing.md), dữ liệu/quyền ở
 [backend](BACKEND_SETUP.md). Các mục dự kiến không phải tính năng đã triển khai.
@@ -12,8 +12,8 @@ luồng ở [routing](food_review_luong_hoat_dong_routing.md), dữ liệu/quy�
 - Demo có danh sách quán, tìm tên không phân biệt hoa/thường, lọc danh mục, chi tiết,
   yêu thích đồng bộ trong RAM và loading/empty/error/retry/not-found.
 - Firebase đã khởi tạo trên Android/iOS; chưa có repository Auth/Firestore thật.
-  Review mới có model/contract; Auth/Profile là màn khởi đầu; Bản đồ là placeholder.
-- T03 trở đi chưa hoàn tất. Yêu thích và lựa chọn theme chưa lưu qua restart;
+  Review đã có preview demo giới hạn hai nhận xét trên chi tiết quán; Auth/Profile là màn khởi đầu; Bản đồ là placeholder.
+- T03 Home và T04 Chi tiết quán đã triển khai UI/demo (xem HOME_UI.md và RESTAURANT_DETAIL_UI.md); backend và các luồng phụ thuộc chưa hoàn tất. Yêu thích và lựa chọn theme chưa lưu qua restart;
   tọa độ/ảnh demo không phải dữ liệu quán đã xác minh. Web chưa có FirebaseOptions.
 
 ## 2. Tính năng chính — MVP

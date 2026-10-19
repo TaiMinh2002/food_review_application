@@ -1,3 +1,5 @@
+import 'place_menu_item.dart';
+
 class Place {
   const Place({
     required this.id,
@@ -12,6 +14,10 @@ class Place {
     this.reviewCount = 0,
     this.minPrice,
     this.maxPrice,
+    this.openingHours,
+    this.amenities = const [],
+    this.menuItems = const [],
+    this.isDemo = false,
   });
 
   final String id;
@@ -25,4 +31,8 @@ class Place {
   final double averageRating;
   final int reviewCount;
   final int? minPrice, maxPrice;
+  final String? openingHours;
+  final List<String> amenities;
+  final List<PlaceMenuItem> menuItems;
+  final bool isDemo;
 }
