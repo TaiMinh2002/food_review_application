@@ -198,6 +198,8 @@ void main() {
               ? 'Tạo tài khoản'
               : route == AppRoute.forgotPassword
               ? 'Quên mật khẩu?'
+              : route == AppRoute.createReview
+              ? 'Không tìm thấy quán.'
               : route.isAdmin
               ? 'Không có quyền truy cập. Quyền quản trị chưa được xác minh.'
               : 'Chức năng chưa triển khai · ${route.task}.',

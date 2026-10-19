@@ -33,8 +33,8 @@ SafeArea, cuộn lazy, chữ lớn và thanh CTA co theo nội dung được h�
   response cũ và dữ liệu sai quán. Back từ màn con giữ filter/vị trí cuộn.
 - Avatar mở T24 với userId; tùy chọn mở T25 với restaurantId/reviewId;
   ảnh mở T09b với reviewId và index đúng ảnh; CTA mở T13 với restaurantId.
-  Gallery T09b đã có viewer thật và giữ đúng nguồn/index; T13/T24/T25 vẫn thông báo chưa triển khai. Nếu T13 sau này trả `true` khi lưu
-  thành công, màn tự tải lại summary/danh sách. Chưa tạo review hay thêm Auth gate.
+  Gallery T09b đã có viewer thật và giữ đúng nguồn/index; T14/T24/T25 vẫn thông báo chưa triển khai. T13 trả `true` khi lưu
+  thành công, màn tự tải lại summary/danh sách. T13 đã có Auth gate và demo repository; Firestore/backend review thật vẫn chưa tích hợp.
 
 ## Dữ liệu mẫu và giới hạn
 

@@ -139,7 +139,7 @@ void main() {
             .matchedLocation,
         '/restaurants/coffee-demo/reviews/create',
       );
-      expect(find.text('Chức năng chưa triển khai · T13.'), findsOneWidget);
+      expect(find.text('Bạn đánh giá quán thế nào?'), findsOneWidget);
     },
   );
 

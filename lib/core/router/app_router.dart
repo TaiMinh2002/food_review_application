@@ -12,6 +12,7 @@ import '../../features/auth/presentation/auth_providers.dart';
 import '../../features/auth/presentation/auth_gate.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/reviews/presentation/all_reviews_screen.dart';
+import '../../features/reviews/presentation/write_review_screen.dart';
 import '../../features/reviews/domain/review_feed_repository.dart';
 import '../../features/places/presentation/place_detail_screen.dart';
 import '../../features/places/presentation/home_screen.dart';
@@ -262,11 +263,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
         ),
       ),
+      GoRoute(
+        name: AppRoute.createReview.name,
+        path: AppRoute.createReview.path,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) => RouteBackScope(
+          child: WriteReviewScreen(
+            placeId: state.pathParameters['restaurantId']!,
+            scope: state.pageKey.value,
+          ),
+        ),
+      ),
       for (final route in AppRoute.values)
         if (route.task != null &&
             route != AppRoute.map &&
             route != AppRoute.register &&
-            route != AppRoute.forgotPassword)
+            route != AppRoute.forgotPassword &&
+            route != AppRoute.createReview)
           GoRoute(
             name: route.name,
             path: route.path,
