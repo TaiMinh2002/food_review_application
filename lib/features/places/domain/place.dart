@@ -18,6 +18,7 @@ class Place {
     this.amenities = const [],
     this.menuItems = const [],
     this.isDemo = false,
+    this.foodCategories = const [],
   });
 
   final String id;
@@ -32,7 +33,7 @@ class Place {
   final int reviewCount;
   final int? minPrice, maxPrice;
   final String? openingHours;
-  final List<String> amenities;
+  final List<String> amenities, foodCategories;
   final List<PlaceMenuItem> menuItems;
   final bool isDemo;
 }

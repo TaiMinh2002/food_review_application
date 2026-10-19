@@ -14,10 +14,12 @@ class PlaceCard extends ConsumerWidget {
     super.key,
     required this.place,
     this.compact = true,
+    this.onOpen,
     this.imageAspectRatio = 16 / 9,
   });
 
   final Place place;
+  final VoidCallback? onOpen;
   final bool compact;
   final double imageAspectRatio;
 
@@ -30,7 +32,7 @@ class PlaceCard extends ConsumerWidget {
         name: place.name,
         category: place.category,
         address: compact ? place.address : null,
-        badge: compact ? null : 'Minh họa',
+        badge: compact || !place.isDemo ? null : 'Minh họa',
         imageUrl: place.imageUrls.firstOrNull,
         rating: place.averageRating,
         reviewCount: place.reviewCount,
@@ -40,9 +42,14 @@ class PlaceCard extends ConsumerWidget {
             ? AppFormatters.priceRange(place.minPrice!, place.maxPrice!)
             : null,
         isFavorite: isFavorite,
-        onTap: () => context.push(
-          AppRoute.restaurant.location(parameters: {'restaurantId': place.id}),
-        ),
+        onTap: () {
+          onOpen?.call();
+          context.push(
+            AppRoute.restaurant.location(
+              parameters: {'restaurantId': place.id},
+            ),
+          );
+        },
         onFavorite: () =>
             ref.read(favoriteIdsProvider.notifier).toggle(place.id),
       ),

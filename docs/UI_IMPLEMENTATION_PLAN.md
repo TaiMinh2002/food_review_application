@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 19/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03–T04 đã triển khai UI/demo, còn các tích hợp phụ thuộc. Xem [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 19/10/2026. Trạng thái: đã hoàn thiện nền tảng T01–T02; T03–T06 đã triển khai UI/demo, còn các tích hợp phụ thuộc. Xem [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -21,11 +21,12 @@ Bao phủ toàn bộ luồng tài liệu, kể cả collections, reports và adm
 | Điều hướng | GoRouter, indexed stack 4 tab, route/placeholder và return-to nền T02 | Nối guard Auth và nội dung màn thật; giữ stack/Back theo nguồn |
 | Home | `HomeScreen` theo Stitch; tìm tên, lọc danh mục, gợi ý, ảnh, favorite và giữ cuộn | Tách Search/Category thành màn riêng; nối dữ liệu thật và các CTA phụ thuộc |
 | Chi tiết quán | UI T04: ảnh, thông tin, món, review preview, favorite, CTA và thanh giá/chỉ đường | Backend, Auth và nội dung thật của T08/T09/T13/T24/T25 |
-| Dữ liệu quán | `DemoPlaceRepository`, model `Place` cơ bản | Contract tìm/lọc/phân trang; bổ sung trường có nguồn dữ liệu |
+| Dữ liệu quán | DemoPlaceRepository + PlaceSearchRepository query/filter/sort/cursor; Place có foodCategories | Backend query/index/cursor thật; dữ liệu quán có nguồn |
 | Yêu thích | Repository RAM, state đồng bộ giữa các màn | Auth gate, lưu theo tài khoản, async và rollback khi lỗi |
 | Auth / profile | Auth contract, profile model, màn khởi đầu | Form thật, auth state, hồ sơ, duy trì phiên và logout |
 | Review | Model/contract + preview repository demo giới hạn hai review | List/form/edit/delete, tải theo ID, my reviews, upload, quyền sở hữu |
 | Firebase | `main.dart` đã initialize Firebase; dependencies/config native đã chuẩn bị | Chưa có repository Auth/Firestore thực thi các luồng nghiệp vụ |
+| Search / Filter | T05–T06: query/filter/sort riêng, form nháp, danh sách/phân trang, recent trong phiên | Backend, dữ liệu GPS/open-now đáng tin cậy; xem SEARCH_UI.md |
 | Các feature khác | Chưa có UI chức năng tương ứng | Map, want-to-visit, collections, notifications, reports/admin |
 
 MVP và các đợt mở rộng được phân loại tại FEATURES.md. T16, T21–T27 thuộc phần mở rộng đã có kế hoạch; T28–T29 nghiệm thu theo phạm vi phát hành. Mốc 4–5 tuần cũ không áp dụng cho toàn bộ kế hoạch.
@@ -139,7 +140,7 @@ Nguồn: `02 - Home`, screen `be51296ba5444ed0b0fc92ac5495ad7a`.
 | T09a | All Reviews `/restaurants/:restaurantId/reviews` | Summary, danh sách, sort/filter đúng thiết kế và contract; avatar mở hồ sơ công khai, CTA viết review | Đúng quán; phân trang/loading/empty/error; không bịa phân bố số sao từ average |
 | T09b | Gallery `/restaurants/:restaurantId/gallery` | Lưới ảnh, xem lớn, swipe, chỉ số ảnh ban đầu qua query `index`; xử lý ảnh hỏng | Tap ảnh thứ N mở đúng ảnh; kiểm tra index ngoài phạm vi; zero ảnh/Back đúng |
 
-**Trạng thái T04:** UI/demo đã triển khai và kiểm tra; xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Chưa nghiệm thu backend/Auth và các màn đích. Task UI tiếp theo: **T05 — Search**.
+**Trạng thái T04:** UI/demo đã triển khai và kiểm tra; xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Chưa nghiệm thu backend/Auth và các màn đích. T05–T06 đã được triển khai cùng nhau theo yêu cầu người dùng; xem [SEARCH_UI.md](SEARCH_UI.md). Task UI tiếp theo: **T07 — Category**.
 
 T09a và T09b là hai lượt UI riêng. Không cần làm đồng thời để hoàn thành một màn.
 

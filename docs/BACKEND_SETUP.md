@@ -146,3 +146,16 @@ Tài liệu dịch vụ để đối chiếu lúc tích hợp:
 [Firestore Security Rules](https://firebase.google.com/docs/firestore/security/get-started),
 [Cloudinary upload](https://cloudinary.com/documentation/upload_images),
 [OSM tile policy](https://operations.osmfoundation.org/policies/tiles/).
+
+## Search T05–T06: contract hiện có
+
+UI/demo đã dùng PlaceSearchRepository.searchPlaces(request, cursor, pageSize).
+Khi thay DemoPlaceRepository, implement capability này hoặc override
+placeSearchRepositoryProvider cùng nguồn dữ liệu. Backend phải áp dụng category
+OR, tiện ích AND, minRating, giá giao khoảng, sort và limit, tie-break theo ID;
+trả cursor ổn định cho đúng query. Offset cursor của demo không phải Firestore cursor.
+PlaceSearchPage còn cung cấp taxonomy/tiện ích để form không quét toàn bộ quán.
+Tên quán và tên món cần chỉ mục/tìm kiếm chuẩn hóa tiếng Việt; nếu Firestore
+không đáp ứng query kết hợp/toàn văn thì dùng API tìm kiếm phù hợp, không tải
+cả collection về widget. Chưa bật GPS/open-now vì thiếu dữ liệu có nguồn.
+Chi tiết và giới hạn hiện tại: [SEARCH_UI.md](SEARCH_UI.md).

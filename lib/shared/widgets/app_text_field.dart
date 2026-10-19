@@ -89,11 +89,13 @@ class AppSearchField extends StatefulWidget {
     this.onSubmitted,
     this.onFilter,
     this.hintText = 'Tìm quán ăn, món ăn...',
+    this.filterCount = 0,
   });
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged, onSubmitted;
   final VoidCallback? onFilter;
   final String hintText;
+  final int filterCount;
   @override
   State<AppSearchField> createState() => _AppSearchFieldState();
 }
@@ -161,7 +163,13 @@ class _AppSearchFieldState extends State<AppSearchField> {
             IconButton(
               tooltip: 'Bộ lọc',
               onPressed: widget.onFilter,
-              icon: const Icon(Icons.tune),
+              icon: Badge(
+                isLabelVisible: widget.filterCount > 0,
+                label: Text('${widget.filterCount}'),
+                backgroundColor: context.colors.secondaryContainer,
+                textColor: context.colors.onSecondaryContainer,
+                child: const Icon(Icons.tune),
+              ),
             ),
           ],
         ],
