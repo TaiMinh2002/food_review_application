@@ -7,6 +7,9 @@ import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/places/presentation/place_detail_screen.dart';
 import '../../features/places/presentation/home_screen.dart';
+import '../../features/places/presentation/search_screen.dart';
+import '../../features/places/presentation/search_filters_screen.dart';
+import '../../features/places/domain/place_search.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../shared/design_system/design_system_screen.dart';
 import '../../shared/widgets/app_message.dart';
@@ -63,7 +66,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 name: AppRoute.home.name,
                 path: AppRoute.home.path,
-                // Home retains local demo search until the dedicated T05 flow.
+                // Home keeps quick filtering; submit opens the dedicated search flow.
                 builder: (_, _) => const HomeScreen(),
               ),
             ],
@@ -97,6 +100,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        name: AppRoute.search.name,
+        path: AppRoute.search.path,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) => RouteBackScope(
+          child: SearchScreen(
+            seed: (
+              request: PlaceSearchRequest.fromUri(state.uri),
+              scope: state.pageKey.value,
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        name: AppRoute.filters.name,
+        path: AppRoute.filters.path,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) => RouteBackScope(
+          child: SearchFiltersScreen(
+            initialRequest: PlaceSearchRequest.fromUri(state.uri),
+          ),
+        ),
       ),
       GoRoute(
         name: AppRoute.restaurant.name,

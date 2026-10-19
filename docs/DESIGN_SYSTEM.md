@@ -44,7 +44,7 @@ Các component chỉ nhận dữ liệu và callback; không phụ thuộc route
 | Nhóm Stitch | API dùng chung |
 | --- | --- |
 | 01 Buttons | `AppButton`: primary, secondary, outline, text, destructive; loading/disabled; `AppIconButton` có tooltip |
-| 02 Form fields | `AppTextField`: label/helper/error, Form validator, password toggle, verified, keyboard/autofill; `AppSearchField`: clear và filter callback |
+| 02 Form fields | `AppTextField`: label/helper/error, Form validator, password toggle, verified, keyboard/autofill; `AppSearchField`: clear, filter callback và badge filterCount |
 | 03 Restaurant cards | `AppRestaurantCard`: ảnh 16:9 hoặc compact 88px, title/category/rating/price/distance/address/badge/open state/favorite |
 | 04 Ratings | `AppRating`, `AppRatingInput`, `AppRatingSummary` |
 | 05 Review card | `AppReviewCard`: reviewer, verified/rank, rating, text, dish tags, gallery, helpful, replies, more/profile callbacks |
@@ -71,6 +71,8 @@ AppReviewCard ẩn helpful/replies khi chưa có callback, tránh hiển thị t
 App shell có 4 tab theo T02; Bản đồ hiện là placeholder chờ T08, Trang chủ đã dựng theo Stitch T03; xem [HOME_UI.md](HOME_UI.md) cho bằng chứng và các tích hợp còn thiếu. Component điều hướng hỗ trợ danh sách tùy ý; catalog minh hoạ 4 tab theo thiết kế. Các card không tự tạo dữ liệu giá, khoảng cách hoặc ảnh nếu repository chưa cung cấp.
 
 Skeleton tôn trọng giảm chuyển động và TickerMode. Password toggle, rating, icon buttons có nhãn trợ năng; form error/toast hỗ trợ thông báo trạng thái. Nút có vùng chạm tối thiểu 48px, icon button 44px; bố cục tránh khoá chiều cao để hỗ trợ chữ lớn.
+
+Search/Filter T05–T06 tái sử dụng field/chip/section/card/overlay và thanh CTA theo Stitch; xem [SEARCH_UI.md](SEARCH_UI.md).
 
 ## Kiểm tra
 

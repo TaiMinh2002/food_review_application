@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/demo_place_repository.dart';
 import '../domain/place.dart';
 import '../domain/place_repository.dart';
+import '../domain/place_search.dart';
 
 final placeRepositoryProvider = Provider<PlaceRepository>(
   (ref) => DemoPlaceRepository(),
@@ -20,9 +21,9 @@ final placeProvider = FutureProvider.autoDispose.family<Place?, String>(
 );
 
 List<Place> filterPlaces(List<Place> places, String query, String? category) {
-  final normalized = query.trim().toLowerCase();
+  final normalized = normalizePlaceSearchText(query);
   return places.where((place) {
-    return place.name.toLowerCase().contains(normalized) &&
+    return normalizePlaceSearchText(place.name).contains(normalized) &&
         (category == null || place.category == category);
   }).toList();
 }

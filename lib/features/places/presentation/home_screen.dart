@@ -7,6 +7,7 @@ import '../../../core/router/app_route.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../../../shared/widgets/app_message.dart';
 import '../domain/place.dart';
+import '../domain/place_search.dart';
 import 'home_sections.dart';
 import 'place_card.dart';
 import 'place_providers.dart';
@@ -30,6 +31,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       },
     ),
   );
+
+  Future<void> _filters() async {
+    final result = await context.push<PlaceSearchRequest>(
+      AppRoute.filters.location(
+        query: {
+          if (_query.trim().isNotEmpty) 'q': _query.trim(),
+          'category': ?_category,
+        },
+      ),
+    );
+    if (!mounted || result == null) return;
+    context.push(AppRoute.search.location(query: result.queryParameters));
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -125,7 +139,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       hintText: 'Tìm quán ăn, món ngon...',
                       onChanged: (value) => setState(() => _query = value),
                       onSubmitted: (_) => _search(),
-                      onFilter: () => context.push(AppRoute.filters.path),
+                      onFilter: _filters,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),

@@ -7,8 +7,8 @@ enum AppRoute {
   login('/login', 'Đăng nhập'),
   register('/register', 'Đăng ký', task: 'T11'),
   forgotPassword('/forgot-password', 'Quên mật khẩu', task: 'T12'),
-  search('/search', 'Tìm kiếm', task: 'T05'),
-  filters('/search/filters', 'Bộ lọc và sắp xếp', task: 'T06'),
+  search('/search', 'Tìm kiếm'),
+  filters('/search/filters', 'Bộ lọc và sắp xếp'),
   category('/categories/:categoryId', 'Kết quả danh mục', task: 'T07'),
   restaurant('/restaurants/:restaurantId', 'Chi tiết quán'),
   reviews(
@@ -50,7 +50,7 @@ enum AppRoute {
 
   String location({
     Map<String, String> parameters = const {},
-    Map<String, String>? query,
+    Map<String, dynamic>? query,
   }) {
     final resolved = path.replaceAllMapped(RegExp(r':(\w+)'), (match) {
       final value = parameters[match[1]];

@@ -22,6 +22,7 @@ abstract final class DemoPlaceFixtures {
         isDemo: place.isDemo,
         openingHours: place.openingHours,
         amenities: place.amenities,
+        foodCategories: place.foodCategories,
         menuItems: place.menuItems,
       ),
   ];
@@ -49,6 +50,7 @@ abstract final class DemoPlaceFixtures {
         isDemo: withoutImages[i].isDemo,
         openingHours: withoutImages[i].openingHours,
         amenities: withoutImages[i].amenities,
+        foodCategories: withoutImages[i].foodCategories,
         menuItems: withoutImages[i].menuItems,
       ),
   ]);

@@ -9,11 +9,11 @@ luồng ở [routing](food_review_luong_hoat_dong_routing.md), dữ liệu/quy�
 
 - Đã có nền T01–T02: design system Inter/Material 3, light/dark/system, bốn tab giữ trạng thái,
   route và placeholder cho các màn dự kiến; khu vực admin từ chối truy cập mặc định.
-- Demo có danh sách quán, tìm tên không phân biệt hoa/thường, lọc danh mục, chi tiết,
+- Demo có danh sách quán; Search tìm tên quán/món không dấu, query/filter/sort/phân trang và recent trong phiên; chi tiết,
   yêu thích đồng bộ trong RAM và loading/empty/error/retry/not-found.
 - Firebase đã khởi tạo trên Android/iOS; chưa có repository Auth/Firestore thật.
   Review đã có preview demo giới hạn hai nhận xét trên chi tiết quán; Auth/Profile là màn khởi đầu; Bản đồ là placeholder.
-- T03 Home và T04 Chi tiết quán đã triển khai UI/demo (xem HOME_UI.md và RESTAURANT_DETAIL_UI.md); backend và các luồng phụ thuộc chưa hoàn tất. Yêu thích và lựa chọn theme chưa lưu qua restart;
+- T03 Home, T04 Chi tiết quán và T05–T06 Search/Filter đã triển khai UI/demo (xem HOME_UI.md, RESTAURANT_DETAIL_UI.md, SEARCH_UI.md); backend và các luồng phụ thuộc chưa hoàn tất. Yêu thích và lựa chọn theme chưa lưu qua restart;
   tọa độ/ảnh demo không phải dữ liệu quán đã xác minh. Web chưa có FirebaseOptions.
 
 ## 2. Tính năng chính — MVP

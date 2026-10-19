@@ -1,9 +1,12 @@
 import '../domain/place.dart';
 import '../domain/place_menu_item.dart';
 import '../domain/place_repository.dart';
+import '../domain/place_search.dart';
+import '../domain/place_search_repository.dart';
+import '../../../core/errors/app_exception.dart';
 
 /// Illustrative data only. Replace through placeRepositoryProvider for Firestore.
-class DemoPlaceRepository implements PlaceRepository {
+class DemoPlaceRepository implements PlaceRepository, PlaceSearchRepository {
   DemoPlaceRepository({List<Place> data = places})
     : _places = List.unmodifiable(data);
 
@@ -12,6 +15,7 @@ class DemoPlaceRepository implements PlaceRepository {
   static const places = [
     Place(
       id: 'pho-demo',
+      foodCategories: ['Phở'],
       isDemo: true,
       openingHours: '06:00 – 20:30',
       amenities: ['Ăn tại chỗ', 'Mang về', 'Chuyển khoản / QR', 'Có chỗ để xe'],
@@ -61,6 +65,7 @@ class DemoPlaceRepository implements PlaceRepository {
     ),
     Place(
       id: 'coffee-demo',
+      foodCategories: ['Cà phê'],
       isDemo: true,
       imageUrls: ['assets/images/demo/coffee.jpg'],
       averageRating: 4.7,
@@ -77,6 +82,7 @@ class DemoPlaceRepository implements PlaceRepository {
     ),
     Place(
       id: 'banh-mi-demo',
+      foodCategories: ['Bánh mì'],
       isDemo: true,
       imageUrls: ['assets/images/demo/banh_mi.jpg'],
       averageRating: 4.6,
@@ -101,5 +107,92 @@ class DemoPlaceRepository implements PlaceRepository {
       if (place.id == id) return place;
     }
     return null;
+  }
+
+  @override
+  Future<PlaceSearchPage> searchPlaces(
+    PlaceSearchRequest request, {
+    String? cursor,
+    int pageSize = 20,
+  }) async {
+    if (pageSize < 1 || pageSize > 50) {
+      throw ArgumentError.value(pageSize, 'pageSize');
+    }
+    final offset = cursor == null ? 0 : int.tryParse(cursor);
+    if (offset == null || offset < 0) {
+      throw const AppException(
+        'Không thể tải trang kết quả. Vui lòng tìm lại.',
+      );
+    }
+    final query = normalizePlaceSearchText(request.query);
+    final tokens = query.split(' ').where((token) => token.isNotEmpty);
+    final matches = _places.where((place) {
+      final names = normalizePlaceSearchText(
+        [place.name, ...place.menuItems.map((item) => item.name)].join(' '),
+      );
+      final matchesCategory =
+          request.categories.isEmpty ||
+          request.categories.contains(place.category) ||
+          request.categories.any(place.foodCategories.contains);
+      final matchesRating =
+          request.minRating == null ||
+          place.reviewCount > 0 && place.averageRating >= request.minRating!;
+      final filtersPrice = request.minPrice != null || request.maxPrice != null;
+      final matchesPrice =
+          !filtersPrice ||
+          place.minPrice != null &&
+              place.maxPrice != null &&
+              (request.minPrice == null ||
+                  place.maxPrice! >= request.minPrice!) &&
+              (request.maxPrice == null ||
+                  place.minPrice! <= request.maxPrice!);
+      return matchesCategory &&
+          matchesRating &&
+          matchesPrice &&
+          request.amenities.every(place.amenities.contains) &&
+          tokens.every(names.contains);
+    }).toList();
+    int relevance(Place place) {
+      final name = normalizePlaceSearchText(place.name);
+      if (query.isEmpty || name == query) return 0;
+      if (name.startsWith(query)) return 1;
+      return name.contains(query) ? 2 : 3;
+    }
+
+    matches.sort((a, b) {
+      final order = switch (request.sort) {
+        PlaceSearchSort.relevance => relevance(a).compareTo(relevance(b)),
+        PlaceSearchSort.rating => b.averageRating.compareTo(a.averageRating),
+        PlaceSearchSort.reviews => b.reviewCount.compareTo(a.reviewCount),
+        PlaceSearchSort.price =>
+          a.minPrice == null
+              ? (b.minPrice == null ? 0 : 1)
+              : b.minPrice == null
+              ? -1
+              : a.minPrice!.compareTo(b.minPrice!),
+      };
+      return order == 0 ? a.id.compareTo(b.id) : order;
+    });
+    final items = matches.skip(offset).take(pageSize).toList();
+    return PlaceSearchPage(
+      items: items,
+      categories: const [
+        'Phở',
+        'Bún',
+        'Cơm',
+        'Bánh mì',
+        'Đồ nướng',
+        'Lẩu',
+        'Cà phê',
+        'Món chay',
+      ],
+      amenities: _places.expand((place) => place.amenities).toSet().toList()
+        ..sort(),
+      totalCount: matches.length,
+      nextCursor: offset + items.length < matches.length
+          ? '${offset + items.length}'
+          : null,
+      isDemo: true,
+    );
   }
 }
