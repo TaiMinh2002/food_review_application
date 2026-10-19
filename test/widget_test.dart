@@ -43,7 +43,7 @@ void main() {
     expect(find.text('Phở Nhà Mình'), findsOneWidget);
     await tester.tap(find.byTooltip('Bỏ yêu thích'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('Bạn chưa lưu quán nào'), findsOneWidget);
+    expect(find.text('Bạn chưa lưu nhà hàng nào'), findsOneWidget);
 
     await tester.tap(find.text('Trang chủ'));
     await tester.pumpAndSettle();

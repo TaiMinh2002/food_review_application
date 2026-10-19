@@ -59,11 +59,11 @@ bằng demo ngầm. `galleryProvider(request)` autoDispose theo quán/nguồn, k
 trước khi đọc ảnh; screen giữ filter/scroll và dialog giữ PageController/zoom.
 Xem [GALLERY_UI.md](GALLERY_UI.md).
 
-`FavoriteRepository` hiện là contract đồng bộ dành cho demo RAM. Trước khi nối Firestore,
-đổi sang `watchPlaceIds(userId)` và async `setFavorite(userId, placeId, value)`;
-chuyển notifier sang async state, xử lý lỗi ghi và reset khi đăng xuất.
-Không bọc API Firestore async bằng contract đồng bộ hiện tại.
-T10 gate thao tác favorite và reset repository RAM theo session user ID;
+`FavoriteRepository` dùng stream `watchPlaceIds(userId)` và async
+`setFavorite(userId, placeId, value)`. `favoriteIdsProvider` giữ state theo session,
+cập nhật lạc quan, hoàn tác khi ghi lỗi và reset khi đăng xuất. Implementation hiện tại
+là RAM demo; khi nối Firestore chỉ thay implementation/provider ở tầng data.
+Không gọi Firestore trực tiếp trong widget. T10 gate thao tác favorite theo session user ID;
 login không tự toggle favorite. `authSessionProvider` giữ loading/error/guest/user;
 controller sign-in/out gọi AuthRepository, UI không gọi Firebase trực tiếp.
 
@@ -75,7 +75,8 @@ controller sign-in/out gọi AuthRepository, UI không gọi Firebase trực ti�
 - `/restaurants/:restaurantId`: chi tiết Stitch T04 với gallery, menu, review preview và thanh giá/chỉ đường; map ID sang `placeId` trong domain, xử lý ID không tồn tại. Xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md).
 - `/map`: T08 dùng flutter_map/OSM, marker và card quán; `restaurantId` chọn quán từ chi tiết. Camera/selection giữ trong indexed stack. Xem [MAP_UI.md](MAP_UI.md).
 - `/restaurants/:restaurantId/gallery`: T09b trên root; `index` mở viewer, `source=review&reviewId=...` chọn ảnh review đúng scope. Đóng viewer về lưới, Back về nguồn. Xem [GALLERY_UI.md](GALLERY_UI.md).
-- `/favorites`: quán đã lưu trong phiên.
+- `/favorites`: T15 hiển thị quán đã lưu theo phiên, có tìm kiếm/lọc/sắp xếp và trạng thái
+  loading/error/empty; xem [FAVORITES_UI.md](FAVORITES_UI.md).
 - `/profile`: trang khởi đầu hồ sơ.
 - `/login`: T10 theo Stitch 13; email/password, validation/loading/error, returnTo và links T11/T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 - `/register`: T11 theo Stitch 14; tạo Firebase Auth account, displayName, validation/loading/error và giữ returnTo/action. Xem [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).

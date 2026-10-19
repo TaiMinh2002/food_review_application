@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 20/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T09b đã có UI/demo; T10 Login, T11 Register, T12 Forgot Password, T13 Write Review và T14 Edit/Delete Review đã có UI/adapter, chưa nghiệm thu tài khoản thật/backend review. T07 được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T15 — Favorites**. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md), [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md), [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md), [WRITE_REVIEW_UI.md](WRITE_REVIEW_UI.md), [MY_REVIEWS_UI.md](MY_REVIEWS_UI.md), [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 20/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T09b đã có UI/demo; T10 Login, T11 Register, T12 Forgot Password, T13 Write Review và T14 Edit/Delete Review đã có UI/adapter, chưa nghiệm thu tài khoản thật/backend review. T07 được bổ sung sau T08 theo yêu cầu người dùng. Task tiếp theo: **T16 — Want to Visit**. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md), [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md), [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md), [WRITE_REVIEW_UI.md](WRITE_REVIEW_UI.md), [MY_REVIEWS_UI.md](MY_REVIEWS_UI.md), [GALLERY_UI.md](GALLERY_UI.md), [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md), [CATEGORY_UI.md](CATEGORY_UI.md), [MAP_UI.md](MAP_UI.md), [HOME_UI.md](HOME_UI.md) và [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -224,14 +224,14 @@ upload ảnh thật và đồng bộ aggregate vẫn chờ tích hợp. Xem [MY_
 
 | Task | Màn / route | Các việc trong task | Tiêu chí hoàn thành |
 | --- | --- | --- | --- |
-| T15 | Favorites `/favorites` | Dựng UI từ màn cũ; guest CTA; list, tìm/sort nếu có trong thiết kế; async favorite contract theo user, lưu/bỏ từ mọi card | Home/detail/list đồng bộ; lỗi ghi hoàn tác; đổi user/reset phiên không lộ dữ liệu cũ; quán bị xóa có xử lý |
+| T15 | Favorites `/favorites` | Đã triển khai theo Stitch 09; guest CTA; list, tìm/lọc/sort; async favorite contract theo user, lưu/bỏ từ mọi card | Đạt UI/demo; Home/detail/list đồng bộ; lỗi ghi hoàn tác; adapter hiện lưu RAM, backend/persistence sau |
 | T16 | Want to Visit `/want-to-visit` | Danh sách độc lập, thao tác thêm/bỏ từ detail và lối vào rõ từ Favorites/Profile theo thiết kế | Một quán có thể ở cả hai list; bỏ khỏi một list không xóa list còn lại; auth/empty/error đầy đủ |
 | T17 | My Profile `/profile` | Guest/user variants, avatar/tên/thống kê thực, links edit/my reviews/collections/notifications/settings/want-to-visit | Không hardcode danh tính; links đúng; thống kê không có thì không bịa; phần admin chỉ hiện sau xác minh role |
 | T18 | Edit Profile `/profile/edit` | Prefill, sửa tên/avatar/các field được hỗ trợ, validation, upload, cancel và save | Save cập nhật Profile/review author theo chính sách dữ liệu; lỗi giữ form; không cho client sửa role |
 | T19 | My Reviews `/my-reviews` | Danh sách của phiên hiện tại; CTA xem quán, edit/delete dùng T14; phân trang | Tài khoản A chỉ thấy nội dung A; sửa/xóa refresh; guest gate, empty/error |
 | T20 | Settings `/settings` | Đưa chọn light/dark/system từ profile vào đúng màn; chỉ triển khai tùy chọn có tác dụng; logout + confirm | Logout xóa phiên/draft nhạy cảm/provider theo user, trở về guest; không xóa dữ liệu backend; Back không lộ màn private |
 
-T15 cần chuyển `FavoriteRepository` từ contract đồng bộ/RAM sang stream/async theo `ARCHITECTURE.md`; không gọi Firestore trực tiếp trong widget. Chính sách lưu theme qua restart là task nhỏ trong T20 nếu chọn hỗ trợ, không mặc nhiên coi state trong RAM là đã lưu thiết bị.
+T15 đã chuyển `FavoriteRepository` sang stream/async theo `ARCHITECTURE.md`; không gọi Firestore trực tiếp trong widget. Adapter hiện lưu RAM, nên persistence sau restart và Firestore thuộc phần tích hợp tiếp theo. Chính sách lưu theme qua restart là task nhỏ trong T20 nếu chọn hỗ trợ.
 
 ### Đợt F — Collections, thông báo và hồ sơ công khai
 

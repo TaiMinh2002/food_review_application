@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +14,9 @@ import '../domain/favorite_repository.dart';
 
 final favoriteRepositoryProvider = Provider<FavoriteRepository>((ref) {
   ref.watch(authSessionProvider.select((state) => state.asData?.value?.id));
-  return MemoryFavoriteRepository();
+  final repository = MemoryFavoriteRepository();
+  ref.onDispose(repository.dispose);
+  return repository;
 });
 
 final favoriteIdsProvider = NotifierProvider<FavoriteIds, Set<String>>(
@@ -21,7 +25,17 @@ final favoriteIdsProvider = NotifierProvider<FavoriteIds, Set<String>>(
 
 class FavoriteIds extends Notifier<Set<String>> {
   @override
-  Set<String> build() => ref.watch(favoriteRepositoryProvider).getPlaceIds();
+  Set<String> build() {
+    final session = ref.watch(authSessionProvider);
+    final user = session.asData?.value;
+    if (session.isLoading || session.hasError || user == null) return {};
+    final repository = ref.watch(favoriteRepositoryProvider);
+    final subscription = repository.watchPlaceIds(user.id).listen((ids) {
+      if (ref.mounted) state = Set.unmodifiable(ids);
+    });
+    ref.onDispose(subscription.cancel);
+    return {};
+  }
 
   void toggle(String placeId) {
     final session = ref.read(authSessionProvider);
@@ -30,9 +44,24 @@ class FavoriteIds extends Notifier<Set<String>> {
         session.asData?.value == null) {
       throw const AppException('Vui lòng đăng nhập trước khi lưu quán.');
     }
+    final user = session.asData!.value!;
     final repository = ref.read(favoriteRepositoryProvider);
-    repository.toggle(placeId);
-    state = repository.getPlaceIds();
+    final previous = state;
+    final value = !state.contains(placeId);
+    final next = {...state};
+    if (value) {
+      next.add(placeId);
+    } else {
+      next.remove(placeId);
+    }
+    state = Set.unmodifiable(next);
+    unawaited(
+      repository
+          .setFavorite(userId: user.id, placeId: placeId, value: value)
+          .catchError((_) {
+            if (ref.mounted) state = previous;
+          }),
+    );
   }
 }
 
