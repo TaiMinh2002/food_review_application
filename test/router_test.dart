@@ -7,11 +7,14 @@ import 'package:food_review/core/router/app_router.dart';
 import 'package:food_review/features/favorites/presentation/favorite_providers.dart';
 import 'package:food_review/features/places/data/demo_place_fixtures.dart';
 import 'package:food_review/features/places/data/demo_place_repository.dart';
+import 'package:food_review/features/places/presentation/map_controller.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
   Future<GoRouter> mount(WidgetTester tester) async {
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: [mapTilesEnabledProvider.overrideWithValue(false)],
+    );
     addTearDown(container.dispose);
     await tester.pumpWidget(
       UncontrolledProviderScope(

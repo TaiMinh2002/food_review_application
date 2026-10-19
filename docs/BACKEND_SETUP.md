@@ -129,6 +129,12 @@ có cơ chế dọn ảnh mồ côi. Không đưa API Secret vào Dart/JSON clie
 
 ## 7. Native, bản đồ và nghiệm thu
 
+T08 hiện đã có UI/logic Map và adapter Geolocator; bằng chứng/giới hạn ở [MAP_UI.md](MAP_UI.md).
+Khi thay nguồn demo, PlaceRepository cần implement thêm `PlaceMapRepository.findInViewport`:
+lọc bounds và tọa độ hợp lệ, áp dụng điều kiện Search/radius/limit ở server,
+trả `hasMore` và cờ demo trung thực; cần spatial index hoặc dịch vụ truy vấn địa lý phù hợp.
+Không dùng `fetchPlaces` tải toàn collection để lọc vùng ở widget.
+
 - Android đã có INTERNET và quyền vị trí foreground; iOS có mô tả location when-in-use,
   camera và thư viện ảnh. Kiểm tra cấu hình theo package/platform trước khi tích hợp picker.
 - Chỉ xin quyền khi người dùng cần GPS/chọn ảnh; xử lý denied/deniedForever,
@@ -157,5 +163,6 @@ trả cursor ổn định cho đúng query. Offset cursor của demo không ph�
 PlaceSearchPage còn cung cấp taxonomy/tiện ích để form không quét toàn bộ quán.
 Tên quán và tên món cần chỉ mục/tìm kiếm chuẩn hóa tiếng Việt; nếu Firestore
 không đáp ứng query kết hợp/toàn văn thì dùng API tìm kiếm phù hợp, không tải
-cả collection về widget. Chưa bật GPS/open-now vì thiếu dữ liệu có nguồn.
+cả collection về widget. Search/form T06 chưa bật distance/open-now vì thiếu dữ liệu có nguồn;
+Map T08 có GPS foreground và chip bán kính riêng, không suy ra giờ mở cửa.
 Chi tiết và giới hạn hiện tại: [SEARCH_UI.md](SEARCH_UI.md).

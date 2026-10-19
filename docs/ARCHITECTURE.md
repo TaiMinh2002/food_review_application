@@ -34,6 +34,10 @@ qua `placeSearchRepositoryProvider`; nguồn mặc định tái sử dụng Demo
 Backend implementation phải áp dụng query/limit/cursor, không tải cả feed để lọc ở UI.
 `searchControllerProvider` autoDispose theo từng route, debounce và bỏ stale response;
 form T06 giữ draft riêng, metadata qua query giới hạn một item. Lịch sử chỉ lưu trong phiên.
+Map dùng capability `PlaceMapRepository.findInViewport(bounds, filters, near, limit)`;
+`placeMapControllerProvider` giữ query/result/GPS và chặn stale response, screen giữ camera.
+`UserLocationRepository` có implementation Geolocator với foreground fix theo thao tác người dùng;
+không đọc GPS trong build. Xem [MAP_UI.md](MAP_UI.md).
 `reviewRepositoryProvider` cấp `DemoReviewRepository`; `reviewPreviewProvider(placeId)`
 đọc tối đa hai review qua contract `watchForPlace(placeId, limit: 2)`, có lỗi/retry riêng.
 T09a mới triển khai danh sách đầy đủ/phân trang; T13 mới nối tạo review và Auth.
@@ -48,7 +52,7 @@ Không bọc API Firestore async bằng contract đồng bộ hiện tại.
 - `/search`: Search T05 với query/filter/sort/phân trang riêng; `/search/filters`: form nháp T06, Apply/Reset/Cancel. Xem [SEARCH_UI.md](SEARCH_UI.md).
 - `/home`: Home theo Stitch (T03), giữ tìm/lọc demo tại chỗ và cuộn khi chuyển tab.
 - `/restaurants/:restaurantId`: chi tiết Stitch T04 với gallery, menu, review preview và thanh giá/chỉ đường; map ID sang `placeId` trong domain, xử lý ID không tồn tại. Xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md).
-- `/map`: tab placeholder, chờ T08.
+- `/map`: T08 dùng flutter_map/OSM, marker và card quán; `restaurantId` chọn quán từ chi tiết. Camera/selection giữ trong indexed stack. Xem [MAP_UI.md](MAP_UI.md).
 - `/favorites`: quán đã lưu trong phiên.
 - `/profile`: trang khởi đầu hồ sơ.
 - `/login`: thông báo tích hợp Auth đang chờ cấu hình.

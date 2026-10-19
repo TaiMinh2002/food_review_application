@@ -12,7 +12,8 @@ luồng ở [routing](food_review_luong_hoat_dong_routing.md), dữ liệu/quy�
 - Demo có danh sách quán; Search tìm tên quán/món không dấu, query/filter/sort/phân trang và recent trong phiên; chi tiết,
   yêu thích đồng bộ trong RAM và loading/empty/error/retry/not-found.
 - Firebase đã khởi tạo trên Android/iOS; chưa có repository Auth/Firestore thật.
-  Review đã có preview demo giới hạn hai nhận xét trên chi tiết quán; Auth/Profile là màn khởi đầu; Bản đồ là placeholder.
+  Review đã có preview demo giới hạn hai nhận xét trên chi tiết quán; Auth/Profile là màn khởi đầu.
+- T08 Map đã có truy vấn vùng/marker/card quán demo, lọc, GPS foreground theo yêu cầu và mở chỉ đường ngoài; xem [MAP_UI.md](MAP_UI.md). Chưa nghiệm thu GPS/chỉ đường trên thiết bị thực và nền OSM đang bị lỗi DNS trong môi trường kiểm tra.
 - T03 Home, T04 Chi tiết quán và T05–T06 Search/Filter đã triển khai UI/demo (xem HOME_UI.md, RESTAURANT_DETAIL_UI.md, SEARCH_UI.md); backend và các luồng phụ thuộc chưa hoàn tất. Yêu thích và lựa chọn theme chưa lưu qua restart;
   tọa độ/ảnh demo không phải dữ liệu quán đã xác minh. Web chưa có FirebaseOptions.
 
