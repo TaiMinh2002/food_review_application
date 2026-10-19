@@ -7,6 +7,7 @@ import '../../../core/formatters/app_formatters.dart';
 import '../../../core/router/app_route.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../../reviews/presentation/review_providers.dart';
+import '../../reviews/presentation/restaurant_review_card.dart';
 import '../domain/place.dart';
 import 'place_detail_actions.dart';
 
@@ -242,39 +243,7 @@ class PlaceReviewsSection extends ConsumerWidget {
                                 padding: const EdgeInsets.only(
                                   bottom: AppSpacing.md,
                                 ),
-                                child: AppReviewCard(
-                                  reviewerName: review.authorName,
-                                  content: review.content,
-                                  rating: review.rating.toDouble(),
-                                  timeLabel: review.isDemo
-                                      ? 'Đánh giá minh họa'
-                                      : '${review.createdAt.day}/${review.createdAt.month}/${review.createdAt.year}',
-                                  imageUrls: review.imageUrls,
-                                  onReviewerTap: () => context.push(
-                                    AppRoute.reviewer.location(
-                                      parameters: {'userId': review.userId},
-                                    ),
-                                  ),
-                                  onMore: () => context.push(
-                                    AppRoute.createReport.location(
-                                      query: {
-                                        'targetType': 'review',
-                                        'restaurantId': place.id,
-                                        'reviewId': review.id,
-                                      },
-                                    ),
-                                  ),
-                                  onImageTap: (index) => context.push(
-                                    AppRoute.gallery.location(
-                                      parameters: params,
-                                      query: {
-                                        'index': '$index',
-                                        'source': 'review',
-                                        'reviewId': review.id,
-                                      },
-                                    ),
-                                  ),
-                                ),
+                                child: RestaurantReviewCard(review: review),
                               ),
                           ],
                         ),

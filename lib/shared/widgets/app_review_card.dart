@@ -26,17 +26,21 @@ class AppReviewCard extends StatelessWidget {
     this.onMore,
     this.onImageTap,
     this.onReviewerTap,
+    this.expandedImages = false,
   });
   final String reviewerName, content, timeLabel;
   final String? avatarUrl, reviewerBadge;
   final double rating;
-  final bool verified, isHelpful;
+  final bool verified, isHelpful, expandedImages;
   final List<String> dishes, imageUrls;
   final int helpfulCount, replyCount;
   final VoidCallback? onHelpful, onReplies, onMore, onReviewerTap;
   final ValueChanged<int>? onImageTap;
   @override
   Widget build(BuildContext context) => Card(
+    shape: expandedImages
+        ? const RoundedRectangleBorder(borderRadius: AppRadii.inputBorder)
+        : null,
     child: Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -92,7 +96,8 @@ class AppReviewCard extends StatelessWidget {
           const SizedBox(height: 12),
           AppRating(value: rating, showStars: true, showValue: false),
           const SizedBox(height: 8),
-          Text(content, style: context.textStyles.bodyMedium),
+          if (!expandedImages)
+            Text(content, style: context.textStyles.bodyMedium),
           if (dishes.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 12),
@@ -102,34 +107,70 @@ class AppReviewCard extends StatelessWidget {
                 children: [for (final dish in dishes) AppBadge(label: dish)],
               ),
             ),
+          if (expandedImages)
+            Padding(
+              padding: EdgeInsets.only(top: dishes.isEmpty ? 0 : 12),
+              child: Text(content, style: context.textStyles.bodyMedium),
+            ),
           if (imageUrls.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 12),
-              child: SizedBox(
-                height: 80,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: imageUrls.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 8),
-                  itemBuilder: (context, index) => Semantics(
-                    label: 'Ảnh đánh giá ${index + 1}',
-                    button: onImageTap != null,
-                    child: InkWell(
-                      onTap: onImageTap == null
-                          ? null
-                          : () => onImageTap!(index),
-                      child: ClipRRect(
-                        borderRadius: AppRadii.inputBorder,
-                        child: AppImage(
-                          url: imageUrls[index],
-                          width: 80,
-                          height: 80,
+              child: expandedImages
+                  ? LayoutBuilder(
+                      builder: (context, constraints) => Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (var index = 0; index < imageUrls.length; index++)
+                            SizedBox(
+                              width: (constraints.maxWidth - 8) / 2,
+                              child: AspectRatio(
+                                aspectRatio: 4 / 3,
+                                child: Semantics(
+                                  label: 'Ảnh đánh giá ${index + 1}',
+                                  button: onImageTap != null,
+                                  child: InkWell(
+                                    onTap: onImageTap == null
+                                        ? null
+                                        : () => onImageTap!(index),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(
+                                        AppRadii.small,
+                                      ),
+                                      child: AppImage(url: imageUrls[index]),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    )
+                  : SizedBox(
+                      height: 80,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: imageUrls.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemBuilder: (context, index) => Semantics(
+                          label: 'Ảnh đánh giá ${index + 1}',
+                          button: onImageTap != null,
+                          child: InkWell(
+                            onTap: onImageTap == null
+                                ? null
+                                : () => onImageTap!(index),
+                            child: ClipRRect(
+                              borderRadius: AppRadii.inputBorder,
+                              child: AppImage(
+                                url: imageUrls[index],
+                                width: 80,
+                                height: 80,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ),
             ),
           if (onHelpful != null || onReplies != null) ...[
             const Divider(),

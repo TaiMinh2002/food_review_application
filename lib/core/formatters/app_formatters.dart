@@ -1,4 +1,8 @@
 abstract final class AppFormatters {
+  static String count(int value) => '$value'.replaceAllMapped(
+    RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+    (match) => '${match[1]}.',
+  );
   static String price(num value) {
     final digits = value.round().abs().toString();
     final grouped = digits.replaceAllMapped(

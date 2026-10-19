@@ -44,7 +44,11 @@ Map dùng capability `PlaceMapRepository.findInViewport(bounds, filters, near, l
 không đọc GPS trong build. Xem [MAP_UI.md](MAP_UI.md).
 `reviewRepositoryProvider` cấp `DemoReviewRepository`; `reviewPreviewProvider(placeId)`
 đọc tối đa hai review qua contract `watchForPlace(placeId, limit: 2)`, có lỗi/retry riêng.
-T09a mới triển khai danh sách đầy đủ/phân trang; T13 mới nối tạo review và Auth.
+T09a dùng capability `ReviewFeedRepository` từ cùng nguồn inject: summary toàn quán,
+filter/sort và cursor paging. `reviewFeedControllerProvider` giữ state theo route/quán,
+retry độc lập, chặn stale response và dữ liệu sai quán; không tải toàn backend để lọc.
+Preview và All Reviews dùng chung `RestaurantReviewCard`. T13 mới nối tạo review và Auth.
+Xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md).
 
 `FavoriteRepository` hiện là contract đồng bộ dành cho demo RAM. Trước khi nối Firestore,
 đổi sang `watchPlaceIds(userId)` và async `setFavorite(userId, placeId, value)`;
