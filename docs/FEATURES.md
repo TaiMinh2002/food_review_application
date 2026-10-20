@@ -23,8 +23,8 @@ luồng ở [routing](food_review_luong_hoat_dong_routing.md), dữ liệu/quy�
   Xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md).
 - T09b Gallery đã có lọc/lưới, viewer swipe/zoom, exact review media, index/Back và
   chia sẻ; dùng ảnh demo, upload/lưu ảnh chưa tích hợp. Xem [GALLERY_UI.md](GALLERY_UI.md).
-  T10 Login/Auth, T11 Register, T12 Forgot Password, T13 Write Review, T14 Edit/Delete Review, T15 Favorites, T16 Want to Visit và T17 My Profile đã triển khai UI/adapter; task tiếp theo là T18 Edit Profile.
-- T03 Home, T04 Chi tiết quán, T05–T06 Search/Filter, T15 Favorites, T16 Want to Visit và T17 My Profile đã triển khai UI/demo (xem HOME_UI.md, RESTAURANT_DETAIL_UI.md, SEARCH_UI.md, FAVORITES_UI.md, WANT_TO_VISIT_UI.md, MY_PROFILE_UI.md); backend và các luồng phụ thuộc chưa hoàn tất. Hai danh sách địa điểm, profile fields và lựa chọn theme chưa lưu qua restart;
+  T10 Login/Auth, T11 Register, T12 Forgot Password, T13 Write Review, T14 Edit/Delete Review, T15 Favorites, T16 Want to Visit và T17 My Profile đã triển khai UI/adapter; T18 đã có UI/sửa tên-ảnh qua Auth và upload Cloudinary; username/bio/khu vực còn thiếu. Task UI tiếp theo là T19 My Reviews (rà soát phần T14 đã có); xem EDIT_PROFILE_UI.md.
+- T03 Home, T04 Chi tiết quán, T05–T06 Search/Filter, T15 Favorites, T16 Want to Visit và T17 My Profile đã triển khai UI/demo (xem HOME_UI.md, RESTAURANT_DETAIL_UI.md, SEARCH_UI.md, FAVORITES_UI.md, WANT_TO_VISIT_UI.md, MY_PROFILE_UI.md); backend và các luồng phụ thuộc chưa hoàn tất. Hai danh sách địa điểm và lựa chọn theme chưa lưu qua restart; tên/ảnh T18 lưu qua Auth, các profile field khác chưa hỗ trợ;
   tọa độ/ảnh demo không phải dữ liệu quán đã xác minh. Web chưa có FirebaseOptions.
 
 ## 2. Tính năng chính — MVP

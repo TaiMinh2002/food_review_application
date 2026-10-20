@@ -20,7 +20,7 @@ enum AppRoute {
   editReview('/reviews/:reviewId/edit', 'Sửa đánh giá', task: 'T14'),
   gallery('/restaurants/:restaurantId/gallery', 'Thư viện ảnh'),
   wantToVisit('/want-to-visit', 'Muốn ghé thăm', task: 'T16'),
-  editProfile('/profile/edit', 'Chỉnh sửa hồ sơ', task: 'T18'),
+  editProfile('/profile/edit', 'Chỉnh sửa hồ sơ'),
   myReviews('/my-reviews', 'Đánh giá của tôi', task: 'T19'),
   settings('/settings', 'Cài đặt', task: 'T20'),
   notifications('/notifications', 'Thông báo', task: 'T23'),

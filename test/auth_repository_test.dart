@@ -9,6 +9,7 @@ import 'package:food_review/features/auth/domain/auth_validation.dart';
 import 'package:food_review/features/auth/presentation/auth_providers.dart';
 import 'package:food_review/features/favorites/presentation/favorite_providers.dart';
 import 'package:food_review/features/profile/domain/user_profile.dart';
+import 'package:food_review/features/profile/data/firebase_profile_repository.dart';
 
 import 'support/auth_harness.dart';
 
@@ -16,10 +17,23 @@ class SdkUser extends Fake implements User {
   @override
   String get uid => 'sdk-user';
   @override
-  String? get displayName => '  Tên hợp lệ  ';
+  String? get displayName => updatedDisplayName ?? '  Tên hợp lệ  ';
   @override
-  String? get photoURL => 'https://example.com/avatar.jpg';
+  String? get photoURL =>
+      profileUpdated ? updatedPhoto : 'https://example.com/avatar.jpg';
   String? updatedDisplayName;
+  String? updatedPhoto, profileFailure;
+  bool profileUpdated = false;
+  @override
+  Future<void> updateProfile({String? displayName, String? photoURL}) async {
+    if (profileFailure != null) {
+      throw FirebaseAuthException(code: profileFailure!);
+    }
+    updatedDisplayName = displayName;
+    updatedPhoto = photoURL;
+    profileUpdated = true;
+  }
+
   @override
   Future<void> updateDisplayName(String? displayName) async {
     updatedDisplayName = displayName;
@@ -39,7 +53,9 @@ class SdkAuth extends Fake implements FirebaseAuth {
   SdkUser? createdUser;
   bool signedOut = false;
   @override
-  Stream<User?> authStateChanges() => changes.stream;
+  Stream<User?> userChanges() => changes.stream;
+  @override
+  User? get currentUser => createdUser;
   @override
   Future<UserCredential> signInWithEmailAndPassword({
     required String email,
@@ -79,6 +95,53 @@ class SdkAuth extends Fake implements FirebaseAuth {
 }
 
 void main() {
+  test('Profile adapter validates ownership and updates name/photo in one Auth operation', () async {
+    final sdk = SdkAuth()..createdUser = SdkUser();
+    final repository = FirebaseProfileRepository(sdk);
+    await expectLater(
+      repository.updateIdentity(
+        userId: 'other',
+        displayName: 'New',
+        photoUrl: null,
+      ),
+      throwsA(isA<AppException>()),
+    );
+    expect(sdk.createdUser!.profileUpdated, isFalse);
+    await expectLater(
+      repository.updateIdentity(
+        userId: 'sdk-user',
+        displayName: '',
+        photoUrl: null,
+      ),
+      throwsA(isA<AppException>()),
+    );
+    await repository.updateIdentity(
+      userId: 'sdk-user',
+      displayName: ' New name ',
+      photoUrl: null,
+    );
+    expect(sdk.createdUser!.updatedDisplayName, 'New name');
+    expect(sdk.createdUser!.photoURL, isNull);
+    final stream = FirebaseAuthRepository(sdk).authStateChanges().first;
+    sdk.changes.add(sdk.createdUser);
+    expect((await stream)!.displayName, 'New name');
+    sdk.createdUser!.profileFailure = 'network-request-failed';
+    await expectLater(
+      repository.updateIdentity(
+        userId: 'sdk-user',
+        displayName: 'Retry',
+        photoUrl: null,
+      ),
+      throwsA(
+        isA<AppException>().having(
+          (e) => e.message,
+          'safe error',
+          contains('Kiểm tra mạng'),
+        ),
+      ),
+    );
+    await sdk.changes.close();
+  });
   test(
     'Adapter calls SDK, trims only email, maps stream to domain and signs out',
     () async {

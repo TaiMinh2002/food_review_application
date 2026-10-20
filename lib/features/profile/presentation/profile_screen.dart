@@ -204,20 +204,14 @@ class _ProfileHeader extends StatelessWidget {
               size: AppAvatarSize.large,
             ),
             if (user != null)
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: context.colors.primary,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: context.colors.surface, width: 2),
+              IconButton.filled(
+                tooltip: 'Sửa ảnh đại diện',
+                onPressed: () => context.push(AppRoute.editProfile.path),
+                style: IconButton.styleFrom(
+                  backgroundColor: context.colors.primary,
+                  foregroundColor: context.colors.onPrimary,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(6),
-                  child: Icon(
-                    Icons.camera_alt,
-                    size: 14,
-                    color: context.colors.onPrimary,
-                  ),
-                ),
+                icon: const Icon(Icons.camera_alt, size: 18),
               ),
           ],
         ),

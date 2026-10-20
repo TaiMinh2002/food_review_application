@@ -6,7 +6,8 @@ import 'app_image.dart';
 enum AppAvatarSize {
   small(28),
   medium(40),
-  large(56);
+  large(56),
+  profile(112);
 
   const AppAvatarSize(this.diameter);
   final double diameter;
