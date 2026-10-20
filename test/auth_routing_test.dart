@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:food_review/core/errors/app_exception.dart';
 import 'package:food_review/features/auth/presentation/auth_providers.dart';
@@ -197,6 +198,13 @@ void main() {
       expect(find.text('Chào Người thử nghiệm!'), findsOneWidget);
       repo.pendingSignOut = Completer<void>();
       await tester.tap(find.text('Đăng xuất'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text('Đăng xuất'),
+        ),
+      );
       await tester.pump();
       repo.pendingSignOut!.completeError(Exception('SDK private detail'));
       await tester.pumpAndSettle();
@@ -206,6 +214,13 @@ void main() {
       );
       repo.pendingSignOut = null;
       await tester.tap(find.text('Đăng xuất'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text('Đăng xuất'),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(container.read(favoriteIdsProvider), isEmpty);
       expect(find.text('Đăng xuất'), findsNothing);

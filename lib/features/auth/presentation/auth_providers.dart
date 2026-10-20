@@ -99,13 +99,20 @@ final signOutControllerProvider =
 
 class SignOutController extends Notifier<AsyncValue<void>> {
   @override
-  AsyncValue<void> build() => const AsyncData(null);
-  Future<void> submit() async {
-    if (state.isLoading) return;
+  AsyncValue<void> build() {
+    ref.watch(
+      authSessionProvider.select((session) => session.asData?.value?.id),
+    );
+    return const AsyncData(null);
+  }
+
+  Future<bool> submit() async {
+    if (state.isLoading) return false;
     final repository = ref.read(authRepositoryProvider);
     final reference = ref;
     state = const AsyncLoading();
     final result = await AsyncValue.guard(repository.signOut);
     if (reference.mounted) state = result;
+    return !result.hasError;
   }
 }
