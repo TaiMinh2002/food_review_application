@@ -204,6 +204,8 @@ void main() {
               ? 'Không tìm thấy đánh giá.'
               : route == AppRoute.myReviews
               ? 'Đánh giá của tôi'
+              : route == AppRoute.notifications
+              ? 'Thông báo'
               : route == AppRoute.wantToVisit
               ? 'Danh sách của bạn đang trống'
               : route.isAdmin

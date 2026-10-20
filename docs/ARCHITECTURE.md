@@ -75,6 +75,11 @@ và cover từ membership. `collectionsControllerProvider` giữ paging/generati
 `DemoCollectionRepository` hiện giữ mẫu trong RAM, độc lập Favorites/Want to Visit.
 Backend phải kiểm tra owner và dọn membership con; xem [COLLECTIONS_UI.md](COLLECTIONS_UI.md).
 
+T23 dùng `NotificationRepository` query inbox theo `recipientId` với cursor; controller
+giữ paging, refresh và trạng thái đọc lạc quan, hoàn tác nếu ghi lỗi hoặc đổi phiên.
+Target là `NotificationTargetType` + ID nội bộ, không là URL; screen kiểm tra quán
+trước khi mở route. Adapter mặc định là RAM demo; xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md).
+
 ## Routing
 
 - `/search`: Search T05 với query/filter/sort/phân trang riêng; `/search/filters`: form nháp T06, Apply/Reset/Cancel. Xem [SEARCH_UI.md](SEARCH_UI.md).
@@ -94,6 +99,7 @@ Backend phải kiểm tra owner và dọn membership con; xem [COLLECTIONS_UI.md
   `userChanges()` phát lại danh tính sau lưu; username/bio/region chưa có backend.
   Xem [EDIT_PROFILE_UI.md](EDIT_PROFILE_UI.md).
 - `/collections`: T21 trong nhánh Yêu thích, mở từ Profile; card/menu sửa truyền ID tới route T22. T22 editor chạy trên root, get/create/update qua capability `CollectionEditingRepository`, form/query/save theo owner/route; sheet dùng Search provider hiện có. Xem [COLLECTION_EDITOR_UI.md](COLLECTION_EDITOR_UI.md). Xem [COLLECTIONS_UI.md](COLLECTIONS_UI.md).
+- `/notifications`: T23 inbox theo tài khoản, nhóm thời gian/read-unread và mở target nội bộ có kiểm tra tồn tại; xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md).
 - `/settings`: T20 trong nhánh Cá nhân, guest/user, theme trong phiên và logout xác nhận dùng chung Profile. Xem [SETTINGS_UI.md](SETTINGS_UI.md).
 - `/login`: T10 theo Stitch 13; email/password, validation/loading/error, returnTo và links T11/T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 - `/register`: T11 theo Stitch 14; tạo Firebase Auth account, displayName, validation/loading/error và giữ returnTo/action. Xem [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).
