@@ -18,25 +18,7 @@ class AppShell extends StatelessWidget {
           index,
           initialLocation: index == navigationShell.currentIndex,
         ),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Trang chủ',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.map_outlined),
-            label: 'Bản đồ',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.favorite_border),
-            label: 'Yêu thích',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            label: 'Cá nhân',
-          ),
-        ],
+        destinations: mainAppDestinations,
       ),
     );
   }

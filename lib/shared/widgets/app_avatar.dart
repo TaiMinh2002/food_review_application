@@ -7,6 +7,7 @@ enum AppAvatarSize {
   small(28),
   medium(40),
   large(56),
+  reviewer(80),
   profile(112);
 
   const AppAvatarSize(this.diameter);
