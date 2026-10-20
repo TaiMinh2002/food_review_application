@@ -103,7 +103,7 @@ class ProfileScreen extends ConsumerWidget {
                     icon: Icons.collections_bookmark_outlined,
                     title: 'Bộ sưu tập',
                     subtitle: 'Sắp xếp địa điểm theo chủ đề',
-                    onTap: () => context.push(AppRoute.collections.path),
+                    onTap: () => context.go(AppRoute.collections.path),
                   ),
                   _ProfileMenuItem(
                     icon: Icons.notifications_none,

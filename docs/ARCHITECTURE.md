@@ -69,6 +69,12 @@ controller sign-in/out gọi AuthRepository, UI không gọi Firebase trực ti�
 `WantToVisitRepository` dùng contract stream/async tương tự nhưng có provider và adapter
 riêng; thao tác want-to-visit không bao giờ tự xóa favorite.
 
+T21 `CollectionRepository` query page theo owner/sort/cursor/limit; summary có count
+và cover từ membership. `collectionsControllerProvider` giữ paging/generation theo session,
+`collectionDeletionProvider` thực hiện delete kiểm tra owner và refresh sau thành công.
+`DemoCollectionRepository` hiện giữ mẫu trong RAM, độc lập Favorites/Want to Visit.
+Backend phải kiểm tra owner và dọn membership con; xem [COLLECTIONS_UI.md](COLLECTIONS_UI.md).
+
 ## Routing
 
 - `/search`: Search T05 với query/filter/sort/phân trang riêng; `/search/filters`: form nháp T06, Apply/Reset/Cancel. Xem [SEARCH_UI.md](SEARCH_UI.md).
@@ -87,6 +93,7 @@ riêng; thao tác want-to-visit không bao giờ tự xóa favorite.
   `ProfileRepository` (Firebase Auth), `ProfilePhotoRepository` (image_picker/Cloudinary).
   `userChanges()` phát lại danh tính sau lưu; username/bio/region chưa có backend.
   Xem [EDIT_PROFILE_UI.md](EDIT_PROFILE_UI.md).
+- `/collections`: T21 trong nhánh Yêu thích, mở từ Profile; card/menu sửa truyền ID tới route T22. Tạo/sửa ở T22 vẫn là placeholder. Xem [COLLECTIONS_UI.md](COLLECTIONS_UI.md).
 - `/settings`: T20 trong nhánh Cá nhân, guest/user, theme trong phiên và logout xác nhận dùng chung Profile. Xem [SETTINGS_UI.md](SETTINGS_UI.md).
 - `/login`: T10 theo Stitch 13; email/password, validation/loading/error, returnTo và links T11/T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 - `/register`: T11 theo Stitch 14; tạo Firebase Auth account, displayName, validation/loading/error và giữ returnTo/action. Xem [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).

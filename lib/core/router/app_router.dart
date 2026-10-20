@@ -25,6 +25,7 @@ import '../../features/places/presentation/search_filters_screen.dart';
 import '../../features/places/domain/place_search.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/collections/presentation/collections_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../shared/design_system/design_system_screen.dart';
 import '../../shared/widgets/app_message.dart';
@@ -136,6 +137,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 name: AppRoute.favorites.name,
                 path: AppRoute.favorites.path,
                 builder: (_, _) => const FavoritesScreen(),
+              ),
+              GoRoute(
+                name: AppRoute.collections.name,
+                path: AppRoute.collections.path,
+                builder: (_, _) => const CollectionsScreen(),
               ),
               GoRoute(
                 name: AppRoute.wantToVisit.name,
