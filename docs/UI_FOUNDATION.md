@@ -38,7 +38,7 @@ Screen ID đầy đủ nằm ở mục 7 của kế hoạch. Nhãn Stitch dướ
 | 10 Want to Visit | `/want-to-visit` | Tập saved riêng theo user | Placeholder T16 |
 | 11 My Profile | `/profile` | Session, profile, thống kê | Màn khởi đầu cũ; chờ T17 |
 | 12 Edit Profile | `/profile/edit` | Profile, avatar upload | Placeholder T18 |
-| 18 My Reviews | `/my-reviews` | Review theo user | Placeholder T19 |
+| 18 My Reviews | `/my-reviews` | Review theo user | T14/T19 đã có UI/demo, filter và phân trang; xem MY_REVIEWS_UI.md |
 | 19 Settings | `/settings` | Theme/account preferences | Placeholder T20 |
 | 22 Collections | `/collections` | Collections theo owner | Placeholder T21 |
 | Editor chưa có screen riêng | `/collections/create`, `/collections/:collectionId/edit` | Tên, membership, owner | Placeholder T22 |

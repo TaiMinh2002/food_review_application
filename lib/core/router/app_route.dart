@@ -21,7 +21,7 @@ enum AppRoute {
   gallery('/restaurants/:restaurantId/gallery', 'Thư viện ảnh'),
   wantToVisit('/want-to-visit', 'Muốn ghé thăm', task: 'T16'),
   editProfile('/profile/edit', 'Chỉnh sửa hồ sơ'),
-  myReviews('/my-reviews', 'Đánh giá của tôi', task: 'T19'),
+  myReviews('/my-reviews', 'Đánh giá của tôi'),
   settings('/settings', 'Cài đặt', task: 'T20'),
   notifications('/notifications', 'Thông báo', task: 'T23'),
   reviewer('/users/:userId', 'Hồ sơ người đánh giá', task: 'T24'),

@@ -91,7 +91,10 @@ riêng; thao tác want-to-visit không bao giờ tự xóa favorite.
 - `/register`: T11 theo Stitch 14; tạo Firebase Auth account, displayName, validation/loading/error và giữ returnTo/action. Xem [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).
 - `/forgot-password`: T12 theo Stitch 15; email, reset password, trạng thái gửi chung, retry và quay về Login. Xem [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md).
 - `/restaurants/:restaurantId/reviews/create`: T13 theo Stitch Write Review; auth guard, form review và submit qua `ReviewRepository`. Xem [WRITE_REVIEW_UI.md](WRITE_REVIEW_UI.md).
-- `/my-reviews`: T14 theo Stitch 18 - My Reviews; stream review theo user, edit qua form T13 và delete có xác nhận. Xem [MY_REVIEWS_UI.md](MY_REVIEWS_UI.md).
+- `/my-reviews`: T14/T19 theo Stitch 18, trong nhánh Cá nhân của shell. Controller dùng
+  `UserReviewRepository` để query summary và cursor page theo owner/filter; change signal
+  refresh sau create/update/delete. Tái sử dụng edit T13/T14, Search cho bộ chọn quán;
+  không tải toàn bộ backend rồi lọc ở UI. Xem [MY_REVIEWS_UI.md](MY_REVIEWS_UI.md).
 - `/reviews/:reviewId/edit?restaurantId=...`: T14 lookup theo cặp `(restaurantId, reviewId)`, kiểm tra owner và cập nhật qua `ReviewManagementRepository`.
 
 Bốn tab dùng indexed stack giữ search/filter khi chuyển tab. Router thuộc provider và được dispose.

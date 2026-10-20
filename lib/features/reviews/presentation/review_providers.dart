@@ -5,9 +5,11 @@ import '../data/demo_review_repository.dart';
 import '../domain/review.dart';
 import '../domain/review_repository.dart';
 
-final reviewRepositoryProvider = Provider<ReviewRepository>(
-  (ref) => DemoReviewRepository(),
-);
+final reviewRepositoryProvider = Provider<ReviewRepository>((ref) {
+  final repository = DemoReviewRepository();
+  ref.onDispose(repository.dispose);
+  return repository;
+});
 
 /// Only a bounded preview; the full list/pagination belongs to T09a.
 final reviewPreviewProvider = StreamProvider.autoDispose
@@ -33,12 +35,3 @@ final reviewForEditProvider = FutureProvider.autoDispose
       final user = ref.read(authSessionProvider).asData?.value;
       return user != null && review?.userId == user.id ? review : null;
     });
-
-final myReviewsProvider = StreamProvider.autoDispose<List<Review>>((ref) {
-  final user = ref.watch(authSessionProvider).asData?.value;
-  if (user == null) return Stream.value(const []);
-  final repository = ref.watch(reviewRepositoryProvider);
-  if (repository is! ReviewManagementRepository) return Stream.value(const []);
-  final management = repository as ReviewManagementRepository;
-  return management.watchForUser(user.id);
-});

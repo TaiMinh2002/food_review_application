@@ -6,11 +6,14 @@ import '../../../core/errors/app_error_message.dart';
 import '../../../core/router/app_route.dart';
 import '../../../core/router/route_placeholder_screen.dart';
 import '../../../shared/design_system/design_system.dart';
+import '../../auth/presentation/auth_gate.dart';
 import '../../auth/presentation/auth_providers.dart';
-import '../../places/presentation/place_providers.dart';
 import '../domain/review.dart';
+import '../domain/user_review_repository.dart';
+import 'my_reviews_controller.dart';
+import 'my_review_widgets.dart';
 import 'review_management_controller.dart';
-import 'review_providers.dart';
+import 'review_place_picker.dart';
 
 class MyReviewsScreen extends ConsumerWidget {
   const MyReviewsScreen({super.key});
@@ -18,131 +21,201 @@ class MyReviewsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(authSessionProvider);
-    final reviews = ref.watch(myReviewsProvider);
-    final operation = ref.watch(
-      reviewManagementControllerProvider('my-reviews'),
-    );
     final user = session.asData?.value;
-    if (session.isLoading) {
+    if (session.isLoading || session.hasError || user == null) {
       return const Scaffold(
-        body: Center(child: Text('Đang kiểm tra phiên...')),
-      );
-    }
-    if (session.hasError) {
-      return Scaffold(
         body: SafeArea(
-          child: AppErrorState(
-            message: AppErrorMessage.from(
-              session.error!,
-              fallback: 'Không kiểm tra được phiên đăng nhập.',
-            ),
-            onRetry: () => ref.invalidate(authSessionProvider),
-          ),
+          child: AuthGate(returnTo: '/my-reviews', child: SizedBox.shrink()),
         ),
       );
     }
-    if (user == null && !session.isLoading) {
-      return const Scaffold(
-        body: SafeArea(
-          child: AppEmptyState(
-            title: 'Đăng nhập để xem đánh giá',
-            message: 'Nội dung bạn đã chia sẻ sẽ được hiển thị tại đây.',
-            icon: Icons.rate_review_outlined,
-          ),
-        ),
-      );
-    }
+    final state = ref.watch(myReviewsControllerProvider);
+    final controller = ref.read(myReviewsControllerProvider.notifier);
+    final operation = ref.watch(
+      reviewManagementControllerProvider('my-reviews-${user.id}'),
+    );
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 80 * MediaQuery.textScalerOf(context).scale(14) / 14,
         leading: const RouteBackButton(),
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Đánh giá của tôi'),
-            Text('Những trải nghiệm bạn đã chia sẻ'),
+            Text('Đánh giá của tôi', style: context.textStyles.titleMedium),
+            Text(
+              'Những trải nghiệm bạn đã chia sẻ',
+              style: context.textStyles.bodySmall,
+            ),
           ],
         ),
         actions: [
           IconButton(
             tooltip: 'Tạo đánh giá mới',
-            onPressed: () => _createReview(context, ref),
+            onPressed: () => _createReview(context),
             icon: const Icon(Icons.rate_review_outlined),
           ),
         ],
       ),
       body: SafeArea(
         top: false,
-        child: reviews.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(
-              semanticsLabel: 'Đang tải đánh giá của bạn',
-            ),
-          ),
-          error: (error, _) => AppErrorState(
-            message: AppErrorMessage.from(
-              error,
-              fallback: 'Không tải được đánh giá của bạn.',
-            ),
-            onRetry: () => ref.invalidate(myReviewsProvider),
-          ),
-          data: (items) => items.isEmpty
-              ? _EmptyReviews(onCreate: () => _createReview(context, ref))
-              : RefreshIndicator(
-                  onRefresh: () async => ref.invalidate(myReviewsProvider),
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.margin,
-                      AppSpacing.md,
-                      AppSpacing.margin,
-                      AppSpacing.xxl,
-                    ),
-                    children: [
-                      _ReviewSummary(total: items.length),
-                      const SizedBox(height: AppSpacing.md),
-                      for (final review in items) ...[
-                        _MyReviewCard(
-                          review: review,
-                          busy: operation.isLoading,
-                          onEdit: () => _editReview(context, review),
-                          onDelete: () => _confirmDelete(context, ref, review),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 680),
+            child: RefreshIndicator(
+              onRefresh: controller.refresh,
+              child: ListView.builder(
+                key: PageStorageKey('my-reviews-${user.id}'),
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.margin,
+                  AppSpacing.md,
+                  AppSpacing.margin,
+                  AppSpacing.xxl,
+                ),
+                itemCount: state.items.length + 2,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    final summary = state.summary.asData?.value;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        state.summary.when(
+                          data: (summary) => MyReviewSummary(summary: summary),
+                          loading: () => const AppSkeleton(height: 100),
+                          error: (error, _) => AppErrorState(
+                            message: AppErrorMessage.from(
+                              error,
+                              fallback: 'Không tải được thống kê đánh giá.',
+                            ),
+                            onRetry: controller.refresh,
+                          ),
                         ),
                         const SizedBox(height: AppSpacing.md),
-                      ],
-                      if (operation.hasError)
-                        Text(
-                          AppErrorMessage.from(
-                            operation.error!,
-                            fallback: 'Không thể xóa đánh giá.',
+                        Wrap(
+                          spacing: AppSpacing.sm,
+                          runSpacing: AppSpacing.sm,
+                          children: [
+                            for (final filter in UserReviewFilter.values)
+                              AppChip(
+                                label: _filterLabel(filter, summary),
+                                selected: state.filter == filter,
+                                onSelected: (_) => controller.apply(filter),
+                              ),
+                          ],
+                        ),
+                        if (state.refreshing)
+                          const LinearProgressIndicator(
+                            semanticsLabel: 'Đang cập nhật đánh giá',
                           ),
-                          style: context.textStyles.bodyMedium?.copyWith(
+                        if (state.error != null)
+                          AppErrorState(
+                            message: state.error!,
+                            onRetry: controller.refresh,
+                          ),
+                        if (operation.hasError)
+                          Padding(
+                            padding: const EdgeInsets.only(top: AppSpacing.md),
+                            child: Text(
+                              AppErrorMessage.from(
+                                operation.error!,
+                                fallback: 'Không thể xóa đánh giá.',
+                              ),
+                              style: context.textStyles.bodyMedium?.copyWith(
+                                color: context.colors.error,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: AppSpacing.md),
+                      ],
+                    );
+                  }
+                  if (index <= state.items.length) {
+                    final review = state.items[index - 1];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                      child: MyReviewCard(
+                        key: ValueKey((review.placeId, review.id)),
+                        review: review,
+                        busy: operation.isLoading,
+                        isDemo: state.isDemo,
+                        onEdit: () => context.push(
+                          AppRoute.editReview.location(
+                            parameters: {'reviewId': review.id},
+                            query: {'restaurantId': review.placeId},
+                          ),
+                        ),
+                        onDelete: () =>
+                            _confirmDelete(context, ref, review, user.id),
+                      ),
+                    );
+                  }
+                  if (state.loading) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        semanticsLabel: 'Đang tải đánh giá của bạn',
+                      ),
+                    );
+                  }
+                  if (state.error != null && state.items.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  if (state.items.isEmpty) {
+                    return MyReviewsEmpty(
+                      filtered: state.filter != UserReviewFilter.all,
+                      onCreate: () => _createReview(context),
+                      onReset: () => controller.apply(UserReviewFilter.all),
+                    );
+                  }
+                  return Column(
+                    children: [
+                      if (state.pageError != null)
+                        Text(
+                          state.pageError!,
+                          style: context.textStyles.bodySmall?.copyWith(
                             color: context.colors.error,
                           ),
                         ),
+                      if (state.pageError != null)
+                        TextButton(
+                          onPressed: controller.refresh,
+                          child: const Text('Tải lại danh sách'),
+                        ),
+                      if (state.nextCursor != null)
+                        AppButton(
+                          label: state.pageError != null
+                              ? 'Thử tải thêm'
+                              : 'Tải thêm đánh giá',
+                          isLoading: state.loadingMore,
+                          variant: AppButtonVariant.outline,
+                          onPressed: state.loadingMore || state.refreshing
+                              ? null
+                              : controller.loadMore,
+                        ),
                     ],
-                  ),
-                ),
+                  );
+                },
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 
-  void _createReview(BuildContext context, WidgetRef ref) {
-    final placeId = ref.read(placesProvider).asData?.value.firstOrNull?.id;
-    if (placeId == null) {
-      AppToast.show(context, 'Chưa có quán để tạo đánh giá.');
-      return;
-    }
-    context.push(
-      AppRoute.createReview.location(parameters: {'restaurantId': placeId}),
-    );
+  String _filterLabel(UserReviewFilter filter, UserReviewSummary? summary) {
+    final (label, count) = switch (filter) {
+      UserReviewFilter.all => ('Tất cả', summary?.total),
+      UserReviewFilter.withPhotos => ('Có ảnh', summary?.withPhotos),
+      UserReviewFilter.edited => ('Đã chỉnh sửa', summary?.edited),
+    };
+    return count == null ? label : '$label ($count)';
   }
 
-  void _editReview(BuildContext context, Review review) {
+  Future<void> _createReview(BuildContext context) async {
+    final id = await pickReviewPlace(context);
+    if (id == null || !context.mounted) return;
     context.push(
-      AppRoute.editReview.location(
-        parameters: {'reviewId': review.id},
-        query: {'restaurantId': review.placeId},
-      ),
+      AppRoute.createReview.location(parameters: {'restaurantId': id}),
     );
   }
 
@@ -150,201 +223,31 @@ class MyReviewsScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     Review review,
+    String userId,
   ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: Icon(Icons.delete_forever, color: context.colors.error),
-        title: const Text('Xóa đánh giá?'),
-        content: Text(
-          'Bạn có chắc muốn xóa bài đánh giá cho quán này? Thao tác này không thể hoàn tác.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Hủy'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: context.colors.error,
-              foregroundColor: context.colors.onError,
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xóa đánh giá'),
-          ),
-        ],
-      ),
+    final confirmed = await showAppConfirmation(
+      context,
+      title: 'Xóa đánh giá?',
+      message: 'Bạn có chắc muốn xóa bài đánh giá này? Thao tác này không thể hoàn tác.',
+      confirmLabel: 'Xóa đánh giá',
+      cancelLabel: 'Giữ lại',
+      destructive: true,
     );
-    if (confirmed != true || !context.mounted) return;
+    if (!confirmed ||
+        !context.mounted ||
+        ref.read(authSessionProvider).asData?.value?.id != userId) {
+      return;
+    }
+    final provider = reviewManagementControllerProvider('my-reviews-$userId');
     await ref
-        .read(reviewManagementControllerProvider('my-reviews').notifier)
+        .read(provider.notifier)
         .delete(placeId: review.placeId, reviewId: review.id);
-    if (!context.mounted) return;
-    if (!ref.read(reviewManagementControllerProvider('my-reviews')).hasError) {
-      ref.invalidate(myReviewsProvider);
+    if (!context.mounted ||
+        ref.read(authSessionProvider).asData?.value?.id != userId) {
+      return;
+    }
+    if (!ref.read(provider).hasError) {
       AppToast.show(context, 'Đã xóa đánh giá.', type: AppFeedbackType.success);
     }
-  }
-}
-
-class _ReviewSummary extends StatelessWidget {
-  const _ReviewSummary({required this.total});
-  final int total;
-  @override
-  Widget build(BuildContext context) => Card(
-    color: context.colors.primaryContainer,
-    child: Padding(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Row(
-        children: [
-          Icon(Icons.rate_review, color: context.colors.onPrimaryContainer),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Text(
-              '$total bài đánh giá đã đăng',
-              style: context.textStyles.titleMedium?.copyWith(
-                color: context.colors.onPrimaryContainer,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-class _EmptyReviews extends StatelessWidget {
-  const _EmptyReviews({required this.onCreate});
-  final VoidCallback onCreate;
-  @override
-  Widget build(BuildContext context) => ListView(
-    padding: const EdgeInsets.all(AppSpacing.xl),
-    children: [
-      const SizedBox(height: 80),
-      const AppEmptyState(
-        title: 'Bạn chưa có đánh giá nào',
-        message: 'Chia sẻ trải nghiệm đầu tiên của bạn với cộng đồng.',
-        icon: Icons.rate_review_outlined,
-      ),
-      const SizedBox(height: AppSpacing.md),
-      AppButton(
-        label: 'Viết đánh giá',
-        icon: Icons.edit_outlined,
-        expanded: true,
-        onPressed: onCreate,
-      ),
-    ],
-  );
-}
-
-class _MyReviewCard extends StatelessWidget {
-  const _MyReviewCard({
-    required this.review,
-    required this.busy,
-    required this.onEdit,
-    required this.onDelete,
-  });
-  final Review review;
-  final bool busy;
-  final VoidCallback onEdit, onDelete;
-  @override
-  Widget build(BuildContext context) {
-    final date = review.createdAt.toLocal();
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    review.title?.isNotEmpty == true
-                        ? review.title!
-                        : 'Đánh giá quán',
-                    style: context.textStyles.titleMedium,
-                  ),
-                ),
-                PopupMenuButton<String>(
-                  enabled: !busy,
-                  tooltip: 'Tùy chọn đánh giá',
-                  onSelected: (value) {
-                    if (value == 'edit') onEdit();
-                    if (value == 'delete') onDelete();
-                  },
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(
-                      value: 'edit',
-                      child: ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: Icon(Icons.edit_outlined),
-                        title: Text('Chỉnh sửa đánh giá'),
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: Icon(Icons.delete_outline),
-                        title: Text('Xóa đánh giá'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}',
-              style: context.textStyles.bodySmall?.copyWith(
-                color: context.colors.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            AppRating(value: review.rating.toDouble(), showValue: false),
-            const SizedBox(height: AppSpacing.sm),
-            Text(review.content, style: context.textStyles.bodyMedium),
-            if (review.imageUrls.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.md),
-              SizedBox(
-                height: 76,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: review.imageUrls.length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(width: AppSpacing.sm),
-                  itemBuilder: (context, index) => ClipRRect(
-                    borderRadius: AppRadii.inputBorder,
-                    child: AppImage(
-                      url: review.imageUrls[index],
-                      width: 76,
-                      height: 76,
-                      semanticLabel: 'Ảnh đánh giá ${index + 1}',
-                    ),
-                  ),
-                ),
-              ),
-            ],
-            const SizedBox(height: AppSpacing.md),
-            Row(
-              children: [
-                Icon(
-                  Icons.check_circle_outline,
-                  size: 16,
-                  color: context.semanticColors.success,
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Text(
-                  'Đã lưu trong phiên',
-                  style: context.textStyles.labelSmall,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

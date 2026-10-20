@@ -150,6 +150,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: AppRoute.profile.path,
                 builder: (_, _) => const ProfileScreen(),
               ),
+              GoRoute(
+                name: AppRoute.myReviews.name,
+                path: AppRoute.myReviews.path,
+                builder: (_, _) =>
+                    const RouteBackScope(child: MyReviewsScreen()),
+              ),
             ],
           ),
         ],
@@ -303,12 +309,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   ),
           );
         },
-      ),
-      GoRoute(
-        name: AppRoute.myReviews.name,
-        path: AppRoute.myReviews.path,
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (_, _) => const RouteBackScope(child: MyReviewsScreen()),
       ),
       GoRoute(
         name: AppRoute.editProfile.name,

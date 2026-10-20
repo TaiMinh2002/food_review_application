@@ -95,6 +95,7 @@ class ReviewWriteController extends Notifier<AsyncValue<void>> {
       title: title?.trim().isEmpty == true ? null : title?.trim(),
       content: content.trim(),
       createdAt: createdAt,
+      updatedAt: DateTime.now(),
       visitDate: visitDate,
       companion: companion,
       imageUrls: imageUrls,
