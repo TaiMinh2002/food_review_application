@@ -204,6 +204,8 @@ void main() {
               ? 'Không tìm thấy đánh giá.'
               : route == AppRoute.myReviews
               ? 'Đánh giá của tôi'
+              : route == AppRoute.wantToVisit
+              ? 'Danh sách của bạn đang trống'
               : route.isAdmin
               ? 'Không có quyền truy cập. Quyền quản trị chưa được xác minh.'
               : 'Chức năng chưa triển khai · ${route.task}.',

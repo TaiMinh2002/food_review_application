@@ -11,6 +11,7 @@ import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/auth_providers.dart';
 import '../../features/auth/presentation/auth_gate.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
+import '../../features/want_to_visit/presentation/want_to_visit_screen.dart';
 import '../../features/reviews/presentation/all_reviews_screen.dart';
 import '../../features/reviews/presentation/write_review_screen.dart';
 import '../../features/reviews/presentation/my_reviews_screen.dart';
@@ -133,6 +134,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 name: AppRoute.favorites.name,
                 path: AppRoute.favorites.path,
                 builder: (_, _) => const FavoritesScreen(),
+              ),
+              GoRoute(
+                name: AppRoute.wantToVisit.name,
+                path: AppRoute.wantToVisit.path,
+                builder: (_, _) => const WantToVisitScreen(),
               ),
             ],
           ),
@@ -310,7 +316,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             route != AppRoute.forgotPassword &&
             route != AppRoute.createReview &&
             route != AppRoute.editReview &&
-            route != AppRoute.myReviews)
+            route != AppRoute.myReviews &&
+            route != AppRoute.wantToVisit)
           GoRoute(
             name: route.name,
             path: route.path,

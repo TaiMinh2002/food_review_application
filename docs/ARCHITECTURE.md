@@ -66,6 +66,8 @@ là RAM demo; khi nối Firestore chỉ thay implementation/provider ở tầng 
 Không gọi Firestore trực tiếp trong widget. T10 gate thao tác favorite theo session user ID;
 login không tự toggle favorite. `authSessionProvider` giữ loading/error/guest/user;
 controller sign-in/out gọi AuthRepository, UI không gọi Firebase trực tiếp.
+`WantToVisitRepository` dùng contract stream/async tương tự nhưng có provider và adapter
+riêng; thao tác want-to-visit không bao giờ tự xóa favorite.
 
 ## Routing
 
@@ -77,6 +79,8 @@ controller sign-in/out gọi AuthRepository, UI không gọi Firebase trực ti�
 - `/restaurants/:restaurantId/gallery`: T09b trên root; `index` mở viewer, `source=review&reviewId=...` chọn ảnh review đúng scope. Đóng viewer về lưới, Back về nguồn. Xem [GALLERY_UI.md](GALLERY_UI.md).
 - `/favorites`: T15 hiển thị quán đã lưu theo phiên, có tìm kiếm/lọc/sắp xếp và trạng thái
   loading/error/empty; xem [FAVORITES_UI.md](FAVORITES_UI.md).
+- `/want-to-visit`: T16 danh sách độc lập theo phiên, có tìm/sort, bookmark từ Detail,
+  loading/error/empty; xem [WANT_TO_VISIT_UI.md](WANT_TO_VISIT_UI.md).
 - `/profile`: trang khởi đầu hồ sơ.
 - `/login`: T10 theo Stitch 13; email/password, validation/loading/error, returnTo và links T11/T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 - `/register`: T11 theo Stitch 14; tạo Firebase Auth account, displayName, validation/loading/error và giữ returnTo/action. Xem [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).

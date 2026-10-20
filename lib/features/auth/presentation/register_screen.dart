@@ -87,7 +87,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       AppRoute.login.location(
         query: {
           'returnTo': ?safeReturnTo(widget.returnTo),
-          if (widget.action == 'favorite') 'action': 'favorite',
+          if (widget.action != null) 'action': widget.action!,
         },
       ),
     );
@@ -145,9 +145,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-                      if (widget.action == 'favorite') ...[
+                      if (widget.action == 'favorite' ||
+                          widget.action == 'want_to_visit') ...[
                         Text(
-                          'Sau khi đăng ký, chạm lại biểu tượng tim để lưu quán.',
+                          widget.action == 'want_to_visit'
+                              ? 'Sau khi đăng ký, chạm lại biểu tượng lưu để thêm quán.'
+                              : 'Sau khi đăng ký, chạm lại biểu tượng tim để lưu quán.',
                           style: context.textStyles.bodySmall,
                         ),
                         const SizedBox(height: 12),

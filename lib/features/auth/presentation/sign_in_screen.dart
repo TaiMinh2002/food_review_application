@@ -71,7 +71,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     route.location(
       query: {
         'returnTo': ?safeReturnTo(widget.returnTo),
-        if (widget.action == 'favorite') 'action': 'favorite',
+        if (widget.action != null) 'action': widget.action!,
       },
     ),
   );
@@ -121,9 +121,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       const SizedBox(height: 20),
                       const LoginFoodHighlight(),
                       const SizedBox(height: 20),
-                      if (widget.action == 'favorite') ...[
+                      if (widget.action == 'favorite' ||
+                          widget.action == 'want_to_visit') ...[
                         Text(
-                          'Sau đăng nhập, chạm lại biểu tượng tim để lưu quán.',
+                          widget.action == 'want_to_visit'
+                              ? 'Sau đăng nhập, chạm lại biểu tượng lưu để thêm quán.'
+                              : 'Sau đăng nhập, chạm lại biểu tượng tim để lưu quán.',
                           style: context.textStyles.bodySmall,
                         ),
                         const SizedBox(height: 12),
