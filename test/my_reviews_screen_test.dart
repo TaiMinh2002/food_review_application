@@ -52,6 +52,11 @@ void main() {
       (await repo.getReview('pho-demo', 'review-user-a'))?.content,
       'Nước dùng thanh và thịt bò mềm hơn hôm trước.',
     );
+    expect(
+      find.text('Nước dùng thanh và thịt bò mềm hơn hôm trước.'),
+      findsOneWidget,
+    );
+    expect(find.text('Đã chỉnh sửa (1)'), findsOneWidget);
   });
 
   testWidgets('My reviews confirm deletion and remove only the owned review', (

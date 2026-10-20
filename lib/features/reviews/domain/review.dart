@@ -9,6 +9,7 @@ class Review {
     this.authorName = 'Thành viên',
     this.title,
     this.visitDate,
+    this.updatedAt,
     this.companion,
     this.isDemo = false,
     List<String> imageUrls = const [],
@@ -34,6 +35,7 @@ class Review {
   final int rating;
   final String content;
   final DateTime createdAt;
+  final DateTime? updatedAt;
   final List<String> imageUrls;
   final List<String> dishes;
 }

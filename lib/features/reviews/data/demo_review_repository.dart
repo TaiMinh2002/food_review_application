@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import '../../../core/errors/app_exception.dart';
 import '../domain/review.dart';
 import '../domain/review_repository.dart';
 import '../domain/review_feed_repository.dart';
+import '../domain/user_review_repository.dart';
 
 /// Preview fixtures, never submitted reviews or verified customer claims.
 class DemoReviewRepository
@@ -9,10 +12,72 @@ class DemoReviewRepository
         ReviewRepository,
         ReviewFeedRepository,
         ReviewMediaRepository,
-        ReviewManagementRepository {
+        ReviewManagementRepository,
+        UserReviewRepository {
   DemoReviewRepository({List<Review>? data})
     : _data = List<Review>.from(data ?? _reviews);
   final List<Review> _data;
+  final _changes = StreamController<String>.broadcast(sync: true);
+  void dispose() => _changes.close();
+
+  @override
+  Stream<void> watchUserReviewChanges(String userId) =>
+      _changes.stream.where((id) => id == userId).map((_) {});
+
+  @override
+  Future<UserReviewSummary> getUserReviewSummary(String userId) async {
+    final owned = _data.where((r) => r.userId == userId).toList();
+    return UserReviewSummary(
+      total: owned.length,
+      withPhotos: owned.where((r) => r.imageUrls.isNotEmpty).length,
+      edited: owned.where((r) => r.updatedAt != null).length,
+      isDemo: true,
+    );
+  }
+
+  @override
+  Future<ReviewPage> getUserReviews(
+    String userId, {
+    required UserReviewFilter filter,
+    String? cursor,
+    int pageSize = 10,
+  }) async {
+    if (pageSize < 1 || pageSize > 50) {
+      throw ArgumentError.value(pageSize, 'pageSize');
+    }
+    final owned =
+        _data
+            .where(
+              (r) =>
+                  r.userId == userId &&
+                  switch (filter) {
+                    UserReviewFilter.all => true,
+                    UserReviewFilter.withPhotos => r.imageUrls.isNotEmpty,
+                    UserReviewFilter.edited => r.updatedAt != null,
+                  },
+            )
+            .toList()
+          ..sort((a, b) {
+            final date = b.createdAt.compareTo(a.createdAt);
+            return date == 0 ? a.id.compareTo(b.id) : date;
+          });
+    var start = 0;
+    if (cursor != null) {
+      final index = owned.indexWhere((r) => r.id == cursor);
+      if (index < 0) {
+        throw const AppException('Danh sách đã thay đổi. Vui lòng tải lại.');
+      }
+      start = index + 1;
+    }
+    final items = owned.skip(start).take(pageSize).toList();
+    return ReviewPage(
+      items: items,
+      totalCount: owned.length,
+      isDemo: true,
+      nextCursor: start + items.length < owned.length ? items.last.id : null,
+    );
+  }
+
   @override
   Future<Review?> getReview(String placeId, String reviewId) async => _data
       .where((review) => review.placeId == placeId && review.id == reviewId)
@@ -149,6 +214,7 @@ class DemoReviewRepository
       throw const AppException('Đánh giá này đã được gửi.');
     }
     _data.insert(0, review);
+    _changes.add(review.userId);
   }
 
   @override
@@ -171,6 +237,7 @@ class DemoReviewRepository
       throw const AppException('Nội dung đánh giá cần ít nhất 10 ký tự.');
     }
     _data[index] = review;
+    _changes.add(review.userId);
   }
 
   @override
@@ -189,5 +256,6 @@ class DemoReviewRepository
       throw const AppException('Bạn không có quyền xóa đánh giá này.');
     }
     _data.removeAt(index);
+    _changes.add(userId);
   }
 }
