@@ -15,6 +15,8 @@ import 'package:food_review/features/reviews/presentation/review_providers.dart'
 import 'package:food_review/features/profile/domain/user_profile.dart';
 import 'package:food_review/features/collections/domain/collection_repository.dart';
 import 'package:food_review/features/collections/presentation/collections_controller.dart';
+import 'package:food_review/features/notifications/domain/notification_repository.dart';
+import 'package:food_review/features/notifications/presentation/notifications_controller.dart';
 
 const authTestUser = UserProfile(id: 'user-a', displayName: 'Người thử nghiệm');
 
@@ -105,6 +107,7 @@ Future<ProviderContainer> mountAuth(
   ThemeMode mode = ThemeMode.light,
   ReviewRepository? reviews,
   CollectionRepository? collections,
+  NotificationRepository? notifications,
 }) async {
   tester.view.physicalSize = Size(width, height);
   tester.view.devicePixelRatio = 1;
@@ -117,6 +120,8 @@ Future<ProviderContainer> mountAuth(
       if (reviews != null) reviewRepositoryProvider.overrideWithValue(reviews),
       if (collections != null)
         collectionRepositoryProvider.overrideWithValue(collections),
+      if (notifications != null)
+        notificationRepositoryProvider.overrideWithValue(notifications),
     ],
   );
   addTearDown(() async {

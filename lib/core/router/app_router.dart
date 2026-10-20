@@ -27,6 +27,7 @@ import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/collections/presentation/collections_screen.dart';
 import '../../features/collections/presentation/collection_editor_screen.dart';
+import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../shared/design_system/design_system_screen.dart';
 import '../../shared/widgets/app_message.dart';
@@ -345,6 +346,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           scope: state.pageKey.value,
         ),
       ),
+      GoRoute(
+        name: AppRoute.notifications.name,
+        path: AppRoute.notifications.path,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, _) => const RouteBackScope(child: NotificationsScreen()),
+      ),
       for (final route in AppRoute.values)
         if (route.task != null &&
             route != AppRoute.map &&
@@ -353,7 +360,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             route != AppRoute.createReview &&
             route != AppRoute.editReview &&
             route != AppRoute.myReviews &&
-            route != AppRoute.wantToVisit)
+            route != AppRoute.wantToVisit &&
+            route != AppRoute.notifications)
           GoRoute(
             name: route.name,
             path: route.path,
