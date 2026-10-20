@@ -5,9 +5,11 @@ import '../domain/review.dart';
 import '../domain/review_repository.dart';
 import '../domain/review_feed_repository.dart';
 import '../domain/user_review_repository.dart';
+import 'demo_public_reviewer_queries.dart';
 
 /// Preview fixtures, never submitted reviews or verified customer claims.
 class DemoReviewRepository
+    with DemoPublicReviewerQueries
     implements
         ReviewRepository,
         ReviewFeedRepository,
@@ -17,6 +19,11 @@ class DemoReviewRepository
   DemoReviewRepository({List<Review>? data})
     : _data = List<Review>.from(data ?? _reviews);
   final List<Review> _data;
+  @override
+  List<Review> get publicReviewData => List.unmodifiable(_data);
+  @override
+  Stream<void> watchPublicReviewerChanges(String userId) =>
+      watchUserReviewChanges(userId);
   final _changes = StreamController<String>.broadcast(sync: true);
   void dispose() => _changes.close();
 

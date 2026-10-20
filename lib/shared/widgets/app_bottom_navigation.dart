@@ -2,6 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_tokens.dart';
 
+const mainAppDestinations = [
+  NavigationDestination(
+    icon: Icon(Icons.home_outlined),
+    selectedIcon: Icon(Icons.home),
+    label: 'Trang chủ',
+  ),
+  NavigationDestination(icon: Icon(Icons.map_outlined), label: 'Bản đồ'),
+  NavigationDestination(icon: Icon(Icons.favorite_border), label: 'Yêu thích'),
+  NavigationDestination(icon: Icon(Icons.person_outline), label: 'Cá nhân'),
+];
+
 class AppBottomNavigation extends StatelessWidget {
   const AppBottomNavigation({
     super.key,

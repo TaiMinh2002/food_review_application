@@ -24,7 +24,7 @@ enum AppRoute {
   myReviews('/my-reviews', 'Đánh giá của tôi'),
   settings('/settings', 'Cài đặt'),
   notifications('/notifications', 'Thông báo', task: 'T23'),
-  reviewer('/users/:userId', 'Hồ sơ người đánh giá', task: 'T24'),
+  reviewer('/users/:userId', 'Hồ sơ người đánh giá'),
   collections('/collections', 'Bộ sưu tập'),
   createCollection('/collections/create', 'Tạo bộ sưu tập'),
   editCollection('/collections/:collectionId/edit', 'Chỉnh sửa bộ sưu tập'),
