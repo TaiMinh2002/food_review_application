@@ -128,6 +128,16 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
           ),
         ),
         SliverToBoxAdapter(
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () => context.push(AppRoute.wantToVisit.path),
+              icon: const Icon(Icons.bookmark_border),
+              label: const Text('Danh sách muốn ghé'),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
           child: SizedBox(
             height: 48,
             child: ListView.separated(

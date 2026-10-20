@@ -19,6 +19,9 @@ class AppRestaurantCard extends StatelessWidget {
     this.rating = 0,
     this.reviewCount = 0,
     this.isFavorite = false,
+    this.favoriteIcon = Icons.favorite,
+    this.favoriteBorderIcon = Icons.favorite_border,
+    this.favoriteLabel,
     this.isOpen,
     this.badge,
     this.onTap,
@@ -32,6 +35,8 @@ class AppRestaurantCard extends StatelessWidget {
   final double rating, imageAspectRatio;
   final int reviewCount;
   final bool isFavorite, compact, insetImage;
+  final IconData favoriteIcon, favoriteBorderIcon;
+  final String? favoriteLabel;
   final bool? isOpen;
   final VoidCallback? onTap, onFavorite;
 
@@ -119,8 +124,10 @@ class AppRestaurantCard extends StatelessWidget {
     final favorite = onFavorite == null
         ? null
         : AppIconButton(
-            icon: isFavorite ? Icons.favorite : Icons.favorite_border,
-            tooltip: isFavorite ? 'Bỏ yêu thích' : 'Lưu yêu thích',
+            icon: isFavorite ? favoriteIcon : favoriteBorderIcon,
+            tooltip:
+                favoriteLabel ??
+                (isFavorite ? 'Bỏ yêu thích' : 'Lưu yêu thích'),
             onPressed: onFavorite,
             selected: isFavorite,
             circular: true,

@@ -52,7 +52,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   void _goLogin() {
     final query = <String, dynamic>{
       'returnTo': ?safeReturnTo(widget.returnTo),
-      if (widget.action == 'favorite') 'action': 'favorite',
+      if (widget.action != null) 'action': widget.action!,
     };
     context.go(AppRoute.login.location(query: query));
   }

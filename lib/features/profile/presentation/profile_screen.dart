@@ -63,6 +63,14 @@ class ProfileScreen extends ConsumerWidget {
               onPressed: () => context.push(AppRoute.myReviews.path),
             ),
             const SizedBox(height: 12),
+            AppButton(
+              label: 'Muốn ghé thăm',
+              icon: Icons.bookmark_border,
+              variant: AppButtonVariant.secondary,
+              expanded: true,
+              onPressed: () => context.push(AppRoute.wantToVisit.path),
+            ),
+            const SizedBox(height: 12),
           ],
           AppButton(
             variant: AppButtonVariant.outline,

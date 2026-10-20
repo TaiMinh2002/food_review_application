@@ -8,6 +8,7 @@ import '../../../core/router/route_placeholder_screen.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../../../shared/widgets/app_message.dart';
 import '../../favorites/presentation/favorite_providers.dart';
+import '../../want_to_visit/presentation/want_to_visit_providers.dart';
 import '../domain/place.dart';
 import 'place_detail_actions.dart';
 import 'place_detail_overview.dart';
@@ -59,7 +60,12 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
     final state = ref.watch(placeProvider(widget.placeId));
     final place = state.asData?.value;
     final favorite = ref.watch(favoriteIdsProvider).contains(widget.placeId);
+    final wantToVisit = ref
+        .watch(wantToVisitIdsProvider)
+        .contains(widget.placeId);
     void toggleFavorite() => requestFavorite(context, ref, widget.placeId);
+    void toggleWantToVisit() =>
+        requestWantToVisit(context, ref, widget.placeId);
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 64,
@@ -77,6 +83,13 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
               selected: favorite,
               circular: true,
               onPressed: toggleFavorite,
+            ),
+            AppIconButton(
+              icon: wantToVisit ? Icons.bookmark : Icons.bookmark_border,
+              tooltip: wantToVisit ? 'Bỏ khỏi muốn ghé' : 'Thêm vào muốn ghé',
+              selected: wantToVisit,
+              circular: true,
+              onPressed: toggleWantToVisit,
             ),
             IconButton(
               tooltip: 'Chia sẻ quán',
