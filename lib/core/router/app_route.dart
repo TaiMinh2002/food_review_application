@@ -22,7 +22,7 @@ enum AppRoute {
   wantToVisit('/want-to-visit', 'Muốn ghé thăm', task: 'T16'),
   editProfile('/profile/edit', 'Chỉnh sửa hồ sơ'),
   myReviews('/my-reviews', 'Đánh giá của tôi'),
-  settings('/settings', 'Cài đặt', task: 'T20'),
+  settings('/settings', 'Cài đặt'),
   notifications('/notifications', 'Thông báo', task: 'T23'),
   reviewer('/users/:userId', 'Hồ sơ người đánh giá', task: 'T24'),
   collections('/collections', 'Bộ sưu tập', task: 'T21'),

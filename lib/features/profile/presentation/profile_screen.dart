@@ -6,6 +6,7 @@ import '../../../core/errors/app_error_message.dart';
 import '../../../core/router/app_route.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../../auth/presentation/auth_providers.dart';
+import '../../auth/presentation/sign_out_action.dart';
 import '../domain/user_profile.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -15,7 +16,6 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(authSessionProvider);
     final user = session.asData?.value;
-    final logout = ref.watch(signOutControllerProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cá Nhân'),
@@ -71,30 +71,7 @@ class ProfileScreen extends ConsumerWidget {
                 label: const Text('Chỉnh sửa hồ sơ'),
               ),
               const SizedBox(height: AppSpacing.sm),
-              AppButton(
-                label: 'Đăng xuất',
-                icon: Icons.logout,
-                variant: AppButtonVariant.outline,
-                expanded: true,
-                isLoading: logout.isLoading,
-                onPressed: logout.isLoading
-                    ? null
-                    : () =>
-                          ref.read(signOutControllerProvider.notifier).submit(),
-              ),
-              if (logout.hasError)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.sm),
-                  child: Text(
-                    AppErrorMessage.from(
-                      logout.error!,
-                      fallback: 'Không đăng xuất được. Vui lòng thử lại.',
-                    ),
-                    style: context.textStyles.bodySmall?.copyWith(
-                      color: context.colors.error,
-                    ),
-                  ),
-                ),
+              const SignOutAction(),
               const SizedBox(height: AppSpacing.lg),
               const _SectionTitle('Hoạt động của tôi'),
               const SizedBox(height: AppSpacing.sm),

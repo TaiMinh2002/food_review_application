@@ -87,6 +87,7 @@ riêng; thao tác want-to-visit không bao giờ tự xóa favorite.
   `ProfileRepository` (Firebase Auth), `ProfilePhotoRepository` (image_picker/Cloudinary).
   `userChanges()` phát lại danh tính sau lưu; username/bio/region chưa có backend.
   Xem [EDIT_PROFILE_UI.md](EDIT_PROFILE_UI.md).
+- `/settings`: T20 trong nhánh Cá nhân, guest/user, theme trong phiên và logout xác nhận dùng chung Profile. Xem [SETTINGS_UI.md](SETTINGS_UI.md).
 - `/login`: T10 theo Stitch 13; email/password, validation/loading/error, returnTo và links T11/T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 - `/register`: T11 theo Stitch 14; tạo Firebase Auth account, displayName, validation/loading/error và giữ returnTo/action. Xem [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).
 - `/forgot-password`: T12 theo Stitch 15; email, reset password, trạng thái gửi chung, retry và quay về Login. Xem [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md).
