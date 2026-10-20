@@ -22,8 +22,8 @@ màn **22 - Collections**, screen `e69e9a4187db4b23b0025c6237e8f3cd`.
   hoặc Want to Visit.
 - Tạo mới dẫn `/collections/create`; chạm card/menu sửa dẫn
   `/collections/:collectionId/edit` bằng ID, Back giữ danh sách/sort.
-  **Hai route editor vẫn là placeholder T22** theo kế hoạch, có ghi rõ trên UI;
-  T21 chưa tạo/sửa tên hoặc membership. Chia sẻ disabled vì collection mặc định riêng tư.
+  T22 đã triển khai hai route editor để tạo/sửa tên, mô tả và membership; xem
+  [COLLECTION_EDITOR_UI.md](COLLECTION_EDITOR_UI.md). Chia sẻ disabled vì collection mặc định riêng tư.
 
 ## Dữ liệu và state
 
@@ -50,7 +50,7 @@ vào tài khoản mới. `AuthGate` và router vẫn giữ returnTo sau login.
 Backend tương lai phải kiểm tra authenticated owner ở rules, áp dụng query/limit/cursor
 phía dữ liệu, tính count/cover từ membership và xóa membership con khi xóa collection;
 không giả định xóa document cha tự dọn subcollection. Schema tại BACKEND_SETUP.md.
-T22 bổ sung get/create/update và invalidate/refresh danh sách sau khi lưu.
+T22 đã bổ sung capability get/create/update và refresh danh sách sau khi lưu.
 
 ## Ảnh và kiểm tra
 

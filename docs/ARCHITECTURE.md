@@ -93,7 +93,7 @@ Backend phải kiểm tra owner và dọn membership con; xem [COLLECTIONS_UI.md
   `ProfileRepository` (Firebase Auth), `ProfilePhotoRepository` (image_picker/Cloudinary).
   `userChanges()` phát lại danh tính sau lưu; username/bio/region chưa có backend.
   Xem [EDIT_PROFILE_UI.md](EDIT_PROFILE_UI.md).
-- `/collections`: T21 trong nhánh Yêu thích, mở từ Profile; card/menu sửa truyền ID tới route T22. Tạo/sửa ở T22 vẫn là placeholder. Xem [COLLECTIONS_UI.md](COLLECTIONS_UI.md).
+- `/collections`: T21 trong nhánh Yêu thích, mở từ Profile; card/menu sửa truyền ID tới route T22. T22 editor chạy trên root, get/create/update qua capability `CollectionEditingRepository`, form/query/save theo owner/route; sheet dùng Search provider hiện có. Xem [COLLECTION_EDITOR_UI.md](COLLECTION_EDITOR_UI.md). Xem [COLLECTIONS_UI.md](COLLECTIONS_UI.md).
 - `/settings`: T20 trong nhánh Cá nhân, guest/user, theme trong phiên và logout xác nhận dùng chung Profile. Xem [SETTINGS_UI.md](SETTINGS_UI.md).
 - `/login`: T10 theo Stitch 13; email/password, validation/loading/error, returnTo và links T11/T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 - `/register`: T11 theo Stitch 14; tạo Firebase Auth account, displayName, validation/loading/error và giữ returnTo/action. Xem [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).

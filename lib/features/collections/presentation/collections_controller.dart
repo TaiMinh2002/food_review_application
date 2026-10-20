@@ -5,11 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/app_error_message.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../auth/presentation/auth_providers.dart';
+import '../../places/presentation/place_providers.dart';
 import '../data/demo_collection_repository.dart';
 import '../domain/collection_repository.dart';
 
 final collectionRepositoryProvider = Provider<CollectionRepository>(
-  (ref) => DemoCollectionRepository(),
+  (ref) => DemoCollectionRepository(places: ref.watch(placeRepositoryProvider)),
 );
 
 class CollectionsState {

@@ -217,12 +217,6 @@ class _CollectionsBody extends ConsumerWidget {
                       ),
                     ),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    'Tính năng tạo/chỉnh sửa sẽ được bổ sung.',
-                    style: context.textStyles.labelSmall?.copyWith(
-                      color: context.colors.onSurfaceVariant,
-                    ),
-                  ),
                   const SizedBox(height: AppSpacing.sm),
                   Wrap(
                     spacing: AppSpacing.sm,
