@@ -1,12 +1,20 @@
 import '../../../core/errors/app_exception.dart';
 import '../domain/collection_repository.dart';
+import '../domain/collection_editor.dart';
+import '../../places/domain/place_repository.dart';
+import '../../places/data/demo_place_repository.dart';
 import '../../places/domain/place_search.dart';
 
 /// Owner-scoped illustrative collections, stored only for this app process.
 /// No favorite/want-to-visit repository is read or changed here.
-class DemoCollectionRepository implements CollectionRepository {
-  DemoCollectionRepository({this.seedExamples = true});
+class DemoCollectionRepository
+    implements CollectionRepository, CollectionEditingRepository {
+  DemoCollectionRepository({this.seedExamples = true, PlaceRepository? places})
+    : _places = places ?? DemoPlaceRepository();
+  final PlaceRepository _places;
   final bool seedExamples;
+  @override
+  bool get isDemo => true;
   final _records = <String, Map<String, _Record>>{};
   final _revisions = <String, int>{};
 
@@ -93,6 +101,122 @@ class DemoCollectionRepository implements CollectionRepository {
     _revisions.update(ownerId, (value) => value + 1, ifAbsent: () => 1);
   }
 
+  @override
+  Future<CollectionDetail?> getCollection({
+    required String ownerId,
+    required String collectionId,
+  }) async {
+    final record = _forOwner(ownerId)[collectionId];
+    if (record == null) return null;
+    final places = await Future.wait(
+      record.placeIds.map((id) async {
+        final place = await _places.getPlace(id);
+        return CollectionPlace(
+          id: id,
+          name: place?.name ?? 'Địa điểm không còn khả dụng',
+          subtitle: place == null
+              ? 'Bỏ địa điểm này trước khi lưu'
+              : '${place.category} • ${place.address}',
+          imageUrl: place?.imageUrls.firstOrNull,
+          available: place != null,
+        );
+      }),
+    );
+    return CollectionDetail(
+      id: collectionId,
+      ownerId: ownerId,
+      name: record.name,
+      description: record.description,
+      places: places,
+      isDemo: true,
+    );
+  }
+
+  Future<_Record> _prepare(CollectionDraft draft) async {
+    final error =
+        validateCollectionName(draft.name) ??
+        validateCollectionDescription(draft.description);
+    if (error != null) throw AppException(error);
+    if (draft.placeIds.length > collectionPlaceLimit ||
+        draft.placeIds.any((id) => id.trim().isEmpty)) {
+      throw const AppException('Bộ sưu tập hỗ trợ tối đa 50 địa điểm hợp lệ.');
+    }
+    final places = await Future.wait(draft.placeIds.map(_places.getPlace));
+    if (places.any((place) => place == null)) {
+      throw const AppException(
+        'Một địa điểm không còn khả dụng. Vui lòng bỏ địa điểm đó và thử lại.',
+      );
+    }
+    return _Record(
+      draft.name,
+      draft.description,
+      draft.placeIds,
+      places.firstOrNull?.imageUrls.firstOrNull,
+      DateTime.now(),
+    );
+  }
+
+  @override
+  Future<String> createCollection({
+    required String ownerId,
+    required String requestId,
+    required CollectionDraft draft,
+  }) async {
+    final records = _forOwner(ownerId);
+    if (requestId.isEmpty) {
+      throw const AppException(
+        'Không tạo được bộ sưu tập. Vui lòng mở lại form.',
+      );
+    }
+    final id = 'created-$requestId';
+    if (records.containsKey(id)) {
+      _checkRetry(records[id]!, draft);
+      return id;
+    }
+    final record = await _prepare(draft);
+    // Recheck after async lookups to keep create idempotent under concurrency.
+    if (records.containsKey(id)) {
+      _checkRetry(records[id]!, draft);
+    } else {
+      records[id] = record;
+      _revisions.update(ownerId, (value) => value + 1, ifAbsent: () => 1);
+    }
+    return id;
+  }
+
+  void _checkRetry(_Record record, CollectionDraft draft) {
+    if (record.name != draft.name ||
+        record.description != draft.description ||
+        record.placeIds.length != draft.placeIds.length ||
+        record.placeIds.asMap().entries.any(
+          (entry) => draft.placeIds[entry.key] != entry.value,
+        )) {
+      throw const AppException(
+        'Bộ sưu tập đã được tạo với thông tin trước đó. Hãy quay lại danh sách để chỉnh sửa.',
+      );
+    }
+  }
+
+  @override
+  Future<void> updateCollection({
+    required String ownerId,
+    required String collectionId,
+    required CollectionDraft draft,
+  }) async {
+    final records = _forOwner(ownerId);
+    if (!records.containsKey(collectionId)) {
+      throw const AppException('Không tìm thấy bộ sưu tập của bạn.');
+    }
+    final record = await _prepare(draft);
+    if (!records.containsKey(collectionId)) {
+      throw const AppException(
+        'Bộ sưu tập đã bị xóa. Vui lòng tải lại danh sách.',
+      );
+    }
+    records[collectionId] = record;
+    _revisions.update(ownerId, (value) => value + 1, ifAbsent: () => 1);
+  }
+
   Map<String, _Record> _examples() => {
     'hanoi-demo': _Record(
       'Quán ngon Hà Nội',
@@ -129,11 +253,12 @@ class _Record {
   _Record(
     this.name,
     this.description,
-    Set<String> placeIds,
+    Iterable<String> placeIds,
     this.coverUrl,
     this.updatedAt,
-  ) : placeIds = Set.unmodifiable(placeIds);
-  final String name, description, coverUrl;
-  final Set<String> placeIds;
+  ) : placeIds = List.unmodifiable(placeIds.toSet());
+  final String name, description;
+  final String? coverUrl;
+  final List<String> placeIds;
   final DateTime updatedAt;
 }

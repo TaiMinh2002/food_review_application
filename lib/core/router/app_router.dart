@@ -26,6 +26,7 @@ import '../../features/places/domain/place_search.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/collections/presentation/collections_screen.dart';
+import '../../features/collections/presentation/collection_editor_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../shared/design_system/design_system_screen.dart';
 import '../../shared/widgets/app_message.dart';
@@ -327,6 +328,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoute.editProfile.path,
         parentNavigatorKey: rootNavigatorKey,
         builder: (_, _) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        name: AppRoute.createCollection.name,
+        path: AppRoute.createCollection.path,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) =>
+            CollectionEditorScreen(scope: state.pageKey.value),
+      ),
+      GoRoute(
+        name: AppRoute.editCollection.name,
+        path: AppRoute.editCollection.path,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) => CollectionEditorScreen(
+          collectionId: state.pathParameters['collectionId']!,
+          scope: state.pageKey.value,
+        ),
       ),
       for (final route in AppRoute.values)
         if (route.task != null &&

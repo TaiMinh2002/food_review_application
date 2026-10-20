@@ -88,7 +88,7 @@ void main() {
       await tester.tap(find.text('Quán ngon Hà Nội'));
       await tester.pumpAndSettle();
       expect(router.state.uri.path, '/collections/hanoi-demo/edit');
-      expect(find.text('Chức năng chưa triển khai · T22.'), findsOneWidget);
+      expect(find.text('Chỉnh sửa bộ sưu tập'), findsOneWidget);
       router.pop();
       await tester.pumpAndSettle();
       expect(

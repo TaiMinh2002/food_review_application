@@ -63,7 +63,6 @@ class CollectionCard extends StatelessWidget {
                         contentPadding: EdgeInsets.zero,
                         leading: Icon(Icons.edit_outlined),
                         title: Text('Chỉnh sửa bộ sưu tập'),
-                        subtitle: Text('Chức năng đang được phát triển'),
                       ),
                     ),
                     const PopupMenuItem<CollectionAction>(
