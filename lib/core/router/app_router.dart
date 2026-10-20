@@ -24,6 +24,7 @@ import '../../features/places/presentation/search_screen.dart';
 import '../../features/places/presentation/search_filters_screen.dart';
 import '../../features/places/domain/place_search.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../shared/design_system/design_system_screen.dart';
 import '../../shared/widgets/app_message.dart';
 import 'app_route.dart';
@@ -308,6 +309,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoute.myReviews.path,
         parentNavigatorKey: rootNavigatorKey,
         builder: (_, _) => const RouteBackScope(child: MyReviewsScreen()),
+      ),
+      GoRoute(
+        name: AppRoute.editProfile.name,
+        path: AppRoute.editProfile.path,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, _) => const EditProfileScreen(),
       ),
       for (final route in AppRoute.values)
         if (route.task != null &&
