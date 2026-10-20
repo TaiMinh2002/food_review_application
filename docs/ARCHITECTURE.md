@@ -82,6 +82,8 @@ riêng; thao tác want-to-visit không bao giờ tự xóa favorite.
 - `/want-to-visit`: T16 danh sách độc lập theo phiên, có tìm/sort, bookmark từ Detail,
   loading/error/empty; xem [WANT_TO_VISIT_UI.md](WANT_TO_VISIT_UI.md).
 - `/profile`: trang khởi đầu hồ sơ.
+- `/profile`: T17 My Profile theo session, guest/user variant, các lối vào danh mục và
+  trạng thái loading/error; số liệu chưa có contract hiển thị `—`. Xem [MY_PROFILE_UI.md](MY_PROFILE_UI.md).
 - `/login`: T10 theo Stitch 13; email/password, validation/loading/error, returnTo và links T11/T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 - `/register`: T11 theo Stitch 14; tạo Firebase Auth account, displayName, validation/loading/error và giữ returnTo/action. Xem [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).
 - `/forgot-password`: T12 theo Stitch 15; email, reset password, trạng thái gửi chung, retry và quay về Login. Xem [FORGOT_PASSWORD_UI.md](FORGOT_PASSWORD_UI.md).
