@@ -86,6 +86,11 @@ count/filter/paging. `PublicReviewer` không chứa email; controller family the
 userId chặn stale/sai tác giả và tải lại khi session/review đổi. Adapter hiện chỉ
 cho public các fixture demo; xem [PUBLIC_REVIEWER_UI.md](PUBLIC_REVIEWER_UI.md).
 
+T25 `ReportRepository` giải quyết target quán/review/user theo ID rồi lưu qua
+controller có auth/owner/request scope. Adapter hiện RAM demo, kiểm tra target
+trước lưu và giữ receipt idempotent; ảnh từ picker T18 chỉ lưu cục bộ, không
+upload công khai. Xem [REPORT_CONTENT_UI.md](REPORT_CONTENT_UI.md).
+
 ## Routing
 
 - `/search`: Search T05 với query/filter/sort/phân trang riêng; `/search/filters`: form nháp T06, Apply/Reset/Cancel. Xem [SEARCH_UI.md](SEARCH_UI.md).
@@ -107,6 +112,7 @@ cho public các fixture demo; xem [PUBLIC_REVIEWER_UI.md](PUBLIC_REVIEWER_UI.md)
 - `/collections`: T21 trong nhánh Yêu thích, mở từ Profile; card/menu sửa truyền ID tới route T22. T22 editor chạy trên root, get/create/update qua capability `CollectionEditingRepository`, form/query/save theo owner/route; sheet dùng Search provider hiện có. Xem [COLLECTION_EDITOR_UI.md](COLLECTION_EDITOR_UI.md). Xem [COLLECTIONS_UI.md](COLLECTIONS_UI.md).
 - `/notifications`: T23 inbox theo tài khoản, nhóm thời gian/read-unread và mở target nội bộ có kiểm tra tồn tại; xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md).
 - `/users/:userId`: T24 public profile, guest được đọc, thống kê/featured/filter/paging; review mở quán/gallery, report đúng userId. Xem [PUBLIC_REVIEWER_UI.md](PUBLIC_REVIEWER_UI.md).
+- `/reports/create`: T25 form có auth guard/returnTo, target enum + ID, validation, evidence picker, discard/retry và receipt demo; xem [REPORT_CONTENT_UI.md](REPORT_CONTENT_UI.md).
 - `/settings`: T20 trong nhánh Cá nhân, guest/user, theme trong phiên và logout xác nhận dùng chung Profile. Xem [SETTINGS_UI.md](SETTINGS_UI.md).
 - `/login`: T10 theo Stitch 13; email/password, validation/loading/error, returnTo và links T11/T12. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
 - `/register`: T11 theo Stitch 14; tạo Firebase Auth account, displayName, validation/loading/error và giữ returnTo/action. Xem [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).

@@ -19,6 +19,10 @@ import 'package:food_review/features/notifications/domain/notification_repositor
 import 'package:food_review/features/notifications/presentation/notifications_controller.dart';
 import 'package:food_review/features/profile/domain/public_reviewer_repository.dart';
 import 'package:food_review/features/profile/presentation/public_reviewer_controller.dart';
+import 'package:food_review/features/reports/domain/report_repository.dart';
+import 'package:food_review/features/reports/presentation/report_controller.dart';
+import 'package:food_review/features/profile/domain/profile_repository.dart';
+import 'package:food_review/features/profile/presentation/profile_edit_controller.dart';
 
 const authTestUser = UserProfile(id: 'user-a', displayName: 'Người thử nghiệm');
 
@@ -111,6 +115,9 @@ Future<ProviderContainer> mountAuth(
   CollectionRepository? collections,
   NotificationRepository? notifications,
   PublicReviewerRepository? publicReviewers,
+  ReportRepository? reports,
+  ProfilePhotoRepository? reportPhotos,
+  double? keyboard,
 }) async {
   tester.view.physicalSize = Size(width, height);
   tester.view.devicePixelRatio = 1;
@@ -127,6 +134,9 @@ Future<ProviderContainer> mountAuth(
         notificationRepositoryProvider.overrideWithValue(notifications),
       if (publicReviewers != null)
         publicReviewerRepositoryProvider.overrideWithValue(publicReviewers),
+      if (reports != null) reportRepositoryProvider.overrideWithValue(reports),
+      if (reportPhotos != null)
+        profilePhotoRepositoryProvider.overrideWithValue(reportPhotos),
     ],
   );
   addTearDown(() async {
@@ -147,6 +157,9 @@ Future<ProviderContainer> mountAuth(
               data: MediaQuery.of(context).copyWith(
                 textScaler: TextScaler.linear(scale),
                 disableAnimations: true,
+                viewInsets: keyboard == null
+                    ? null
+                    : EdgeInsets.only(bottom: keyboard),
                 padding: const EdgeInsets.only(top: 44, bottom: 24),
                 viewPadding: const EdgeInsets.only(top: 44, bottom: 24),
               ),

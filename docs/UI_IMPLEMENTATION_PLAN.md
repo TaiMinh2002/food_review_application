@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 20/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T17 đã có UI/demo; T10 Login, T11 Register, T12 Forgot Password, T13 Write Review và T14 Edit/Delete Review đã có UI/adapter, chưa nghiệm thu tài khoản thật/backend review. T07 được bổ sung sau T08 theo yêu cầu người dùng. T18 đã có UI/sửa tên-ảnh; username/bio/khu vực và nghiệm thu backend còn thiếu. T19 My Reviews đã hoàn thiện UI/phân trang theo user từ phần T14. T20 đã có UI Settings, chọn theme trong phiên và đăng xuất có xác nhận; thông báo đẩy/nội dung hỗ trợ chưa tích hợp. T21 đã có UI Collections theo owner, phân trang/sort/xóa từ nguồn mẫu; T22 đã nối editor tạo/sửa/chọn quán và lưu trong phiên. T23 đã có inbox/read-unread/target nội bộ qua adapter RAM. T24 đã có public profile/featured/filter/paging qua capability public-read. Task UI tiếp theo: **T25 — Report Content**. Xem [PUBLIC_REVIEWER_UI.md](PUBLIC_REVIEWER_UI.md). Xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md), [COLLECTION_EDITOR_UI.md](COLLECTION_EDITOR_UI.md), [COLLECTIONS_UI.md](COLLECTIONS_UI.md) và [SETTINGS_UI.md](SETTINGS_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 20/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T17 đã có UI/demo; T10 Login, T11 Register, T12 Forgot Password, T13 Write Review và T14 Edit/Delete Review đã có UI/adapter, chưa nghiệm thu tài khoản thật/backend review. T07 được bổ sung sau T08 theo yêu cầu người dùng. T18 đã có UI/sửa tên-ảnh; username/bio/khu vực và nghiệm thu backend còn thiếu. T19 My Reviews đã hoàn thiện UI/phân trang theo user từ phần T14. T20 đã có UI Settings, chọn theme trong phiên và đăng xuất có xác nhận; thông báo đẩy/nội dung hỗ trợ chưa tích hợp. T21 đã có UI Collections theo owner, phân trang/sort/xóa từ nguồn mẫu; T22 đã nối editor tạo/sửa/chọn quán và lưu trong phiên. T23 đã có inbox/read-unread/target nội bộ qua adapter RAM. T24 đã có public profile/featured/filter/paging qua capability public-read. T25 đã có form báo cáo/ảnh/validation/receipt demo trong RAM, chưa backend kiểm duyệt. Task UI tiếp theo: **T26 — Admin Reports**. Xem [REPORT_CONTENT_UI.md](REPORT_CONTENT_UI.md). Xem [PUBLIC_REVIEWER_UI.md](PUBLIC_REVIEWER_UI.md). Xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md), [COLLECTION_EDITOR_UI.md](COLLECTION_EDITOR_UI.md), [COLLECTIONS_UI.md](COLLECTIONS_UI.md) và [SETTINGS_UI.md](SETTINGS_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -248,10 +248,11 @@ Không thêm màn Collection Detail riêng ngoài đặc tả. Trước mắt ch
 
 #### T25 — Report `/reports/create`
 
-- [ ] Dựng từ `23 — Report Content`: ngữ cảnh target, lý do, mô tả/ảnh tùy chọn, nút gửi.
-- [ ] Chốt contract `targetType` + định danh đủ duy nhất của restaurant/review/user; UI không dùng tên hiển thị làm ID.
-- [ ] Auth gate theo quyết định mục 3; kiểm tra target, lý do và giới hạn dữ liệu; upload theo cơ chế T13.
-- [ ] Loading chống gửi lặp, lỗi giữ dữ liệu; thành công quay về nguồn, chỉ thông báo “Đã gửi báo cáo”.
+- [x] UI Stitch 23: summary target thật, sáu lý do, mô tả 500 ký tự, tối đa ba ảnh; không có tester preview.
+- [x] Contract target enum + ID quán/review/user, exact review lookup; không dùng tên làm ID, reject query thiếu/trùng/mâu thuẫn.
+- [x] Auth gate/returnTo, kiểm tra target/owner/validation; picker T18 và evidence cục bộ, không upload công khai.
+- [x] Loading chống gửi lặp, idempotent retry, lỗi giữ nháp/ảnh, discard và reset khi đổi user; receipt phân biệt demo/thật.
+- [ ] Backend/rules/persistence/moderation và private evidence upload còn chờ tích hợp; xem [REPORT_CONTENT_UI.md](REPORT_CONTENT_UI.md).
 
 **Đạt khi:** mở từ quán/review/profile đúng target; không tạo báo cáo trùng vì double tap; không hiển thị đã kiểm duyệt khi mới gửi.
 
