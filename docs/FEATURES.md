@@ -14,7 +14,7 @@ luồng ở [routing](food_review_luong_hoat_dong_routing.md), dữ liệu/quy�
 - Firebase đã khởi tạo trên Android/iOS; T10 đã có adapter Auth email/password/session/logout,
   UI Login, T11 Register và T12 Forgot Password đã có, cùng guard/returnTo và reset favorites theo user. Chưa nghiệm thu tài khoản thật;
   Firestore vẫn chưa tích hợp. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
-- T08 Map đã có truy vấn vùng/marker/card quán demo, lọc, GPS foreground theo yêu cầu và mở chỉ đường ngoài; xem [MAP_UI.md](MAP_UI.md). Chưa nghiệm thu GPS/chỉ đường trên thiết bị thực và nền OSM đang bị lỗi DNS trong môi trường kiểm tra.
+- T08 Map đã có truy vấn vùng/marker/card quán demo, lọc, GPS foreground khi mở app và mở chỉ đường ngoài. Nền hiện dùng MapLibre/OpenFreeMap, đã hiển thị và kiểm tra zoom/pan trên iOS Simulator; xem [NATIVE_MAP.md](NATIVE_MAP.md). Chưa nghiệm thu GPS/chỉ đường trên điện thoại thật.
 - T07 Category đã có banner, món con, tìm kiếm/lọc/sort, query scope và phân trang;
   giữ trạng thái qua Detail/Back và đổi tab. Dùng dữ liệu demo hiện có, chưa tích hợp backend;
   xem [CATEGORY_UI.md](CATEGORY_UI.md).
@@ -23,7 +23,7 @@ luồng ở [routing](food_review_luong_hoat_dong_routing.md), dữ liệu/quy�
   Xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md).
 - T09b Gallery đã có lọc/lưới, viewer swipe/zoom, exact review media, index/Back và
   chia sẻ; dùng ảnh demo, upload/lưu ảnh chưa tích hợp. Xem [GALLERY_UI.md](GALLERY_UI.md).
-  T10 Login/Auth, T11 Register, T12 Forgot Password, T13 Write Review, T14 Edit/Delete Review, T15 Favorites, T16 Want to Visit và T17 My Profile đã triển khai UI/adapter; T18 đã có UI/sửa tên-ảnh qua Auth và upload Cloudinary; username/bio/khu vực còn thiếu. T19 My Reviews đã có summary/filter/phân trang theo user, chọn quán viết bài và tái sử dụng sửa/xóa T14; xem MY_REVIEWS_UI.md. T20 Settings đã có UI, theme trong phiên, logout xác nhận và dọn stack riêng tư; xem SETTINGS_UI.md. T21 Collections đã có UI/demo theo owner, sort/phân trang/xóa xác nhận; xem COLLECTIONS_UI.md. T22 Collection Editor đã nối tạo/sửa/chọn quán, cover/count và lưu trong phiên; xem COLLECTION_EDITOR_UI.md. T23 Notifications đã có inbox, trạng thái đọc và route target nội bộ theo account qua dữ liệu RAM; xem NOTIFICATIONS_UI.md. T24 đã có hồ sơ công khai, thống kê/featured/filter/paging và report ID; xem PUBLIC_REVIEWER_UI.md. T25 đã có form báo cáo theo target, chọn ảnh và lưu RAM với receipt demo; xem REPORT_CONTENT_UI.md. Backend/private evidence storage còn thiếu. Task UI tiếp theo là T26 Admin Reports.
+  T10 Login/Auth, T11 Register, T12 Forgot Password, T13 Write Review, T14 Edit/Delete Review, T15 Favorites, T16 Want to Visit và T17 My Profile đã triển khai UI/adapter; T18 đã có UI/sửa tên-ảnh qua Auth và upload Cloudinary; username/bio/khu vực còn thiếu. T19 My Reviews đã có summary/filter/phân trang theo user, chọn quán viết bài và tái sử dụng sửa/xóa T14; xem MY_REVIEWS_UI.md. T20 Settings đã có UI, theme trong phiên, logout xác nhận và dọn stack riêng tư; xem SETTINGS_UI.md. T21 Collections đã có UI/demo theo owner, sort/phân trang/xóa xác nhận; xem COLLECTIONS_UI.md. T22 Collection Editor đã nối tạo/sửa/chọn quán, cover/count và lưu trong phiên; xem COLLECTION_EDITOR_UI.md. T23 Notifications đã loại bỏ theo yêu cầu ngày 22/10/2026; xem NOTIFICATIONS_UI.md. T24 đã có hồ sơ công khai, thống kê/featured/filter/paging và report ID; xem PUBLIC_REVIEWER_UI.md. T25 đã có form báo cáo theo target, chọn ảnh và lưu RAM với receipt demo; xem REPORT_CONTENT_UI.md. Backend/private evidence storage còn thiếu. Admin không thuộc phạm vi theo yêu cầu người dùng; các bước tiếp theo tập trung backend cho các tính năng user còn lại.
 - T03 Home, T04 Chi tiết quán, T05–T06 Search/Filter, T15 Favorites, T16 Want to Visit và T17 My Profile đã triển khai UI/demo (xem HOME_UI.md, RESTAURANT_DETAIL_UI.md, SEARCH_UI.md, FAVORITES_UI.md, WANT_TO_VISIT_UI.md, MY_PROFILE_UI.md); backend và các luồng phụ thuộc chưa hoàn tất. Hai danh sách địa điểm và lựa chọn theme chưa lưu qua restart; tên/ảnh T18 lưu qua Auth, các profile field khác chưa hỗ trợ;
   tọa độ/ảnh demo không phải dữ liệu quán đã xác minh. Web chưa có FirebaseOptions.
 
@@ -51,7 +51,6 @@ Các mục này thuộc kế hoạch hiện tại nhưng chưa triển khai, kh�
 | --- | --- | --- |
 | Muốn ghé thăm | Danh sách theo tài khoản, độc lập với yêu thích | T16 |
 | Bộ sưu tập | Tạo/sửa tên, mô tả và danh sách quán; mặc định riêng tư, kiểm tra owner | T21–T22 |
-| Thông báo trong app | Inbox, đã đọc/chưa đọc, mở đúng nội dung; backend tạo thông báo; push là hạng mục riêng | T23 |
 | Hồ sơ người đánh giá | Tên/avatar, review và thống kê công khai có nguồn; không lộ email | T24 |
 | Báo cáo và quản trị | Báo cáo quán/review/user có lý do, minh chứng tùy chọn; admin lọc/xem/xử lý/ẩn nội dung, lưu lịch sử; không xóa vĩnh viễn mặc định | T25–T27 |
 

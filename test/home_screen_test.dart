@@ -143,36 +143,30 @@ void main() {
     },
   );
 
-  testWidgets(
-    'Home links use existing search, filter and notifications routes',
-    (tester) async {
-      final container = await mount(tester);
-      final router = container.read(appRouterProvider);
-      await tester.enterText(find.byType(TextField), 'phở');
-      await tester.testTextInput.receiveAction(TextInputAction.search);
-      await tester.pumpAndSettle();
-      expect(
-        router.routerDelegate.currentConfiguration.last.matchedLocation,
-        '/search',
-      );
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Bộ lọc'));
-      await tester.pumpAndSettle();
-      expect(
-        router.routerDelegate.currentConfiguration.last.matchedLocation,
-        '/search/filters',
-      );
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Thông báo'));
-      await tester.pumpAndSettle();
-      expect(
-        router.routerDelegate.currentConfiguration.last.matchedLocation,
-        '/notifications',
-      );
-    },
-  );
+  testWidgets('Home keeps search and filters without a notification entry', (
+    tester,
+  ) async {
+    final container = await mount(tester);
+    final router = container.read(appRouterProvider);
+    await tester.enterText(find.byType(TextField), 'phở');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    expect(
+      router.routerDelegate.currentConfiguration.last.matchedLocation,
+      '/search',
+    );
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Bộ lọc'));
+    await tester.pumpAndSettle();
+    expect(
+      router.routerDelegate.currentConfiguration.last.matchedLocation,
+      '/search/filters',
+    );
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Thông báo'), findsNothing);
+  });
 
   // Opt-in review artifacts, generated from the same app and demo provider.
   if (const bool.fromEnvironment('HOME_CAPTURE')) {

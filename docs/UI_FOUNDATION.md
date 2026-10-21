@@ -42,7 +42,7 @@ Screen ID đầy đủ nằm ở mục 7 của kế hoạch. Nhãn Stitch dướ
 | 19 Settings | `/settings` | Theme/account preferences | Placeholder T20 |
 | 22 Collections | `/collections` | Collections theo owner | Placeholder T21 |
 | Editor chưa có screen riêng | `/collections/create`, `/collections/:collectionId/edit` | Tên, membership, owner | Placeholder T22 |
-| 20 Notifications | `/notifications` | Inbox, read state, target | Placeholder T23 |
+| 20 Notifications | Đã loại bỏ | Theo yêu cầu ngày 22/10/2026 | Ngoài phạm vi |
 | 21 Public Reviewer Profile | `/users/:userId` | Public profile và review | Placeholder T24 |
 | 23 Report Content | `/reports/create` | Target type/ID, reason, ảnh | Placeholder T25 |
 | Admin chưa có screen riêng | `/admin/reports` | Report list, role backend | Từ chối truy cập, chờ T26 |
@@ -61,7 +61,7 @@ Không có feature mới được nối backend trong đợt này. Placeholder k
 | Giá, giờ mở cửa, tiện ích | Chưa có field/nguồn | Chờ contract/schema; không bịa số liệu trong widget |
 | Badge Michelin/verified, xếp hạng tuần | Chưa có nguồn xác minh/aggregate | Chưa hỗ trợ; cần dữ liệu trước khi hiện như thông tin thật |
 | Khoảng cách, thời gian đi bộ | Có toạ độ demo, chưa có vị trí tham chiếu/quãng đường | Không hardcode khoảng cách hoặc suy ra thời gian di chuyển |
-| Danh tính, notification, public stats | Chưa có repository thật | Không dùng số liệu Stitch làm dữ liệu tài khoản thật |
+| Danh tính, public stats | Chưa có repository thật | Không dùng số liệu Stitch làm dữ liệu tài khoản thật |
 | Favorite | RAM dùng chung trong phiên demo | Chưa có auth gate; chuyển sang async theo user ở T15 |
 | Want-to-visit / collection | Chưa có repo | Tách dữ liệu riêng; không tự nhập favorite sang list khác |
 

@@ -11,6 +11,7 @@ import 'package:food_review/features/favorites/presentation/favorite_providers.d
 import 'package:food_review/features/places/data/demo_place_fixtures.dart';
 import 'package:food_review/features/places/data/demo_place_repository.dart';
 import 'package:food_review/features/places/presentation/map_controller.dart';
+
 import 'package:go_router/go_router.dart';
 
 void main() {
@@ -204,8 +205,6 @@ void main() {
               ? 'Không tìm thấy đánh giá.'
               : route == AppRoute.myReviews
               ? 'Đánh giá của tôi'
-              : route == AppRoute.notifications
-              ? 'Thông báo'
               : route == AppRoute.wantToVisit
               ? 'Danh sách của bạn đang trống'
               : route.isAdmin

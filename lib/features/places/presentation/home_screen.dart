@@ -8,10 +8,12 @@ import '../../../shared/design_system/design_system.dart';
 import '../../../shared/widgets/app_message.dart';
 import '../domain/place.dart';
 import '../domain/place_category.dart';
+import '../domain/place_map_repository.dart';
 import '../domain/place_search.dart';
 import 'home_sections.dart';
 import 'place_card.dart';
 import 'place_providers.dart';
+import 'user_location_controller.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -66,11 +68,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       actions: [
         IconButton(
-          tooltip: 'Thông báo',
-          icon: const Icon(Icons.notifications_none),
-          onPressed: () => context.push(AppRoute.notifications.path),
-        ),
-        IconButton(
           tooltip: 'Cá nhân',
           onPressed: () => context.go(AppRoute.profile.path),
           icon: CircleAvatar(
@@ -112,6 +109,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   );
 
   Widget _content(List<Place> places) {
+    final location = ref.watch(userLocationControllerProvider).point;
+    final nearby = [...places];
+    if (location != null) {
+      nearby.sort(
+        (a, b) => location
+            .distanceTo(GeoPoint(a.latitude, a.longitude))
+            .compareTo(location.distanceTo(GeoPoint(b.latitude, b.longitude))),
+      );
+    }
     final filtered = filterPlaces(places, _query, _category);
     final searching = _query.trim().isNotEmpty || _category != null;
     final categories = places.map((p) => p.category).toSet();
@@ -284,13 +290,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       padding: inset,
                       child: AppSectionHeader(
                         title: 'Khám phá gần bạn',
-                        subtitle: 'Vị trí minh họa · Chưa sử dụng GPS',
+                        subtitle: location == null
+                            ? 'Cần vị trí thiết bị để sắp xếp theo khoảng cách'
+                            : 'Theo vị trí thiết bị · Dữ liệu quán minh họa',
                         actionLabel: 'Mở bản đồ',
                         onAction: () => context.go(AppRoute.map.path),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    for (final place in places)
+                    for (final place in nearby)
                       Padding(
                         padding: inset,
                         child: PlaceCard(place: place),

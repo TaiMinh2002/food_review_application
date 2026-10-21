@@ -7,6 +7,8 @@ import '../../../core/formatters/app_formatters.dart';
 
 import '../../favorites/presentation/favorite_providers.dart';
 import '../domain/place.dart';
+import '../domain/place_map_repository.dart';
+import 'user_location_controller.dart';
 import '../../../shared/widgets/app_restaurant_card.dart';
 
 class PlaceCard extends ConsumerWidget {
@@ -28,6 +30,8 @@ class PlaceCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavorite = ref.watch(favoriteIdsProvider).contains(place.id);
+    final location = ref.watch(userLocationControllerProvider).point;
+    final destination = GeoPoint(place.latitude, place.longitude);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: AppRestaurantCard(
@@ -36,6 +40,9 @@ class PlaceCard extends ConsumerWidget {
             ? place.foodCategories.firstOrNull ?? place.category
             : place.category,
         address: compact || insetImage ? place.address : null,
+        distanceLabel: location != null && destination.isValid
+            ? '${AppFormatters.distance(location.distanceTo(destination))} · đường chim bay'
+            : null,
         badge: compact || !place.isDemo ? null : 'Minh họa',
         imageUrl: place.imageUrls.firstOrNull,
         rating: place.averageRating,

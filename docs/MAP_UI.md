@@ -1,5 +1,10 @@
 # T08 — Bản đồ
 
+**Cập nhật hiện tại:** đã thay nền raster OSM bằng MapLibre/OpenFreeMap để bỏ
+phụ thuộc tên miền tile OSM lỗi DNS. GPS tự lấy khi mở app, không có vị trí người
+dùng mặc định. Xem [NATIVE_MAP.md](NATIVE_MAP.md) và [STARTUP_LOCATION.md](STARTUP_LOCATION.md).
+Các nguồn thiết kế/ảnh và bằng chứng T08 bên dưới là lịch sử triển khai ban đầu.
+
 Ngày thực hiện: 19/10/2026. Branch: `feat/map-ui`.
 Phạm vi theo yêu cầu: thực hiện T08 trước T07. T07 vẫn chưa triển khai.
 
@@ -43,9 +48,11 @@ ID sai/lỗi có thông báo/thử lại; vẫn kéo và tìm bản đồ đư�
   Quán được chọn ban đầu là quán có điểm cao nhất trong kết quả vùng.
 - Favorite dùng state RAM có sẵn, đồng bộ với Home/Detail/Favorites.
   Xem chi tiết dùng push, Back giữ query, selection và camera; indexed stack giữ state khi đổi tab.
-- GPS chỉ chạy khi bấm **Vị trí của tôi** hoặc **Gần tôi**: lấy một foreground fix,
-  chặn bấm trùng, có timeout 15 giây, xử lý dịch vụ tắt/denied/deniedForever/lỗi.
-  Không subscription hoặc background location. Từ chối vẫn dùng bản đồ được, có đường mở Cài đặt.
+- GPS lấy một foreground fix khi mở app và dùng chung Home/Map. Nút **Vị trí của tôi**
+  hoặc **Gần tôi** cập nhật lại; chặn bấm trùng, timeout 15 giây, xử lý dịch vụ
+  tắt/denied/deniedForever/lỗi. Không background location. Chưa có GPS thì không
+  dùng camera mặc định; vẫn xem/tìm quán và mở bản đồ quán từ Chi tiết được.
+  Xem [STARTUP_LOCATION.md](STARTUP_LOCATION.md).
 - Gần tôi lọc bán kính dưới 1 km dựa trên fix vừa lấy; không tự cập nhật khi người dùng di chuyển.
 - Chỉ đường mở URL Google Maps walking với tọa độ đích qua ứng dụng ngoài;
   không có turn-by-turn nội bộ. Lỗi mở link hiển thị thông báo an toàn.
@@ -66,9 +73,9 @@ ID sai/lỗi có thông báo/thử lại; vẫn kéo và tìm bản đồ đư�
 Thêm `url_launcher` vì Flutter SDK và dependency hiện có không cung cấp mở ứng dụng ngoài.
 Lockfile và native registrants được cập nhật. Không thêm key/secret/quyền location nền.
 
-## Tile và backend
+## Tile và backend (T08 ban đầu, đã thay nền)
 
-Dùng `AppConfig.osmTileUrl` / `osmUserAgentPackageName` hiện có, URL HTTPS,
+T08 ban đầu dùng cấu hình tile OSM, URL HTTPS,
 attribution luôn hiển thị và mở trang copyright. `NetworkTileProvider` giữ cache
 built-in của flutter_map 8.3.2 theo HTTP headers, không tải offline/prefetch/bulk.
 `panBuffer: 0` chỉ tải vùng cần hiển thị. Lỗi tile có thông báo và nút thử lại,

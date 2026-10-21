@@ -180,14 +180,12 @@ Không tự động coi ba loại dữ liệu này là một danh sách duy nh�
 flowchart TD
     P["Cá nhân"] --> EP["Chỉnh sửa hồ sơ"]
     P --> MR["Đánh giá của tôi"]
-    P --> N["Thông báo"]
     P --> ST["Cài đặt"]
     P --> COL["Bộ sưu tập"]
     ST --> LOGOUT["Đăng xuất"]
     LOGOUT --> G["Chế độ khách"]
     EP --> P
     MR --> D["Chi tiết nhà hàng"]
-    N --> P
     COL --> P
 ```
 
@@ -195,8 +193,8 @@ flowchart TD
 
 - Chỉnh sửa hồ sơ cập nhật tên hiển thị, ảnh đại diện và các trường hồ sơ được hỗ trợ.
 - Đánh giá của tôi chỉ hiển thị đánh giá thuộc tài khoản đang đăng nhập.
-- Thông báo có thể hỗ trợ mở nội dung liên quan, ví dụ nhà hàng hoặc đánh giá.
-- Cài đặt chứa các tùy chọn có tác dụng theo phạm vi trong FEATURES.md; inbox/bộ sưu tập thuộc đợt mở rộng.
+- Thông báo đã loại bỏ toàn bộ theo yêu cầu ngày 22/10/2026.
+- Cài đặt chứa các tùy chọn có tác dụng theo phạm vi trong FEATURES.md; bộ sưu tập thuộc đợt mở rộng.
 - Khi đăng xuất, xóa token/phiên đăng nhập cục bộ và chuyển về chế độ khách.
 - Không xóa tài khoản hoặc dữ liệu backend khi người dùng chỉ chọn đăng xuất.
 
@@ -285,7 +283,6 @@ Các route dưới đây đã được đăng ký ở nền T02; nhiều đích 
 | Chỉnh sửa hồ sơ | `/profile/edit` |
 | Đánh giá của tôi | `/my-reviews` |
 | Cài đặt | `/settings` |
-| Thông báo | `/notifications` |
 | Hồ sơ người đánh giá | `/users/:userId` |
 | Bộ sưu tập | `/collections` |
 | Tạo bộ sưu tập | `/collections/create` |
@@ -297,7 +294,7 @@ Các route dưới đây đã được đăng ký ở nền T02; nhiều đích 
 ### Quy ước tham số
 
 - `restaurantId`: định danh nhà hàng.
-- `reviewId`: ID document review; theo schema dự kiến là UID trong từng quán, không duy nhất toàn app. Route edit cần thêm query `restaurantId` khi triển khai; target report/notification cần cả ID quán và review theo [BACKEND_SETUP.md](BACKEND_SETUP.md).
+- `reviewId`: ID document review; theo schema dự kiến là UID trong từng quán, không duy nhất toàn app. Route edit cần thêm query `restaurantId` khi triển khai; target report cần cả ID quán và review theo [BACKEND_SETUP.md](BACKEND_SETUP.md).
 - `reportId`: định danh báo cáo.
 - `userId`: định danh hồ sơ người dùng.
 - `collectionId`: định danh bộ sưu tập.

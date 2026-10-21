@@ -64,7 +64,7 @@ abstract interface class PlaceMapRepository {
 }
 
 abstract interface class UserLocationRepository {
-  /// One foreground fix, requested only by an explicit user action.
+  /// One foreground fix, requested at app startup or by an explicit refresh.
   Future<GeoPoint> locate();
   Future<bool> openSettings();
 }

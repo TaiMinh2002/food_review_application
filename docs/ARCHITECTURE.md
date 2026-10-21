@@ -17,7 +17,8 @@ Không đưa logic tính năng vào core hoặc dựng use case khi chưa có ng
 
 Flutter/Dart cho Android/iOS; Riverpod quản lý dependency/state; go_router giữ stack tab;
 Material 3 và Inter cho UI. Firebase Auth quản lý danh tính, Firestore lưu dữ liệu,
-Cloudinary + HTTP/image_picker cho ảnh, flutter_map/OSM + geolocator/latlong2 cho vị trí.
+Cloudinary + HTTP/image_picker cho ảnh, MapLibre/OpenFreeMap cho nền vector,
+flutter_map cho gesture/camera/marker và geolocator/latlong2 cho vị trí.
 Package đã khai báo không đồng nghĩa đã tích hợp; Firebase native đã khởi tạo nhưng
 T10/T11/T12 đã có adapter Auth email/password/session/logout/register/reset password; T13/T14 đã nối form và quản lý review với contract demo; Firestore vẫn chưa tích hợp.
 Web cần FirebaseOptions riêng. Xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md).
@@ -41,8 +42,10 @@ Controller của route giữ scope từ seed kể cả Apply/Reset; form T06 ch�
 trong scope, Reset vẫn giữ danh mục. Xem [CATEGORY_UI.md](CATEGORY_UI.md).
 Map dùng capability `PlaceMapRepository.findInViewport(bounds, filters, near, limit)`;
 `placeMapControllerProvider` giữ query/result/GPS và chặn stale response, screen giữ camera.
-`UserLocationRepository` có implementation Geolocator với foreground fix theo thao tác người dùng;
-không đọc GPS trong build. Xem [MAP_UI.md](MAP_UI.md).
+`UserLocationRepository` có implementation Geolocator với foreground fix khi mở app hoặc
+cập nhật thủ công. `AppPermissionsStartup` gọi sau frame đầu, `userLocationControllerProvider`
+chia sẻ vị trí cho Home/Map; không đọc GPS trong build và không có vị trí mặc định.
+Xem [STARTUP_LOCATION.md](STARTUP_LOCATION.md) và [MAP_UI.md](MAP_UI.md).
 `reviewRepositoryProvider` cấp `DemoReviewRepository`; `reviewPreviewProvider(placeId)`
 đọc tối đa hai review qua contract `watchForPlace(placeId, limit: 2)`, có lỗi/retry riêng.
 T09a dùng capability `ReviewFeedRepository` từ cùng nguồn inject: summary toàn quán,
@@ -75,10 +78,8 @@ và cover từ membership. `collectionsControllerProvider` giữ paging/generati
 `DemoCollectionRepository` hiện giữ mẫu trong RAM, độc lập Favorites/Want to Visit.
 Backend phải kiểm tra owner và dọn membership con; xem [COLLECTIONS_UI.md](COLLECTIONS_UI.md).
 
-T23 dùng `NotificationRepository` query inbox theo `recipientId` với cursor; controller
-giữ paging, refresh và trạng thái đọc lạc quan, hoàn tác nếu ghi lỗi hoặc đổi phiên.
-Target là `NotificationTargetType` + ID nội bộ, không là URL; screen kiểm tra quán
-trước khi mở route. Adapter mặc định là RAM demo; xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md).
+T23 Notifications đã loại bỏ theo yêu cầu ngày 22/10/2026; không có inbox, push,
+route hoặc xin quyền thông báo. Xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md).
 
 T24 `PublicReviewerRepository` là public-read capability từ cùng review adapter,
 khác contract quản lý bài riêng tư. Query chỉ xuất bản dữ liệu đã cho phép trước
@@ -97,7 +98,7 @@ upload công khai. Xem [REPORT_CONTENT_UI.md](REPORT_CONTENT_UI.md).
 - `/home`: Home theo Stitch (T03), giữ tìm/lọc demo tại chỗ và cuộn khi chuyển tab.
 - `/categories/:categoryId`: T07 trong branch Home, giữ thanh bốn tab; Home có lối “Xem danh mục”. ID sai không gọi query. Detail push trên root và Back giữ bộ lọc/vị trí cuộn của danh mục.
 - `/restaurants/:restaurantId`: chi tiết Stitch T04 với gallery, menu, review preview và thanh giá/chỉ đường; map ID sang `placeId` trong domain, xử lý ID không tồn tại. Xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md).
-- `/map`: T08 dùng flutter_map/OSM, marker và card quán; `restaurantId` chọn quán từ chi tiết. Camera/selection giữ trong indexed stack. Xem [MAP_UI.md](MAP_UI.md).
+- `/map`: MapLibre/OpenFreeMap dựng nền native; FlutterMap giữ camera/gesture/marker/card quán. `restaurantId` chọn quán từ chi tiết. Camera/selection giữ trong indexed stack. Xem [NATIVE_MAP.md](NATIVE_MAP.md).
 - `/restaurants/:restaurantId/gallery`: T09b trên root; `index` mở viewer, `source=review&reviewId=...` chọn ảnh review đúng scope. Đóng viewer về lưới, Back về nguồn. Xem [GALLERY_UI.md](GALLERY_UI.md).
 - `/favorites`: T15 hiển thị quán đã lưu theo phiên, có tìm kiếm/lọc/sắp xếp và trạng thái
   loading/error/empty; xem [FAVORITES_UI.md](FAVORITES_UI.md).
@@ -110,7 +111,6 @@ upload công khai. Xem [REPORT_CONTENT_UI.md](REPORT_CONTENT_UI.md).
   `userChanges()` phát lại danh tính sau lưu; username/bio/region chưa có backend.
   Xem [EDIT_PROFILE_UI.md](EDIT_PROFILE_UI.md).
 - `/collections`: T21 trong nhánh Yêu thích, mở từ Profile; card/menu sửa truyền ID tới route T22. T22 editor chạy trên root, get/create/update qua capability `CollectionEditingRepository`, form/query/save theo owner/route; sheet dùng Search provider hiện có. Xem [COLLECTION_EDITOR_UI.md](COLLECTION_EDITOR_UI.md). Xem [COLLECTIONS_UI.md](COLLECTIONS_UI.md).
-- `/notifications`: T23 inbox theo tài khoản, nhóm thời gian/read-unread và mở target nội bộ có kiểm tra tồn tại; xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md).
 - `/users/:userId`: T24 public profile, guest được đọc, thống kê/featured/filter/paging; review mở quán/gallery, report đúng userId. Xem [PUBLIC_REVIEWER_UI.md](PUBLIC_REVIEWER_UI.md).
 - `/reports/create`: T25 form có auth guard/returnTo, target enum + ID, validation, evidence picker, discard/retry và receipt demo; xem [REPORT_CONTENT_UI.md](REPORT_CONTENT_UI.md).
 - `/settings`: T20 trong nhánh Cá nhân, guest/user, theme trong phiên và logout xác nhận dùng chung Profile. Xem [SETTINGS_UI.md](SETTINGS_UI.md).

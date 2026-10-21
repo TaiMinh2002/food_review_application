@@ -13,6 +13,8 @@ import '../domain/place_search.dart';
 import 'map_controller.dart';
 import 'map_widgets.dart';
 import 'place_providers.dart';
+import 'user_location_controller.dart';
+import 'user_location_status.dart';
 
 class PlaceMapScreen extends ConsumerStatefulWidget {
   const PlaceMapScreen({super.key, this.restaurantId});
@@ -29,15 +31,21 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
   String? _selectedId, _focusError;
   Place? _focused;
   int _focusGeneration = 0;
-  // Demo repository's initial region, never presented as the user's location.
-  static const _initial = LatLng(10.782, 106.696);
   PlaceMapController get _controller =>
       ref.read(placeMapControllerProvider.notifier);
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && widget.restaurantId != null) _focus();
+    });
+  }
+
+  @override
   void didUpdateWidget(covariant PlaceMapScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.restaurantId != widget.restaurantId && _ready) _focus();
+    if (oldWidget.restaurantId != widget.restaurantId) _focus();
   }
 
   @override
@@ -75,11 +83,13 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
           _focused = place;
           _selectedId = place.id;
         });
-        _map.move(
-          LatLng(place.latitude, place.longitude),
-          16,
-          offset: const Offset(0, 40),
-        );
+        if (_ready) {
+          _map.move(
+            LatLng(place.latitude, place.longitude),
+            16,
+            offset: const Offset(0, 40),
+          );
+        }
       }
       _searchArea();
     } catch (error) {
@@ -135,6 +145,20 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(placeMapControllerProvider.select((value) => value.location), (
+      previous,
+      next,
+    ) {
+      if (next == null || previous == next || widget.restaurantId != null) {
+        return;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _ready) {
+          _map.move(LatLng(next.latitude, next.longitude), 15);
+          _searchArea();
+        }
+      });
+    });
     final state = ref.watch(placeMapControllerProvider);
     final items = state.result?.places ?? <Place>[];
     final selected =
@@ -162,11 +186,6 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            tooltip: 'Thông báo',
-            icon: const Icon(Icons.notifications_none),
-            onPressed: () => context.push(AppRoute.notifications.path),
-          ),
           IconButton(
             tooltip: 'Cá nhân',
             icon: const Icon(Icons.account_circle),
@@ -243,7 +262,7 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
                 context,
                 title: 'Bản đồ đường phố',
                 builder: (_) => const Text(
-                  'Nền bản đồ OpenStreetMap. Kéo hoặc zoom, rồi bấm Tìm vùng này. Không tải bản đồ ngoại tuyến.',
+                  'Nền bản đồ OpenFreeMap, dữ liệu OpenStreetMap và OpenMapTiles, hiển thị bằng MapLibre. Kéo hoặc zoom, rồi bấm Tìm vùng này.',
                 ),
               ),
             ),
@@ -330,111 +349,148 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
     ),
   );
 
-  Widget _mapArea(
-    PlaceMapState state,
-    List<Place> markers,
-    Place? selected,
-  ) => Stack(
-    children: [
-      Positioned.fill(
-        child: PlaceMapCanvas(
-          key: _canvasKey,
-          controller: _map,
-          center: _initial,
-          places: markers,
-          selectedId: selected?.id,
-          location: state.location,
-          tilesEnabled: ref.watch(mapTilesEnabledProvider),
-          onReady: () {
-            _ready = true;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) _focus();
-            });
-          },
-          onMoved: () {
-            if (_ready && mounted && !_moved) setState(() => _moved = true);
-          },
-          onSelect: (place) {
-            setState(() {
-              _selectedId = place.id;
-              _focused = null;
-            });
-            _map.move(
-              LatLng(place.latitude, place.longitude),
-              _map.camera.zoom,
-              offset: const Offset(0, 40),
-            );
-          },
-        ),
-      ),
-      Positioned(
-        top: 8,
-        left: 12,
-        right: 64,
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: Material(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.circular(24),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              child: Text(
-                state.loading
-                    ? 'Đang tìm quán…'
-                    : '${state.result?.places.length ?? 0}${state.result?.hasMore == true ? "+" : ""} quán trong vùng đã tìm',
-                style: context.textStyles.labelSmall,
-              ),
-            ),
-          ),
-        ),
-      ),
-      if (_moved)
-        Align(
-          alignment: Alignment.topCenter,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 48),
-            child: FilledButton.tonalIcon(
-              onPressed: _searchArea,
-              icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Tìm vùng này'),
-            ),
-          ),
-        ),
-      Positioned(
-        right: 12,
-        bottom: 36,
-        child: Material(
-          color: context.colors.surface,
-          borderRadius: AppRadii.inputBorder,
-          elevation: 2,
+  Widget _mapArea(PlaceMapState state, List<Place> markers, Place? selected) {
+    // Keep a map the user has already opened usable after GPS denial or panning.
+    // This is the current camera viewport, never a fallback user coordinate.
+    final camera = _ready ? _map.camera.center : null;
+    final point = _focused == null
+        ? state.location ??
+              (camera == null
+                  ? null
+                  : GeoPoint(camera.latitude, camera.longitude))
+        : GeoPoint(_focused!.latitude, _focused!.longitude);
+    if (point == null) {
+      _ready = false;
+      return Center(
+        child: SingleChildScrollView(
+          padding: AppSpacing.page,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                tooltip: 'Phóng to bản đồ',
-                icon: const Icon(Icons.add),
-                onPressed: () => _zoom(1),
-              ),
-              IconButton(
-                tooltip: 'Thu nhỏ bản đồ',
-                icon: const Icon(Icons.remove),
-                onPressed: () => _zoom(-1),
-              ),
-              IconButton(
-                tooltip: 'Vị trí của tôi',
-                onPressed: state.locating ? null : _locate,
-                icon: state.locating
-                    ? const SizedBox.square(
-                        dimension: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.my_location),
-              ),
+              Text('Bản đồ quanh bạn', style: context.textStyles.titleLarge),
+              const SizedBox(height: AppSpacing.sm),
+              const Text('Cần vị trí thiết bị để hiển thị bản đồ quanh bạn.'),
+              const SizedBox(height: AppSpacing.sm),
+              const UserLocationStatus(),
             ],
           ),
         ),
-      ),
-    ],
-  );
+      );
+    }
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: PlaceMapCanvas(
+            key: _canvasKey,
+            controller: _map,
+            center: LatLng(point.latitude, point.longitude),
+            places: markers,
+            selectedId: selected?.id,
+            location: state.location,
+            tilesEnabled: ref.watch(mapTilesEnabledProvider),
+            onReady: () {
+              _ready = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                final focused = _focused;
+                if (focused != null) {
+                  _map.move(
+                    LatLng(focused.latitude, focused.longitude),
+                    16,
+                    offset: const Offset(0, 40),
+                  );
+                }
+                _searchArea();
+              });
+            },
+            onMoved: () {
+              if (_ready && mounted && !_moved) setState(() => _moved = true);
+            },
+            onSelect: (place) {
+              setState(() {
+                _selectedId = place.id;
+                _focused = null;
+              });
+              _map.move(
+                LatLng(place.latitude, place.longitude),
+                _map.camera.zoom,
+                offset: const Offset(0, 40),
+              );
+            },
+          ),
+        ),
+        Positioned(
+          top: 8,
+          left: 12,
+          right: 64,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Material(
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(24),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                child: Text(
+                  state.loading
+                      ? 'Đang tìm quán…'
+                      : '${state.result?.places.length ?? 0}${state.result?.hasMore == true ? "+" : ""} quán trong vùng đã tìm',
+                  style: context.textStyles.labelSmall,
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (_moved)
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 48),
+              child: FilledButton.tonalIcon(
+                onPressed: _searchArea,
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Tìm vùng này'),
+              ),
+            ),
+          ),
+        Positioned(
+          right: 12,
+          bottom: 100,
+          child: Material(
+            color: context.colors.surface,
+            borderRadius: AppRadii.inputBorder,
+            elevation: 2,
+            child: Column(
+              children: [
+                IconButton(
+                  tooltip: 'Phóng to bản đồ',
+                  icon: const Icon(Icons.add),
+                  onPressed: () => _zoom(1),
+                ),
+                IconButton(
+                  tooltip: 'Thu nhỏ bản đồ',
+                  icon: const Icon(Icons.remove),
+                  onPressed: () => _zoom(-1),
+                ),
+                IconButton(
+                  tooltip: 'Vị trí của tôi',
+                  onPressed: state.locating ? null : _locate,
+                  icon: state.locating
+                      ? const SizedBox.square(
+                          dimension: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.my_location),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   void _zoom(double delta) {
     if (_ready) {
@@ -451,10 +507,10 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (_focusError != null) _notice(_focusError!, 'Thử lại', _focus),
-            if (state.locationError != null)
+            if (state.locationError != null && _ready)
               _notice(state.locationError!, 'Cài đặt', () async {
                 final opened = await ref
-                    .read(userLocationRepositoryProvider)
+                    .read(userLocationControllerProvider.notifier)
                     .openSettings();
                 if (mounted && !opened) {
                   AppToast.show(
@@ -465,7 +521,7 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
               }),
             if (state.error != null)
               _notice(state.error!, 'Thử lại', _searchArea)
-            else if (!state.loading && selected == null)
+            else if (!state.loading && selected == null && _ready)
               _notice(
                 'Không có quán phù hợp trong vùng đã tìm.',
                 'Đặt lại lọc',

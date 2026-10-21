@@ -142,11 +142,6 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         ),
         actions: [
           IconButton(
-            tooltip: 'Thông báo',
-            icon: const Icon(Icons.notifications_none),
-            onPressed: () => context.push(AppRoute.notifications.path),
-          ),
-          IconButton(
             tooltip: 'Cá nhân',
             onPressed: () => context.go(AppRoute.profile.path),
             icon: CircleAvatar(

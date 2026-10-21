@@ -1,6 +1,6 @@
 # Kế hoạch triển khai UI và luồng Food Review
 
-Ngày đối chiếu: 20/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T17 đã có UI/demo; T10 Login, T11 Register, T12 Forgot Password, T13 Write Review và T14 Edit/Delete Review đã có UI/adapter, chưa nghiệm thu tài khoản thật/backend review. T07 được bổ sung sau T08 theo yêu cầu người dùng. T18 đã có UI/sửa tên-ảnh; username/bio/khu vực và nghiệm thu backend còn thiếu. T19 My Reviews đã hoàn thiện UI/phân trang theo user từ phần T14. T20 đã có UI Settings, chọn theme trong phiên và đăng xuất có xác nhận; thông báo đẩy/nội dung hỗ trợ chưa tích hợp. T21 đã có UI Collections theo owner, phân trang/sort/xóa từ nguồn mẫu; T22 đã nối editor tạo/sửa/chọn quán và lưu trong phiên. T23 đã có inbox/read-unread/target nội bộ qua adapter RAM. T24 đã có public profile/featured/filter/paging qua capability public-read. T25 đã có form báo cáo/ảnh/validation/receipt demo trong RAM, chưa backend kiểm duyệt. Task UI tiếp theo: **T26 — Admin Reports**. Xem [REPORT_CONTENT_UI.md](REPORT_CONTENT_UI.md). Xem [PUBLIC_REVIEWER_UI.md](PUBLIC_REVIEWER_UI.md). Xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md), [COLLECTION_EDITOR_UI.md](COLLECTION_EDITOR_UI.md), [COLLECTIONS_UI.md](COLLECTIONS_UI.md) và [SETTINGS_UI.md](SETTINGS_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
+Ngày đối chiếu: 20/10/2026. Trạng thái: T01–T02 đã hoàn thiện nền; T03–T17 đã có UI/demo; T10 Login, T11 Register, T12 Forgot Password, T13 Write Review và T14 Edit/Delete Review đã có UI/adapter, chưa nghiệm thu tài khoản thật/backend review. T07 được bổ sung sau T08 theo yêu cầu người dùng. T18 đã có UI/sửa tên-ảnh; username/bio/khu vực và nghiệm thu backend còn thiếu. T19 My Reviews đã hoàn thiện UI/phân trang theo user từ phần T14. T20 đã có UI Settings, chọn theme trong phiên và đăng xuất có xác nhận; nội dung hỗ trợ chưa tích hợp; nhóm thông báo đã loại bỏ. T21 đã có UI Collections theo owner, phân trang/sort/xóa từ nguồn mẫu; T22 đã nối editor tạo/sửa/chọn quán và lưu trong phiên. T23 đã loại bỏ toàn bộ theo yêu cầu ngày 22/10/2026; không triển khai push hoặc billing. T24 đã có public profile/featured/filter/paging qua capability public-read. T25 đã có form báo cáo/ảnh/validation/receipt demo trong RAM, chưa backend kiểm duyệt. Admin không thuộc phạm vi theo yêu cầu người dùng; tiếp theo tập trung backend cho các tính năng user còn lại. Xem [REPORT_CONTENT_UI.md](REPORT_CONTENT_UI.md). Xem [PUBLIC_REVIEWER_UI.md](PUBLIC_REVIEWER_UI.md). Xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md), [COLLECTION_EDITOR_UI.md](COLLECTION_EDITOR_UI.md), [COLLECTIONS_UI.md](COLLECTIONS_UI.md) và [SETTINGS_UI.md](SETTINGS_UI.md). Kết quả đối chiếu và quyết định: [UI_FOUNDATION.md](UI_FOUNDATION.md).
 
 ## 1. Nguồn và cách hiểu phạm vi
 
@@ -28,8 +28,8 @@ Bao phủ toàn bộ luồng tài liệu, kể cả collections, reports và adm
 | Firebase | `main.dart` initialize; Auth sign-in/out/session qua adapter T10 | Nghiệm thu Auth với tài khoản thật; Firestore chưa tích hợp |
 | Search / Filter | T05–T06: query/filter/sort riêng, form nháp, danh sách/phân trang, recent trong phiên | Backend, dữ liệu GPS/open-now đáng tin cậy; xem SEARCH_UI.md |
 | Category | T07: root scope, banner/chip/card ảnh lớn, tìm/lọc/sort/paging, giữ shell/Back | Backend taxonomy/query/index; xem CATEGORY_UI.md |
-| Map | T08: OSM/marker/card, tìm theo vùng, filter, GPS foreground và chỉ đường ngoài | Backend spatial query; kiểm tra native GPS/chỉ đường; nền OSM bị lỗi DNS trong môi trường kiểm tra |
-| Các feature khác | Chưa có UI chức năng tương ứng | want-to-visit, collections, notifications, reports/admin |
+| Map | MapLibre/OpenFreeMap, marker/card, tìm vùng, filter, GPS khi mở app và chỉ đường ngoài | Backend spatial query; nghiệm thu GPS/chỉ đường trên điện thoại thật; xem NATIVE_MAP.md |
+| Các feature khác | Chưa có UI chức năng tương ứng | want-to-visit, collections, reports/admin (bảng nền ban đầu; T23 đã loại bỏ) |
 
 MVP và các đợt mở rộng được phân loại tại FEATURES.md. T16, T21–T27 thuộc phần mở rộng đã có kế hoạch; T28–T29 nghiệm thu theo phạm vi phát hành. Mốc 4–5 tuần cũ không áp dụng cho toàn bộ kế hoạch.
 
@@ -40,7 +40,7 @@ Các mục dưới đây là mặc định đề xuất để lập kế hoạch
 | Chủ đề | Đề xuất | Chốt trước |
 | --- | --- | --- |
 | Guest | Đọc Home/Search/Category/Map/Detail/Reviews/Gallery/Public profile; tab cá nhân và yêu thích hiện lời mời đăng nhập | T02, T10 |
-| Hành động cần tài khoản | Viết/sửa review, favorite, muốn ghé, collections, sửa hồ sơ, thông báo, gửi report | T10–T13 |
+| Hành động cần tài khoản | Viết/sửa review, favorite, muốn ghé, collections, sửa hồ sơ, gửi report | T10–T13 |
 | Sau đăng nhập | Giữ đích nội bộ và ngữ cảnh hành động; chỉ tiếp tục khi người dùng vẫn có quyền | T10 |
 | Favorite / muốn ghé | Hai tập dữ liệu độc lập, không tự chuyển/xóa nhau; không tự nhập favorite demo vào tài khoản | T15 |
 | Collections | Mặc định riêng tư trong giai đoạn đầu; không tự thêm chia sẻ/cộng tác | T21 |
@@ -76,7 +76,6 @@ flowchart TD
     D --> F[T15–T16: lưu địa điểm]
     D --> G[T17–T20: tài khoản]
     F --> H[T21–T22: collections]
-    G --> I[T23: thông báo]
     C --> J[T24: hồ sơ công khai]
     D --> K[T25: report]
     J --> K
@@ -116,7 +115,7 @@ flowchart TD
 
 Nguồn: `02 - Home`, screen `be51296ba5444ed0b0fc92ac5495ad7a`.
 
-- [x] Header/vị trí, lời chào “Hôm nay ăn gì?”, nút thông báo và avatar theo thiết kế; vị trí mặc định phải phân biệt với GPS thật.
+- [x] Header/vị trí, lời chào “Hôm nay ăn gì?”, avatar theo thiết kế; nút thông báo đã loại bỏ; hiện lấy GPS khi mở app, không dùng vị trí mặc định. Xem STARTUP_LOCATION.md.
 - [ ] Search mở T05; nút filter mở T06; category chips mở T07.
 - [x] Khối “Gợi ý cho bạn”: card nổi bật, ảnh, rating, metadata, nút favorite. Chỉ hiển thị badge/giờ/giá khi có dữ liệu hợp lệ.
 - [x] “Quán được yêu thích”: danh sách ngang; tách state card và section, dùng widget chung.
@@ -146,7 +145,7 @@ Nguồn: `02 - Home`, screen `be51296ba5444ed0b0fc92ac5495ad7a`.
 
 **Trạng thái T07:** UI/demo đã bổ sung theo “17 - Category Results”; xem [CATEGORY_UI.md](CATEGORY_UI.md). Đã kiểm tra root scope/subtype, query/sort/form/paging, lỗi/empty/ID sai, favorite/Back/tab và layout light/dark. Chưa duyệt UI hay nghiệm thu backend.
 
-**Trạng thái T08:** đã triển khai trước T07; xem [MAP_UI.md](MAP_UI.md). UI/demo và unit/widget tests đã kiểm tra; chưa duyệt UI, chưa nghiệm thu backend/GPS native. Build/run iOS thành công nhưng nền OSM bị lỗi DNS, tạm hoãn xử lý theo yêu cầu người dùng. T07 hiện đã bổ sung.
+**Trạng thái T08:** đã triển khai trước T07; xem [MAP_UI.md](MAP_UI.md). Nền raster OSM lỗi DNS đã thay bằng MapLibre/OpenFreeMap; iOS Simulator đã hiển thị đường phố, zoom/pan và GPS. Chưa hoàn tất backend hoặc nghiệm thu điện thoại thật. T07 hiện đã bổ sung. Xem [NATIVE_MAP.md](NATIVE_MAP.md).
 
 **Trạng thái T09a:** UI/demo theo “05 - All Reviews” đã triển khai: summary toàn quán,
 histogram thật từ fixture, lọc/sort, cursor paging, lỗi/retry độc lập, link đúng ID và Back
@@ -226,23 +225,23 @@ upload ảnh thật và đồng bộ aggregate vẫn chờ tích hợp. Xem [MY_
 | --- | --- | --- | --- |
 | T15 | Favorites `/favorites` | Đã triển khai theo Stitch 09; guest CTA; list, tìm/lọc/sort; async favorite contract theo user, lưu/bỏ từ mọi card | Đạt UI/demo; Home/detail/list đồng bộ; lỗi ghi hoàn tác; adapter hiện lưu RAM, backend/persistence sau |
 | T16 | Want to Visit `/want-to-visit` | Đã triển khai theo Stitch 10; danh sách độc lập, bookmark thêm/bỏ từ Detail và lối vào từ Favorites/Profile, tìm/sort | Đạt UI/demo; hai list độc lập; auth/empty/error đầy đủ; adapter hiện lưu RAM, backend/persistence sau |
-| T17 | My Profile `/profile` | Đã triển khai theo Stitch 11; guest/user variants, avatar/tên, links edit/my reviews/collections/notifications/settings/want-to-visit và trạng thái auth | Đạt UI/demo; danh tính lấy từ session; số liệu thiếu hiển thị `—`; các task editor/settings/backend còn lại giữ nguyên |
+| T17 | My Profile `/profile` | Đã triển khai theo Stitch 11; guest/user variants, avatar/tên, links edit/my reviews/collections/settings/want-to-visit và trạng thái auth | Đạt UI/demo; danh tính lấy từ session; số liệu thiếu hiển thị `—`; các task editor/settings/backend còn lại giữ nguyên |
 | T18 | Edit Profile `/profile/edit` | Đã có UI Stitch 12; prefill tên/ảnh, validation, upload Cloudinary, cancel/save qua Firebase Auth | Hoàn tất UI/phần tên-ảnh; Profile và review mới dùng danh tính cập nhật; review cũ giữ snapshot. Username/bio/khu vực và nghiệm thu tài khoản thật còn thiếu; xem EDIT_PROFILE_UI.md |
 | T19 | My Reviews `/my-reviews` | Đã hoàn thiện UI Stitch 18 từ T14; summary/filter/cursor paging theo user; chọn quán viết bài; xem quán/edit/delete/gallery; bottom navigation chung | Đạt UI/demo; chặn stale/sai owner; mutation refresh; retry/empty/auth/light-dark; Firestore/rules/upload ảnh review vẫn chờ tích hợp |
 | T20 | Settings `/settings` | Đã có UI theo Stitch 19, chọn light/dark/system trong phiên, hồ sơ/reset password, logout + confirm; xem [SETTINGS_UI.md](SETTINGS_UI.md) | Test reset user state/draft và route stack; không xóa backend; push/support/privacy disabled có lý do; theme chưa lưu qua restart |
 
 T15 đã chuyển `FavoriteRepository` sang stream/async theo `ARCHITECTURE.md`; không gọi Firestore trực tiếp trong widget. Adapter hiện lưu RAM, nên persistence sau restart và Firestore thuộc phần tích hợp tiếp theo. Chính sách lưu theme qua restart là task nhỏ trong T20 nếu chọn hỗ trợ.
 
-### Đợt F — Collections, thông báo và hồ sơ công khai
+### Đợt F — Collections và hồ sơ công khai (T23 đã loại bỏ)
 
 | Task | Màn / route | Các việc trong task | Tiêu chí hoàn thành |
 | --- | --- | --- | --- |
 | T21 | Collections `/collections` | Đã có UI Stitch 22, ảnh/count, sort/paging/empty/retry, xóa xác nhận; lối vào tạo/sửa theo ID ở T22; xem [COLLECTIONS_UI.md](COLLECTIONS_UI.md) | Đạt UI/demo theo owner; reset/chặn stale khi đổi user; membership riêng; Firestore/persistence chưa tích hợp; editor T22 đã nối |
 | T22 | Collection Editor `/collections/create`, `/collections/:collectionId/edit` | Đã có form hai mode theo Stitch 24; tên/mô tả, tìm/chọn quán, cover tự động, validation/save và discard; xem [COLLECTION_EDITOR_UI.md](COLLECTION_EDITOR_UI.md) | Đạt UI/adapter RAM; create idempotent, update giữ ID; cancel không ghi; owner guard/reset; giới hạn 50 địa điểm; Firestore/persistence chưa tích hợp |
-| T23 | Notifications `/notifications` | Đã có inbox Stitch 20, nhóm thời gian, read/unread, refresh/paging, empty/error và mở target enum + ID | Đạt UI/demo RAM; target quán được kiểm tra trước khi mở, không nhận URL tùy ý; backend/persistence/nguồn tạo/push chưa tích hợp; xem NOTIFICATIONS_UI.md |
+| T23 | Notifications | Đã loại bỏ màn, route, quyền và push theo yêu cầu ngày 22/10/2026 | Ngoài phạm vi; không bật billing |
 | T24 | Public Profile `/users/:userId` | Đã có UI Stitch 21, avatar/public stats/featured, sort/có ảnh/paging, review mở quán/gallery và menu report đúng userId | Đạt UI/demo public-read riêng; guest đọc, không lộ private submissions; missing/empty/retry/stale guard; backend public profile/publication/rules và gửi report T25 còn thiếu; xem PUBLIC_REVIEWER_UI.md |
 
-Không thêm màn Collection Detail riêng ngoài đặc tả. Trước mắt chọn collection vào editor; nếu cần chế độ xem riêng thì bổ sung đặc tả sau. Notifications ở đây là inbox trong app; push notification cần phạm vi và dịch vụ gửi riêng, chưa mặc nhiên nằm trong task.
+Không thêm màn Collection Detail riêng ngoài đặc tả. Trước mắt chọn collection vào editor; nếu cần chế độ xem riêng thì bổ sung đặc tả sau. T23 Notifications không còn nằm trong phạm vi ứng dụng.
 
 ### Đợt G — Report và quản trị
 
@@ -292,7 +291,7 @@ Không thêm màn Collection Detail riêng ngoài đặc tả. Trước mắt ch
 - [ ] Guest → viết review → Login → đúng form/quán; Cancel login không tạo tác dụng phụ. Đăng ký/quên mật khẩu giữ ngữ cảnh.
 - [ ] Review: tạo/sửa/xóa, ảnh lỗi một phần, lưu lỗi, double submit, draft khi Back, quyền account A/B.
 - [ ] Favorite/want-to-visit/collections độc lập; mọi entry point đồng bộ; logout/login B không lộ cache A.
-- [ ] Profile/edit/settings/notifications/public profile/report; target xóa hoặc nội dung bị ẩn.
+- [ ] Profile/edit/settings/public profile/report; target xóa hoặc nội dung bị ẩn.
 - [ ] Admin: unauthorized, xử lý cùng report từ hai phiên, hủy confirm, ghi audit và phản ánh nội dung đã ẩn.
 - [ ] 4 tab giữ stack/scroll/filter, direct link và ID sai, Back từ root, reselect tab có hành vi đã thống nhất.
 - [ ] UI ở 320px/390px/428px, text scale lớn, light/dark, keyboard, safe area, ảnh lỗi và giảm chuyển động.
@@ -311,7 +310,6 @@ Không thêm màn Collection Detail riêng ngoài đặc tả. Trước mắt ch
 | Saved lists | T15–T16 | Async repo theo user; favorite và want-to-visit riêng biệt |
 | Profile/settings | T17–T20 | Public/private profile, update fields hợp lệ, theme persistence nếu chọn |
 | Collections | T21–T22 | Collection ID/owner/membership; create/update và giới hạn dữ liệu |
-| Notifications | T23 | Recipient, readAt, target type/ID, paging; xác định nguồn tạo thông báo |
 | Reports/admin | T25–T27 | Target, reason, attachment, status, role, audit và state transitions |
 
 Các mục này là đề xuất contract, chưa phải schema backend đã triển khai. Duy trì hướng phụ thuộc Screen → Provider → Repository; không chuyển toàn bộ `features/places` thành `restaurants` hay chuyển router thư mục chỉ để giống cây ví dụ trong tài liệu nguồn.
@@ -341,7 +339,7 @@ Số ở nhãn là tên hiện có trên Stitch, không dùng làm định danh 
 | 17 - Category Results | `62a9410c5de64bfdb4b431de07ff7ebd` | T07 |
 | 18 - My Reviews | `668cfe121c04455683c4b017a1990319` | T19 |
 | 19 - Settings | `74348ac3dfde4af39bf85773df28f817` | T20 |
-| 20 - Notifications | `97078d4659e548e89f49e0c2d3c10ef7` | T23 |
+| 20 - Notifications | `97078d4659e548e89f49e0c2d3c10ef7` | T23 — đã loại bỏ |
 | 21 - Public Reviewer Profile | `9f6b48808f0d40d690cbf20e6c33b532` | T24 |
 | 24 - Collection Editor | `a833546e42dc473dbedbc47410e33449` | T22 |
 | 22 - Collections | `e69e9a4187db4b23b0025c6237e8f3cd` | T21 |

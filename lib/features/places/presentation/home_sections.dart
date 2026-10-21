@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/router/app_route.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../domain/place.dart';
+import 'user_location_status.dart';
 
 class HomeGreeting extends StatelessWidget {
   const HomeGreeting({super.key});
@@ -12,20 +13,7 @@ class HomeGreeting extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Row(
-        children: [
-          Icon(Icons.location_on, size: 15, color: context.colors.secondary),
-          const SizedBox(width: AppSpacing.xs),
-          Flexible(
-            child: Text(
-              'TP. Hồ Chí Minh · Vị trí minh họa',
-              style: context.textStyles.bodySmall?.copyWith(
-                color: context.colors.secondary,
-              ),
-            ),
-          ),
-        ],
-      ),
+      const UserLocationStatus(),
       const SizedBox(height: AppSpacing.xs),
       Text('Hôm nay ăn gì?', style: context.textStyles.headlineLarge),
       Text(

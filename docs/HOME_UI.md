@@ -16,7 +16,7 @@ screen `be51296ba5444ed0b0fc92ac5495ad7a` (ảnh và HTML, thiết kế 390px).
 - Loading, empty, lỗi/retry, ảnh thiếu/lỗi có fallback. Nội dung rộng tối đa
   680px, SafeArea, cuộn ngang/dọc và chữ phóng lớn 1.6x.
 - Submit tìm kiếm / “Xem tất cả” mở Search với query/danh mục; filter mở T06;
-  thông báo mở T23; avatar mở tab cá nhân; “Mở bản đồ” mở tab map.
+  nút thông báo đã loại bỏ theo yêu cầu ngày 22/10/2026; avatar mở tab cá nhân; “Mở bản đồ” mở tab map.
   CTA review chọn quán trước khi mở đúng route T13.
 
 ## Dữ liệu và khác biệt có chủ đích
@@ -28,14 +28,16 @@ Giữ tên, ID và danh mục ba quán cũ để bảo toàn navigation và favo
 ảnh phở/bánh mì từ Home, ảnh cà phê từ asset screen
 `7df66e3c5aaf483baf70391c795e312c`. Ảnh không xác minh quán thực tế.
 
-Vị trí mặc định là TP. Hồ Chí Minh, theo fixtures hiện có; không truy cập GPS,
-không tính khoảng cách giả. Bỏ Michelin/giờ mở cửa/“Hot”/thông báo chưa đọc/
+Vị trí người dùng hiện lấy GPS khi mở app, không mặc định TP.HCM. Home hiển thị
+tọa độ thiết bị, sắp xếp mục gần bạn theo khoảng cách đường chim bay; tọa độ quán
+vẫn minh họa. Xem [STARTUP_LOCATION.md](STARTUP_LOCATION.md).
+Bỏ Michelin/giờ mở cửa/“Hot”/thông báo chưa đọc/
 xếp hạng tuần vì chưa có dữ liệu chứng minh. Avatar dùng biểu tượng khách.
 Palette linen/forest và Inter giữ theo design system của repository;
 Stitch có nền xanh nhạt khác. Dark dùng theme sẵn có.
 
 Giữ lọc danh mục tại Home theo yêu cầu bảo toàn chức năng; chưa chuyển sang
-màn T07. Search T05, bộ lọc T06, map T08, review T13, thông báo T23 vẫn là
+màn T07. Search T05, bộ lọc T06, map T08, review T13 vẫn là
 placeholder có thông báo chưa triển khai. Chưa triển khai Auth gate hay
 đăng review; không có thông báo thành công giả.
 

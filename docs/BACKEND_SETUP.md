@@ -39,7 +39,6 @@ mapper xử lý giá trị đang chờ server, domain dùng `DateTime`, không p
 | `users/{uid}/wantToVisit/{placeId}` | createdAt | Chỉ owner; T16 |
 | `users/{uid}/collections/{collectionId}` | name, description, createdAt, updatedAt | Chỉ owner; T21–T22, mặc định riêng tư |
 | `users/{uid}/collections/{collectionId}/places/{placeId}` | addedAt | Chỉ owner, không trùng quán trong collection |
-| `users/{uid}/notifications/{notificationId}` | type, targetType, targetIds, createdAt, readAt | Backend tạo; recipient đọc và chỉ cập nhật readAt; T23 |
 | `reports/{reportId}` | reporterId, targetType, targetIds, reason, description, evidence, status, createdAt, updatedAt, version | T25–T27: user đã đăng nhập gửi qua backend; admin đọc/xử lý qua backend |
 | `reports/{reportId}/actions/{actionId}` | actorId, action, fromStatus, toStatus, note, createdAt | Backend ghi lịch sử bất biến; chỉ admin đọc |
 
@@ -71,7 +70,7 @@ và cập nhật aggregate khi tạo/sửa/xóa/moderate; fixture Place và Revi
   `placeId` bằng ID quán trong path. Hai trường này và `createdAt` bất biến khi update.
 - UID không phải review ID duy nhất toàn app. Đề xuất cho T14: route edit giữ
   `/reviews/:reviewId/edit` và bắt buộc query `restaurantId`; repository lookup bằng
-  `(placeId, reviewId)`. Report/notification nhắm review cũng mang cả hai ID.
+  `(placeId, reviewId)`. Report nhắm review cũng mang cả hai ID.
   Cần nối validation/helper/router/test khi triển khai; placeholder hiện chưa áp dụng contract này.
 - Một review có rating integer 1–5, nội dung không rỗng sau trim. Giới hạn độ dài/số ảnh,
   dung lượng và định dạng cần chốt trước T13; tham khảo 10–2.000 ký tự và tối đa 3 ảnh,
@@ -98,7 +97,7 @@ Giữ hướng Screen → Provider → Repository contract → Data implementati
   update/delete; collection-group query cần bảo đảm `placeId`/`userId` và quyền tương ứng.
 - Favorite: đổi contract RAM đồng bộ thành stream/async theo user; lỗi ghi có rollback,
   reset subscription/cache theo phiên. Want-to-visit/collection dùng contract riêng.
-- Profile/notification/report: tách public/private, phân trang inbox/admin list,
+- Profile/report: tách public/private, phân trang danh sách,
   chỉ nhận target type và IDs được hỗ trợ, không nhận URL tùy ý để điều hướng.
 - Tạo index theo query thực tế (status/category/sort, userId/time, report status/time…)
   và version-control cấu hình khi tích hợp; repo hiện chưa có rules/index triển khai.
@@ -117,8 +116,6 @@ bằng claim do server cấp hoặc nguồn quyền chỉ server quản lý; kh�
   hành động hợp lệ cho từng target; ẩn nội dung là soft hide, không xóa vĩnh viễn mặc định.
 - Cập nhật moderation kiểm tra version/trạng thái hiện tại để tránh hai admin ghi đè;
   ghi actor/time/action/audit cùng thay đổi liên quan trong transaction khi phù hợp.
-- Backend tạo inbox từ sự kiện được hỗ trợ, ví dụ kết quả xử lý báo cáo; retry không tạo
-  thông báo trùng. Inbox không mặc nhiên có push hoặc follow/comment notifications.
 - Chỉ công khai nội dung có trạng thái được phép; query phải phù hợp rules.
   Minh chứng, lý do nội bộ và dữ liệu người báo cáo không được public.
 
@@ -127,8 +124,7 @@ Checklist rules/emulator trước deploy:
 - Guest chỉ đọc dữ liệu công khai; account A không đọc/ghi private data của B.
 - Whitelist fields, type/length/rating/URL/số ảnh; kiểm tra quán và owner;
   chặn sửa role/status/aggregate, userId/placeId/createdAt từ client.
-- Collection membership kiểm tra parent/owner; notification chỉ cho sửa readAt;
-  client không trực tiếp ghi report status, audit hoặc tạo inbox.
+- Collection membership kiểm tra parent/owner; client không trực tiếp ghi report status hoặc audit.
 - Test cả query/list/get/write, guest/owner/user khác/admin, nội dung ẩn và ID sai.
   Backend dùng quyền admin cũng phải validate dữ liệu/quyền vì không dựa vào client rules.
 
@@ -161,7 +157,8 @@ Không dùng `fetchPlaces` tải toàn collection để lọc vùng ở widget.
 
 - Android đã có INTERNET và quyền vị trí foreground; iOS có mô tả location when-in-use,
   camera và thư viện ảnh. Kiểm tra cấu hình theo package/platform trước khi tích hợp picker.
-- Chỉ xin quyền khi người dùng cần GPS/chọn ảnh; xử lý denied/deniedForever,
+- Xin quyền GPS khi mở app theo luồng [STARTUP_LOCATION.md](STARTUP_LOCATION.md);
+  chỉ xin quyền ảnh khi chọn ảnh. Xử lý denied/deniedForever,
   dịch vụ vị trí tắt và hủy chọn ảnh; không theo dõi vị trí nền trong MVP.
 - `flutter_map` dùng attribution, định danh ứng dụng và tile provider phù hợp;
   kiểm tra chính sách tile trước khi bật, không tùy ý tải trước tile công cộng.
@@ -196,3 +193,9 @@ không đáp ứng query kết hợp/toàn văn thì dùng API tìm kiếm phù 
 cả collection về widget. Search/form T06 chưa bật distance/open-now vì thiếu dữ liệu có nguồn;
 Map T08 có GPS foreground và chip bán kính riêng, không suy ra giờ mở cửa.
 Chi tiết và giới hạn hiện tại: [SEARCH_UI.md](SEARCH_UI.md).
+
+## Quyết định phạm vi thông báo
+
+Ngày 22/10/2026: bỏ toàn bộ Notifications theo yêu cầu người dùng, không triển khai
+Cloud Functions gửi thông báo hoặc bật billing. Firebase Auth và các tích hợp khác
+vẫn giữ nguyên. Chưa có functions/rules/index mới nào được deploy trong lượt này.

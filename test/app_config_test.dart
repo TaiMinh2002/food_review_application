@@ -14,30 +14,37 @@ void main() {
 APP_ENV=staging
 CLOUDINARY_CLOUD_NAME=test-cloud
 CLOUDINARY_UPLOAD_PRESET=test-preset
-OSM_TILE_URL=https://example.com/{z}/{x}/{y}.png
-OSM_USER_AGENT_PACKAGE_NAME=com.example.test
+MAP_STYLE_URL=https://example.com/style
+MAP_DARK_STYLE_URL=https://example.com/dark
 ''',
     );
     expect(AppConfig.environment, 'staging');
     expect(AppConfig.cloudinaryCloudName, 'test-cloud');
     expect(AppConfig.cloudinaryUploadPreset, 'test-preset');
-    expect(AppConfig.osmTileUrl, 'https://example.com/{z}/{x}/{y}.png');
-    expect(AppConfig.osmUserAgentPackageName, 'com.example.test');
+    expect(AppConfig.mapStyleUrl, 'https://example.com/style');
+    expect(AppConfig.mapDarkStyleUrl, 'https://example.com/dark');
     dotenv.loadFromString(envString: 'APP_ENV=production');
     expect(AppConfig.environment, 'production');
     expect(AppConfig.cloudinaryCloudName, isEmpty);
+    dotenv.loadFromString(
+      envString: 'MAP_STYLE_URL=https://example.com/streets',
+    );
+    expect(AppConfig.mapDarkStyleUrl, 'https://example.com/streets');
   });
 
   test('missing or blank optional values retain safe defaults', () {
-    dotenv.loadFromString(envString: 'APP_ENV=\nOSM_TILE_URL=');
+    dotenv.loadFromString(envString: 'APP_ENV=\nMAP_STYLE_URL=');
     expect(AppConfig.environment, 'development');
     expect(AppConfig.cloudinaryCloudName, isEmpty);
     expect(AppConfig.cloudinaryUploadPreset, isEmpty);
     expect(
-      AppConfig.osmTileUrl,
-      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      AppConfig.mapStyleUrl,
+      'https://tiles.openfreemap.org/styles/liberty',
     );
-    expect(AppConfig.osmUserAgentPackageName, 'com.minhpt.foodreview');
+    expect(
+      AppConfig.mapDarkStyleUrl,
+      'https://tiles.openfreemap.org/styles/liberty',
+    );
   });
 
   test('configuration requires initialization before access', () {

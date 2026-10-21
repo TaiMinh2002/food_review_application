@@ -52,7 +52,9 @@ void main() {
       );
       expect(find.text('Cài đặt'), findsOneWidget);
       expect(find.text('Đăng xuất'), findsNothing);
-      expect(tester.widget<Switch>(find.byType(Switch)).onChanged, isNull);
+      expect(find.byType(Switch), findsNothing);
+      expect(find.text('Thông báo'), findsNothing);
+      expect(find.text('Cài đặt thông báo'), findsNothing);
       await reveal(tester, find.text('Chế độ hiển thị'));
       await tester.tap(find.text('Chế độ hiển thị'));
       await tester.pumpAndSettle();

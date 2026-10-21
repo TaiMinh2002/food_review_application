@@ -195,18 +195,6 @@ class SettingsScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.xl),
-              const SettingsSection(
-                title: 'Thông báo',
-                children: [
-                  SettingsRow(
-                    icon: Icons.notifications_none,
-                    title: 'Thông báo đẩy',
-                    subtitle: 'Chưa tích hợp thông báo đẩy',
-                    trailing: Switch(value: false, onChanged: null),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
               SettingsSection(
                 title: 'Giao diện',
                 children: [

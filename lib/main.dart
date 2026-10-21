@@ -4,10 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'app/food_review_app.dart';
+import 'app/app_permissions_startup.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
   await Firebase.initializeApp();
-  runApp(const ProviderScope(child: FoodReviewApp()));
+  runApp(
+    const ProviderScope(child: AppPermissionsStartup(child: FoodReviewApp())),
+  );
 }
