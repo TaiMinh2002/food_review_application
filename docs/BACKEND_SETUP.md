@@ -134,11 +134,13 @@ Checklist rules/emulator trước deploy:
 
 ## 6. Cloudinary và quy trình ảnh
 
-Copy `config/app_config.example.json` thành `config/app_config.local.json`; AppConfig hiện
-đọc `CLOUDINARY_CLOUD_NAME` và `CLOUDINARY_UPLOAD_PRESET`, chưa có upload service.
+Copy `.env.example` thành `.env`, điền `CLOUDINARY_CLOUD_NAME` và
+`CLOUDINARY_UPLOAD_PRESET`. `main.dart` nạp bằng `flutter_dotenv` trước khi khởi tạo
+Firebase; `AppConfig` cung cấp giá trị cho các data adapter. Adapter upload avatar
+đã có; upload ảnh review/minh chứng và lưu backend vẫn cần triển khai riêng.
 
 ```bash
-flutter run --dart-define-from-file=config/app_config.local.json
+flutter run
 ```
 
 Luồng dự kiến: chọn ảnh → kiểm tra số lượng/loại/dung lượng → upload → giữ metadata
@@ -147,7 +149,7 @@ URL đã upload và request ID để retry không tạo bản ghi/ảnh trùng.
 Unsigned preset phải bị giới hạn; kiểm tra client không thay thế kiểm soát phía dịch vụ/backend.
 Nếu cần ràng buộc ảnh theo owner hoặc kiểm soát lạm dụng chặt hơn, dùng signed upload qua backend.
 Xóa ảnh/ký upload chỉ qua backend, xác minh owner và ảnh còn được tham chiếu trước khi xóa;
-có cơ chế dọn ảnh mồ côi. Không đưa API Secret vào Dart/JSON client/dart-define.
+có cơ chế dọn ảnh mồ côi. Không đưa API Secret vào Dart hoặc `.env` của Flutter.
 
 ## 7. Native, bản đồ và nghiệm thu
 

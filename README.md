@@ -17,10 +17,14 @@ Phạm vi MVP và các hướng mở rộng được tổng hợp tại [FEATURE
 Môi trường đã xác minh: Flutter 3.47.5, Dart 3.13.4. SDK constraint nằm trong `pubspec.yaml`.
 
 ```bash
+cp .env.example .env
 flutter pub get
-cp config/app_config.example.json config/app_config.local.json
-flutter run --dart-define-from-file=config/app_config.local.json
+flutter run
 ```
+
+App nạp `.env` bằng `flutter_dotenv` trước khi khởi tạo Firebase. File này đã được
+Git bỏ qua và chỉ chứa cấu hình client công khai; xem [ENVIRONMENT.md](docs/ENVIRONMENT.md).
+Máy hiện tại đã có `.env` thì không cần chép lại từ bản mẫu.
 
 Luồng demo chưa gọi repository Auth/Firestore hoặc Cloudinary. App vẫn khởi tạo Firebase
 ngay lúc mở trên Android/iOS, nên cần cấu hình native hợp lệ theo
@@ -55,7 +59,7 @@ lib/
     favorites/              # Repository RAM, notifier, UI
     profile/                # User model, màn hình khởi đầu
   shared/widgets/           # Trạng thái dùng chung
-config/                     # Cấu hình mẫu không chứa secret
+.env.example                # Mẫu cấu hình client, đọc bằng flutter_dotenv
 docs/                       # Tính năng, kiến trúc, backend, kế hoạch UI
 test/                       # Kiểm thử hành vi và domain
 ```

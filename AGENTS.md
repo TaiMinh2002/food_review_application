@@ -10,16 +10,16 @@ Read and follow [rule.md](rule.md) before every task. It defines architecture, r
 - `lib/features/`: feature modules such as `places`, `favorites`, `auth`, `reviews`, and `profile`, organized into `domain/`, `data/`, and `presentation/`.
 - `lib/shared/`: reusable widgets and the shared design system. `assets/fonts/` bundles Inter and its license.
 - `test/`: domain, widget, and design-system tests. Native projects live in `android/` and `ios/`.
-- `docs/`: architecture, backend setup, routing flows, and the UI implementation plan. `config/` contains public client configuration templates.
+- `docs/`: architecture, backend setup, routing flows, and the UI implementation plan. `.env.example` contains the public client configuration template.
 
 ## Build, Test, and Development Commands
 
 Use Flutter **3.47.5**, matching CI, and the Dart constraint in `pubspec.yaml`.
 
 ```sh
+cp .env.example .env                   # Set public client values locally
 flutter pub get                         # Install locked dependencies
-cp config/app_config.example.json config/app_config.local.json
-flutter run --dart-define-from-file=config/app_config.local.json
+flutter run                            # Loads .env with flutter_dotenv
 dart format lib test                   # Format Dart sources
 dart format --output=none --set-exit-if-changed lib test
 flutter analyze                        # Run static analysis and lints
