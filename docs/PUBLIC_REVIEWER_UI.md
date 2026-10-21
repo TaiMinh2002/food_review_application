@@ -15,7 +15,8 @@
 - Menu sao chép **đường dẫn trong app** `/users/:userId` qua Clipboard; chưa có
   universal link/domain chia sẻ công khai. Báo cáo truyền `targetType=user` và
   `userId` sang `/reports/create`. Guest login giữ returnTo. Form gửi báo cáo
-  vẫn thuộc T25, không có thông báo gửi thành công giả trong T24.
+  T25 đã có UI/lưu RAM; gửi backend và moderation chưa tích hợp. Không có
+  thông báo gửi kiểm duyệt thành công giả.
 
 ## Dữ liệu và quyền riêng tư
 

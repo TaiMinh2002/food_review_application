@@ -28,7 +28,7 @@ enum AppRoute {
   collections('/collections', 'Bộ sưu tập'),
   createCollection('/collections/create', 'Tạo bộ sưu tập'),
   editCollection('/collections/:collectionId/edit', 'Chỉnh sửa bộ sưu tập'),
-  createReport('/reports/create', 'Báo cáo nội dung', task: 'T25'),
+  createReport('/reports/create', 'Báo cáo nội dung'),
   adminReports('/admin/reports', 'Quản lý báo cáo', task: 'T26'),
   adminReport('/admin/reports/:reportId', 'Chi tiết báo cáo', task: 'T27'),
   designSystem('/design-system', 'UI Kit');

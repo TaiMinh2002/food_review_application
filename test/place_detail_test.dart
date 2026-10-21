@@ -14,7 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:food_review/app/food_review_app.dart';
 import 'package:food_review/core/router/app_router.dart';
-import 'package:food_review/core/router/route_placeholder_screen.dart';
+import 'package:food_review/features/reports/presentation/report_screen.dart';
 import 'package:food_review/core/theme/theme_mode_provider.dart';
 import 'package:food_review/features/favorites/presentation/favorite_providers.dart';
 import 'package:food_review/features/places/domain/place.dart';
@@ -199,9 +199,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Báo cáo quán'));
     await tester.pumpAndSettle();
-    var state = GoRouterState.of(
-      tester.element(find.byType(RoutePlaceholderScreen)),
-    );
+    var state = GoRouterState.of(tester.element(find.byType(ReportScreen)));
     expect(state.uri.path, '/reports/create');
     expect(state.uri.queryParameters, {
       'targetType': 'place',
@@ -351,9 +349,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(more);
       await tester.pumpAndSettle();
-      final state = GoRouterState.of(
-        tester.element(find.byType(RoutePlaceholderScreen)),
-      );
+      final state = GoRouterState.of(tester.element(find.byType(ReportScreen)));
       expect(state.uri.path, '/reports/create');
       expect(state.uri.queryParameters, {
         'targetType': 'review',
