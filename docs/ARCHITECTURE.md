@@ -144,7 +144,7 @@ tạo lại khi session đổi. Admin vẫn từ chối mặc định, chưa có
 - Controller/TextEditingController, subscription và HTTP client phải được giải phóng theo lifecycle.
 - Kiểm tra dữ liệu ở UI để phản hồi nhanh, repository/domain cho tính nhất quán,
   và Firestore rules/backend cho quyền thực tế.
-- Cấu hình compile-time chỉ chứa giá trị được phép công khai; không thể giấu secret trong app build.
+- Cấu hình client nạp từ asset `.env` bằng `flutter_dotenv` trước khi khởi tạo app, truy cập qua `AppConfig`; chỉ chứa giá trị công khai. Không thể giấu secret trong app build.
 
 ## Kiểm thử
 

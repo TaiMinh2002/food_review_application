@@ -97,7 +97,7 @@ Text(
 - Dùng `push` cho luồng cần Back về nguồn; chuyển tab qua shell. Không dùng `go('/home')` thay mọi hành vi Back.
 - Giữ return-to nội bộ hợp lệ khi yêu cầu đăng nhập; không tự submit form/thực hiện hành động nhạy cảm chỉ vì login thành công.
 - Guard phía client hỗ trợ trải nghiệm; backend/rules phải kiểm tra owner/admin. Không tin role hoặc user ID do form/client tự cung cấp.
-- Không commit secret, service account, signing key hoặc local config. Không log token, mật khẩu hoặc dữ liệu cá nhân. `dart-define` không giấu được server secret.
+- Không commit secret, service account, signing key hoặc local config. Không log token, mật khẩu hoặc dữ liệu cá nhân. Cấu hình client dùng `.env` qua `flutter_dotenv`; chỉ chứa giá trị công khai, không dùng JSON cấu hình môi trường. Asset `.env` không giấu được server secret. Giữ cấu hình Firebase native theo yêu cầu SDK.
 - Không thêm package khi Flutter hoặc dependency hiện có đáp ứng hợp lý. Package mới cần lý do, tương thích nền tảng và cập nhật `pubspec.lock`.
 
 ## 9. Kiểm tra và bàn giao
