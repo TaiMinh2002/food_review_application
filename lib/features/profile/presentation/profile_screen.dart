@@ -21,13 +21,6 @@ class ProfileScreen extends ConsumerWidget {
         title: const Text('Cá Nhân'),
         actions: [
           IconButton(
-            tooltip: 'Thông báo',
-            icon: const Icon(Icons.notifications_none),
-            onPressed: user == null
-                ? null
-                : () => context.push(AppRoute.notifications.path),
-          ),
-          IconButton(
             tooltip: 'Cài đặt',
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push(AppRoute.settings.path),
@@ -104,13 +97,6 @@ class ProfileScreen extends ConsumerWidget {
                     title: 'Bộ sưu tập',
                     subtitle: 'Sắp xếp địa điểm theo chủ đề',
                     onTap: () => context.go(AppRoute.collections.path),
-                  ),
-                  _ProfileMenuItem(
-                    icon: Icons.notifications_none,
-                    title: 'Thông báo',
-                    subtitle: 'Cập nhật hoạt động của bạn',
-                    badge: '2',
-                    onTap: () => context.push(AppRoute.notifications.path),
                   ),
                 ],
               ),
@@ -358,12 +344,10 @@ class _ProfileMenuItem {
     required this.title,
     required this.subtitle,
     required this.onTap,
-    this.badge,
   });
   final IconData icon;
   final String title, subtitle;
   final VoidCallback? onTap;
-  final String? badge;
 }
 
 class _ProfileMenuTile extends StatelessWidget {
@@ -380,17 +364,7 @@ class _ProfileMenuTile extends StatelessWidget {
         style: context.textStyles.bodyMedium?.copyWith(color: color),
       ),
       subtitle: Text(item.subtitle),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (item.badge != null)
-            Padding(
-              padding: const EdgeInsets.only(right: AppSpacing.sm),
-              child: AppBadge(label: item.badge!, tone: AppBadgeTone.warning),
-            ),
-          const Icon(Icons.chevron_right),
-        ],
-      ),
+      trailing: const Icon(Icons.chevron_right),
       onTap: item.onTap,
     );
   }

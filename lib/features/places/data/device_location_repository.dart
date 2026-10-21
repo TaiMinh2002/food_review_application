@@ -11,7 +11,7 @@ class DeviceLocationRepository implements UserLocationRepository {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) {
         throw const AppException(
-          'Dịch vụ vị trí đang tắt. Bạn vẫn có thể kéo bản đồ để tìm quán.',
+          'Dịch vụ vị trí đang tắt. Vui lòng bật vị trí trong Cài đặt thiết bị.',
         );
       }
       var permission = await Geolocator.checkPermission();
@@ -26,7 +26,7 @@ class DeviceLocationRepository implements UserLocationRepository {
       if (permission != LocationPermission.always &&
           permission != LocationPermission.whileInUse) {
         throw const AppException(
-          'Chưa có quyền vị trí. Bạn vẫn có thể tìm quán trên bản đồ.',
+          'Chưa có quyền vị trí. Bạn vẫn có thể xem và tìm kiếm quán.',
         );
       }
       final position = await Geolocator.getCurrentPosition(
@@ -48,7 +48,7 @@ class DeviceLocationRepository implements UserLocationRepository {
       );
     } catch (_) {
       throw const AppException(
-        'Không thể lấy vị trí. Bạn vẫn có thể kéo bản đồ để tìm quán.',
+        'Không thể lấy vị trí. Bạn vẫn có thể xem và tìm kiếm quán.',
       );
     }
   }

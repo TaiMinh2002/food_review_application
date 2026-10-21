@@ -5,13 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../core/config/app_config.dart';
 import '../../../core/formatters/app_formatters.dart';
 import '../../../core/router/app_route.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../../favorites/presentation/favorite_providers.dart';
 import '../domain/place.dart';
 import '../domain/place_map_repository.dart';
+import 'native_map_background.dart';
 
 Future<void> openMapLink(BuildContext context, Uri uri) async {
   try {
@@ -57,15 +57,6 @@ class PlaceMapCanvas extends StatefulWidget {
 class _PlaceMapCanvasState extends State<PlaceMapCanvas> {
   bool _tileError = false;
   int _tileGeneration = 0;
-  NetworkTileProvider? _tileProvider;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.tilesEnabled) {
-      _tileProvider = NetworkTileProvider();
-    }
-  }
 
   void _failed() {
     if (_tileError) return;
@@ -77,6 +68,18 @@ class _PlaceMapCanvasState extends State<PlaceMapCanvas> {
   @override
   Widget build(BuildContext context) => Stack(
     children: [
+      if (widget.tilesEnabled)
+        Positioned.fill(
+          child: NativeMapBackground(
+            key: ValueKey(_tileGeneration),
+            controller: widget.controller,
+            center: widget.center,
+            onError: _failed,
+            onLoaded: () {
+              if (mounted && _tileError) setState(() => _tileError = false);
+            },
+          ),
+        ),
       FlutterMap(
         mapController: widget.controller,
         options: MapOptions(
@@ -84,7 +87,7 @@ class _PlaceMapCanvasState extends State<PlaceMapCanvas> {
           initialZoom: 14,
           minZoom: 3,
           maxZoom: 18,
-          backgroundColor: context.colors.surfaceContainerLow,
+          backgroundColor: context.colors.surface.withValues(alpha: 0),
           interactionOptions: const InteractionOptions(
             flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
           ),
@@ -92,16 +95,6 @@ class _PlaceMapCanvasState extends State<PlaceMapCanvas> {
           onPositionChanged: (_, _) => widget.onMoved(),
         ),
         children: [
-          if (widget.tilesEnabled)
-            TileLayer(
-              key: ValueKey(_tileGeneration),
-              urlTemplate: AppConfig.osmTileUrl,
-              userAgentPackageName: AppConfig.osmUserAgentPackageName,
-              maxNativeZoom: 19,
-              panBuffer: 0,
-              tileProvider: _tileProvider,
-              errorTileCallback: (_, _, _) => _failed(),
-            ),
           MarkerLayer(
             markers: [
               for (final place in widget.places)
@@ -159,7 +152,7 @@ class _PlaceMapCanvasState extends State<PlaceMapCanvas> {
         Positioned(
           left: 8,
           right: 70,
-          bottom: 40,
+          bottom: 100,
           child: Material(
             color: context.colors.errorContainer,
             borderRadius: AppRadii.inputBorder,
@@ -179,7 +172,6 @@ class _PlaceMapCanvasState extends State<PlaceMapCanvas> {
                     onPressed: () => setState(() {
                       _tileError = false;
                       _tileGeneration++;
-                      _tileProvider = NetworkTileProvider();
                     }),
                     child: const Text('Thử lại'),
                   ),
@@ -188,26 +180,35 @@ class _PlaceMapCanvasState extends State<PlaceMapCanvas> {
             ),
           ),
         ),
-      Positioned(
-        left: 0,
-        bottom: 0,
-        child: Material(
-          color: context.colors.surface,
-          child: TextButton(
+      Positioned(left: 0, right: 0, bottom: 0, child: const MapAttribution()),
+    ],
+  );
+}
+
+class MapAttribution extends StatelessWidget {
+  const MapAttribution({super.key});
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: context.colors.surface,
+    child: Wrap(
+      children: [
+        for (final source in const {
+          '© OpenStreetMap': 'https://www.openstreetmap.org/copyright',
+          '© OpenMapTiles': 'https://openmaptiles.org/',
+          'OpenFreeMap': 'https://openfreemap.org/',
+        }.entries)
+          TextButton(
             style: TextButton.styleFrom(
-              minimumSize: const Size(0, 32),
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: const Size(44, 44),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               textStyle: context.textStyles.labelSmall,
             ),
-            onPressed: () => openMapLink(
-              context,
-              Uri.parse('https://www.openstreetmap.org/copyright'),
-            ),
-            child: const Text('© OpenStreetMap contributors'),
+            onPressed: () => openMapLink(context, Uri.parse(source.value)),
+            child: Text(source.key),
           ),
-        ),
-      ),
-    ],
+      ],
+    ),
   );
 }
 

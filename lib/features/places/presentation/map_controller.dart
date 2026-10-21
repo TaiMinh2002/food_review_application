@@ -4,19 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_error_message.dart';
 import '../../../core/errors/app_exception.dart';
-import '../data/device_location_repository.dart';
 import '../domain/place_map_repository.dart';
 import '../domain/place_search.dart';
 import 'place_providers.dart';
+import 'user_location_controller.dart';
+
+export 'user_location_controller.dart' show userLocationRepositoryProvider;
 
 final placeMapRepositoryProvider = Provider<PlaceMapRepository?>((ref) {
   final source = ref.watch(placeRepositoryProvider);
   return source is PlaceMapRepository ? source as PlaceMapRepository : null;
 });
-final userLocationRepositoryProvider = Provider<UserLocationRepository>(
-  (ref) => DeviceLocationRepository(),
-);
-// Override in deterministic tests; production always renders online tiles.
+// Override in deterministic tests; production always renders the native basemap.
 final mapTilesEnabledProvider = Provider<bool>((ref) => true);
 
 class PlaceMapState {
@@ -47,12 +46,13 @@ class PlaceMapState {
     String? locationError,
     bool clearLocationError = false,
     bool? nearby,
+    bool clearLocation = false,
   }) => PlaceMapState(
     filters: filters ?? this.filters,
     result: result ?? this.result,
     loading: loading ?? this.loading,
     error: clearError ? null : error ?? this.error,
-    location: location ?? this.location,
+    location: clearLocation ? null : location ?? this.location,
     locating: locating ?? this.locating,
     locationError: clearLocationError
         ? null
@@ -68,17 +68,34 @@ class PlaceMapController extends Notifier<PlaceMapState> {
   MapViewport? _viewport;
   Timer? _debounce;
   int _generation = 0;
-  int _locationGeneration = 0;
 
   @override
   PlaceMapState build() {
     ref.watch(placeMapRepositoryProvider);
+    ref.listen(userLocationControllerProvider, (previous, next) {
+      final wasNearby = state.nearby;
+      state = state.copyWith(
+        location: next.point,
+        clearLocation: next.point == null,
+        locating: next.locating,
+        locationError: next.error,
+        clearLocationError: next.error == null,
+        nearby: next.point == null ? false : state.nearby,
+      );
+      if (previous?.point != next.point && wasNearby) {
+        apply(state.filters);
+      }
+    });
     ref.onDispose(() {
       _debounce?.cancel();
       _generation++;
-      _locationGeneration++;
     });
-    return PlaceMapState();
+    final location = ref.read(userLocationControllerProvider);
+    return PlaceMapState(
+      location: location.point,
+      locating: location.locating,
+      locationError: location.error,
+    );
   }
 
   void searchArea(MapViewport viewport) {
@@ -138,30 +155,7 @@ class PlaceMapController extends Notifier<PlaceMapState> {
   }
 
   Future<GeoPoint?> locate() async {
-    if (state.locating) return null;
-    final generation = ++_locationGeneration;
-    state = state.copyWith(locating: true, clearLocationError: true);
-    try {
-      final location = await ref.read(userLocationRepositoryProvider).locate();
-      if (!ref.mounted || generation != _locationGeneration) return null;
-      state = state.copyWith(
-        locating: false,
-        location: location,
-        clearLocationError: true,
-      );
-      return location;
-    } catch (error) {
-      if (ref.mounted && generation == _locationGeneration) {
-        state = state.copyWith(
-          locating: false,
-          locationError: AppErrorMessage.from(
-            error,
-            fallback: 'Không thể lấy vị trí hiện tại.',
-          ),
-        );
-      }
-      return null;
-    }
+    return ref.read(userLocationControllerProvider.notifier).locate();
   }
 
   void nearby(bool enabled) {

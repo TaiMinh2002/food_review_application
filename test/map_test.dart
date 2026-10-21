@@ -19,6 +19,7 @@ import 'package:food_review/features/places/domain/place_map_repository.dart';
 import 'package:food_review/features/places/domain/place_search.dart';
 import 'package:food_review/features/places/presentation/map_controller.dart';
 import 'package:food_review/features/places/presentation/map_widgets.dart';
+import 'package:food_review/features/places/presentation/user_location_controller.dart';
 import 'package:food_review/features/places/presentation/place_detail_screen.dart';
 import 'package:food_review/shared/widgets/app_text_field.dart';
 
@@ -148,7 +149,7 @@ void main() {
   );
 
   test(
-    'GPS is explicit, duplicate guarded and denial keeps map usable',
+    'Shared GPS guards duplicate requests and clears stale fix after denial',
     () async {
       final location = FakeLocation()..pending = Completer<GeoPoint>();
       final container = ProviderContainer(
@@ -174,7 +175,7 @@ void main() {
         container.read(placeMapControllerProvider).locationError,
         'Vị trí bị từ chối',
       );
-      expect(container.read(placeMapControllerProvider).location, isNotNull);
+      expect(container.read(placeMapControllerProvider).location, isNull);
     },
   );
 
@@ -205,6 +206,7 @@ void main() {
     );
     addTearDown(container.dispose);
     container.read(themeModeProvider.notifier).setMode(mode);
+    await container.read(userLocationControllerProvider.notifier).initialize();
     container.read(appRouterProvider).go(route);
     await tester.pumpWidget(
       UncontrolledProviderScope(
@@ -239,7 +241,7 @@ void main() {
             await tester.ensureVisible(find.text('Xem chi tiết'));
             await tester.pumpAndSettle();
             expect(tester.takeException(), isNull);
-            expect(find.text('© OpenStreetMap contributors'), findsOneWidget);
+            expect(find.text('© OpenStreetMap'), findsOneWidget);
           },
         );
       }
@@ -318,7 +320,7 @@ void main() {
         .result!
         .places
         .map((p) => p.id);
-    expect(ids, contains('coffee-demo'));
+    expect(ids, contains('banh-mi-demo'));
     expect(ids, isNot(contains('pho-demo')));
   });
 
@@ -388,22 +390,29 @@ void main() {
   );
 
   testWidgets(
-    'GPS denial offers settings without hiding restaurants; successful fix moves camera',
+    'Startup GPS denial offers settings without a fixed map; retry creates map at device position',
     (tester) async {
       final location = FakeLocation()
         ..error = const AppException('Chưa cấp quyền vị trí');
       final container = await mount(tester, height: 1100, location: location);
-      expect(location.calls, 0);
-      await tester.tap(find.byTooltip('Vị trí của tôi'));
-      await tester.pumpAndSettle();
+      expect(location.calls, 1);
       expect(find.text('Chưa cấp quyền vị trí'), findsOneWidget);
-      expect(find.text('Cài đặt'), findsOneWidget);
-      expect(find.byType(MapPlacePreview), findsOneWidget);
+      expect(find.text('Cài đặt vị trí'), findsOneWidget);
+      expect(find.byType(FlutterMap), findsNothing);
       location.error = null;
-      await tester.tap(find.byTooltip('Vị trí của tôi'));
+      await tester.tap(find.byTooltip('Cập nhật vị trí'));
       await tester.pumpAndSettle();
       expect(container.read(placeMapControllerProvider).location, isNotNull);
       expect(find.text('Chưa cấp quyền vị trí'), findsNothing);
+      final canvas = tester.widget<PlaceMapCanvas>(find.byType(PlaceMapCanvas));
+      expect(
+        canvas.controller.camera.center.latitude,
+        closeTo(10.7769, 0.00001),
+      );
+      expect(
+        canvas.controller.camera.center.longitude,
+        closeTo(106.7009, 0.00001),
+      );
     },
   );
 
@@ -425,4 +434,31 @@ void main() {
       expect(find.byType(FlutterMap), findsOneWidget);
     },
   );
+
+  testWidgets('Restaurant map remains available without location permission', (
+    tester,
+  ) async {
+    await mount(
+      tester,
+      route: '/map?restaurantId=banh-mi-demo',
+      location: FakeLocation()
+        ..error = const AppException('Chưa cấp quyền vị trí'),
+    );
+    final canvas = tester.widget<PlaceMapCanvas>(find.byType(PlaceMapCanvas));
+    expect(canvas.location, isNull);
+    expect(canvas.center, const LatLng(10.8015, 106.7100));
+    expect(
+      tester.widget<MapPlacePreview>(find.byType(MapPlacePreview)).place.id,
+      'banh-mi-demo',
+    );
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.byKey(const ValueKey('marker-banh-mi-demo')));
+    await tester.pumpAndSettle();
+    expect(find.byType(PlaceMapCanvas), findsOneWidget);
+    expect(
+      tester.widget<PlaceMapCanvas>(find.byType(PlaceMapCanvas)).location,
+      isNull,
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

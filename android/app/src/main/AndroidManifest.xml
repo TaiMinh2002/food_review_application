@@ -2,7 +2,7 @@
     <!-- Required by Firebase, Cloudinary image uploads, and online map tiles. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- Location is requested only while the user is using nearby/map features. -->
+    <!-- Foreground location is requested at startup for nearby restaurants. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 

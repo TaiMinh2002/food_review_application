@@ -14,11 +14,14 @@ abstract final class AppConfig {
   static String get cloudinaryUploadPreset =>
       _value('CLOUDINARY_UPLOAD_PRESET');
 
-  static String get osmTileUrl => _value(
-    'OSM_TILE_URL',
-    fallback: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+  static String get mapStyleUrl => _value(
+    'MAP_STYLE_URL',
+    fallback: 'https://tiles.openfreemap.org/styles/liberty',
   );
 
-  static String get osmUserAgentPackageName =>
-      _value('OSM_USER_AGENT_PACKAGE_NAME', fallback: 'com.minhpt.foodreview');
+  static String get mapDarkStyleUrl => _value(
+    'MAP_DARK_STYLE_URL',
+    // Preserve road/label contrast in dark UI unless a custom style is provided.
+    fallback: mapStyleUrl,
+  );
 }

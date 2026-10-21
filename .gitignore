@@ -54,6 +54,7 @@ app.*.map.json
 **/*service-account*.json
 **/*serviceAccount*.json
 **/firebase-adminsdk-*.json
+**/*firebase-adminsdk*.json
 *.pem
 *.p12
 *.jks

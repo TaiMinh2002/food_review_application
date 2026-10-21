@@ -29,7 +29,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Food Review cần dùng camera để bạn chụp ảnh món ăn và đính kèm vào bài đánh giá.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Food Review cần vị trí khi bạn sử dụng ứng dụng để tính khoảng cách đến quán ăn.</string>
+	<string>Food Review dùng vị trí hiện tại khi mở ứng dụng để hiển thị bản đồ và khám phá quán ăn quanh bạn.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Food Review cần truy cập thư viện ảnh để bạn chọn ảnh đính kèm vào bài đánh giá.</string>
 	<key>UIApplicationSceneManifest</key>

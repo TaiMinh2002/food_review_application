@@ -23,8 +23,8 @@ hot reload không nạp lại cấu hình.
 | `APP_ENV` | Tên môi trường | `development` |
 | `CLOUDINARY_CLOUD_NAME` | Cloud chứa ảnh | Rỗng; upload chưa được cấu hình |
 | `CLOUDINARY_UPLOAD_PRESET` | Unsigned upload preset | Rỗng; upload chưa được cấu hình |
-| `OSM_TILE_URL` | Mẫu URL tile bản đồ | `https://tile.openstreetmap.org/{z}/{x}/{y}.png` |
-| `OSM_USER_AGENT_PACKAGE_NAME` | Định danh ứng dụng với tile provider | `com.minhpt.foodreview` |
+| `MAP_STYLE_URL` | Style vector cho giao diện sáng | `https://tiles.openfreemap.org/styles/liberty` |
+| `MAP_DARK_STYLE_URL` | Style vector khi UI tối | Theo `MAP_STYLE_URL`; mặc định Liberty để đường phố dễ đọc |
 
 `.env` là asset bắt buộc, được khai báo trong `pubspec.yaml`. Thiếu file sẽ khiến
 khởi động thất bại; tạo từ bản mẫu trước khi chạy. CI tạo `.env` từ `.env.example`
@@ -41,6 +41,16 @@ backend/secret manager bên ngoài Flutter, kể cả khi backend cũng dùng do
 
 Unsigned Cloudinary preset cần giới hạn loại ảnh, dung lượng và thư mục ở dịch vụ.
 Ký upload và xóa ảnh phải qua backend; cấu hình client không cấp quyền owner/admin.
+
+Bản đồ dùng MapLibre với OpenFreeMap, không dùng `OSM_TILE_URL` và
+`OSM_USER_AGENT_PACKAGE_NAME` cũ. Style URL phải là nguồn MapLibre có attribution
+phù hợp; style được tải qua mạng, không phải file JSON cấu hình môi trường local.
+Luồng hiện tại xem [NATIVE_MAP.md](NATIVE_MAP.md).
+
+Nếu `.env` cũ còn `MAP_DARK_STYLE_URL=https://tiles.openfreemap.org/styles/dark`,
+đổi sang `https://tiles.openfreemap.org/styles/liberty` hoặc bỏ biến đó để dùng
+cùng nền đường phố tiêu chuẩn. Nền Dark cũ có độ tương phản thấp nên không còn là
+lựa chọn mặc định. Sau khi đổi `.env`, chạy lại app đầy đủ để nạp asset mới.
 
 ## Firebase native và metadata nền tảng
 

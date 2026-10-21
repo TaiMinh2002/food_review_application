@@ -7,7 +7,7 @@ màn **19 - Settings**, screen `74348ac3dfde4af39bf85773df28f817` (HTML và ản
 
 - `/settings` nằm trong nhánh Cá nhân, giữ bottom navigation bốn tab hiện có.
   Mở từ icon/menu Profile; Back pop về nguồn, direct link Back về Profile.
-- Giữ thẻ tài khoản, nhóm Tài khoản/Thông báo/Giao diện/Hỗ trợ, icon nền bo góc,
+- Giữ thẻ tài khoản, nhóm Tài khoản/Giao diện/Hỗ trợ, icon nền bo góc,
   divider, nút đăng xuất đỏ nhạt và lời nhắn cuối trang theo Stitch.
   Chỉ dùng một app bar Cài đặt; bỏ header “11 My Profile” lặp từ shell HTML.
 - Dùng Inter, token spacing/radius, brand palette và theme light/dark của ứng dụng.
@@ -34,8 +34,9 @@ màn **19 - Settings**, screen `74348ac3dfde4af39bf85773df28f817` (HTML và ản
 
 ## Phần chưa tích hợp
 
-Thông báo đẩy (switch tắt và disabled), quản lý quyền hiển thị, trung tâm trợ giúp,
-điều khoản và chính sách chưa có dịch vụ/nội dung được công bố; các hàng hiển thị
+Tính năng thông báo và nhóm cài đặt thông báo đã loại bỏ theo yêu cầu ngày 22/10/2026.
+Xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md).
+Quản lý quyền hiển thị, trung tâm trợ giúp, điều khoản và chính sách chưa có dịch vụ/nội dung được công bố; các hàng hiển thị
 lý do chưa khả dụng, không điều hướng giả hoặc báo thành công giả. Chưa có lưu theme
 qua restart. Không thêm fixture tài khoản vào production; ảnh test dùng `ControlledAuth`.
 Các giới hạn RAM demo của Favorite/Want to Visit/Reviews vẫn theo tài liệu từng feature.
