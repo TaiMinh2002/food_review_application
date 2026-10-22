@@ -77,6 +77,11 @@ báo cáo đã thuộc T27; mở rộng P4 bổ sung chống spam/khiếu nại,
 
 ## 5. Lộ trình và tiêu chí hoàn thành
 
+Lộ trình tích hợp dữ liệu thật ngày 22/10/2026 nằm tại
+[REAL_DATA_INTEGRATION_PLAN.md](REAL_DATA_INTEGRATION_PLAN.md): khám phá OSM 5 km,
+không Google Maps/Places key, không billing; bao phủ các tính năng user hiện có.
+Các nhắc đến inbox/admin ở lộ trình lịch sử bên dưới không mở lại phạm vi đã loại bỏ.
+
 1. Giữ nền T01–T02; dựng khám phá/chi tiết/map/review đọc T03–T09 theo Stitch.
 2. Nối Auth và dữ liệu thật; hoàn thiện tạo/sửa/xóa review, ảnh, yêu thích và hồ sơ.
 3. Nghiệm thu MVP; sau đó làm muốn ghé, collections, inbox, hồ sơ công khai, report/admin.
