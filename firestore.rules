@@ -1,0 +1,96 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedInAs(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function placePath(placeKey) {
+      return /databases/$(database)/documents/places/$(placeKey);
+    }
+
+    function validPlaceKey(placeKey) {
+      return placeKey.matches('^osm_(node|way|relation)_[1-9][0-9]*$');
+    }
+
+    function activePlace(placeKey) {
+      return validPlaceKey(placeKey) &&
+        exists(placePath(placeKey)) &&
+        get(placePath(placeKey)).data.status == 'active';
+    }
+
+    function validBookmark() {
+      return request.resource.data.keys().hasOnly(['createdAt']) &&
+        request.resource.data.keys().hasAll(['createdAt']) &&
+        request.resource.data.createdAt == request.time;
+    }
+
+    function validPublicProfile(uid) {
+      return request.resource.data.keys().hasOnly([
+        'displayName', 'photoUrl', 'bio', 'region', 'status',
+        'createdAt', 'updatedAt'
+      ]) &&
+        request.resource.data.keys().hasAll([
+          'displayName', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        request.resource.data.displayName is string &&
+        request.resource.data.displayName.size() >= 1 &&
+        request.resource.data.displayName.size() <= 60 &&
+        request.resource.data.status == 'active' &&
+        request.resource.data.get('photoUrl', '') is string &&
+        request.resource.data.get('photoUrl', '').size() <= 2048 &&
+        request.resource.data.get('bio', '') is string &&
+        request.resource.data.get('bio', '').size() <= 300 &&
+        request.resource.data.get('region', '') is string &&
+        request.resource.data.get('region', '').size() <= 80 &&
+        request.resource.data.updatedAt == request.time;
+    }
+
+    match /places/{placeKey} {
+      allow get: if validPlaceKey(placeKey) && resource.data.status == 'active';
+      allow list, create, update, delete: if false;
+
+      // R4 will open only published reads and owner writes after review rules
+      // and emulator tests are implemented. Unreviewed content stays private.
+      match /reviews/{reviewId} {
+        allow read, write: if false;
+      }
+    }
+
+    match /users/{uid} {
+      allow get: if resource.data.status == 'active';
+      allow list, delete: if false;
+      allow create: if signedInAs(uid) && validPublicProfile(uid) &&
+        request.resource.data.createdAt == request.time;
+      allow update: if signedInAs(uid) && validPublicProfile(uid) &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'displayName', 'photoUrl', 'bio', 'region', 'updatedAt'
+        ]);
+
+      match /favorites/{placeKey} {
+        allow read, delete: if signedInAs(uid);
+        allow create: if signedInAs(uid) && activePlace(placeKey) &&
+          validBookmark();
+        allow update: if false;
+      }
+
+      match /wantToVisit/{placeKey} {
+        allow read, delete: if signedInAs(uid);
+        allow create: if signedInAs(uid) && activePlace(placeKey) &&
+          validBookmark();
+        allow update: if false;
+      }
+
+      // Keep unimplemented private domains closed until their data adapters,
+      // validation and ownership tests arrive in R3/R6.
+      match /{privateDocument=**} {
+        allow read, write: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
