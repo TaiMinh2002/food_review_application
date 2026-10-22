@@ -2,7 +2,8 @@
 
 Ngày lập: 22/10/2026. Phạm vi: toàn bộ tính năng người dùng hiện có trên Android/iOS.
 Đây là kế hoạch, không phải bằng chứng tích hợp hoặc deploy. Trạng thái R0 và đầu R1
-được ghi trong [REAL_DATA_R0_STATUS.md](REAL_DATA_R0_STATUS.md); các đợt còn lại
+được ghi trong [REAL_DATA_R0_STATUS.md](REAL_DATA_R0_STATUS.md); phần Map/gói OSM của
+R1 được ghi trong [REAL_DATA_R1_STATUS.md](REAL_DATA_R1_STATUS.md). Các đợt còn lại
 chưa triển khai.
 Web là hạng mục riêng nếu được chọn; không coi Web chạy được chỉ vì widget tests pass.
 

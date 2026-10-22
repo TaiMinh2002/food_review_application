@@ -1,6 +1,13 @@
 # T08 — Bản đồ
 
-**Cập nhật hiện tại:** đã thay nền raster OSM bằng MapLibre/OpenFreeMap để bỏ
+**Tích hợp dữ liệu thật R1 (22/10/2026):** Map mặc định đọc gói OSM Hà Nội từ
+Geofabrik, tìm quán trong 5 km quanh tâm bản đồ và cho chọn Chợ Phùng Khoang khi
+không có GPS. Rating/giá/favorite/chi tiết của quán OSM chưa nối backend nên không
+hiển thị như dữ liệu thật. Số liệu, vùng hỗ trợ và phần chưa nghiệm thu ở
+[REAL_DATA_R1_STATUS.md](REAL_DATA_R1_STATUS.md). Nội dung T08 bên dưới mô tả luồng
+demo trước đây và được giữ để đối chiếu UI/kiểm thử cũ.
+
+**Cập nhật nền bản đồ trước R1:** đã thay nền raster OSM bằng MapLibre/OpenFreeMap để bỏ
 phụ thuộc tên miền tile OSM lỗi DNS. GPS tự lấy khi mở app, không có vị trí người
 dùng mặc định. Xem [NATIVE_MAP.md](NATIVE_MAP.md) và [STARTUP_LOCATION.md](STARTUP_LOCATION.md).
 Các nguồn thiết kế/ảnh và bằng chứng T08 bên dưới là lịch sử triển khai ban đầu.

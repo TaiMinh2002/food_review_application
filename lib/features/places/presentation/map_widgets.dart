@@ -285,7 +285,9 @@ class MapPlacePreview extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final favorite = ref.watch(favoriteIdsProvider).contains(place.id);
+    final osmOnly = place.id.startsWith('osm_') && !place.isDemo;
+    final favorite =
+        !osmOnly && ref.watch(favoriteIdsProvider).contains(place.id);
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -317,31 +319,45 @@ class MapPlacePreview extends ConsumerWidget {
                               style: context.textStyles.labelSmall,
                             ),
                           ),
-                          IconButton(
-                            tooltip: favorite ? 'Bỏ lưu quán' : 'Lưu quán',
-                            visualDensity: VisualDensity.compact,
-                            onPressed: () => ref
-                                .read(favoriteIdsProvider.notifier)
-                                .toggle(place.id),
-                            icon: Icon(
-                              favorite ? Icons.favorite : Icons.favorite_border,
-                              color: context.colors.secondary,
+                          if (!osmOnly)
+                            IconButton(
+                              tooltip: favorite ? 'Bỏ lưu quán' : 'Lưu quán',
+                              visualDensity: VisualDensity.compact,
+                              onPressed: () => ref
+                                  .read(favoriteIdsProvider.notifier)
+                                  .toggle(place.id),
+                              icon: Icon(
+                                favorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: context.colors.secondary,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                       Text(place.name, style: context.textStyles.titleMedium),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        children: [
-                          AppRating(value: place.averageRating),
-                          Text(
-                            '(${place.reviewCount})',
-                            style: context.textStyles.labelSmall,
-                          ),
-                        ],
-                      ),
+                      if (place.reviewCount > 0)
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: [
+                            AppRating(value: place.averageRating),
+                            Text(
+                              '(${place.reviewCount})',
+                              style: context.textStyles.labelSmall,
+                            ),
+                          ],
+                        )
+                      else
+                        Text(
+                          'Chưa có đánh giá trong ứng dụng',
+                          style: context.textStyles.labelSmall,
+                        ),
+                      if (place.address.isNotEmpty)
+                        Text(
+                          place.address,
+                          style: context.textStyles.labelSmall,
+                        ),
                       if (place.minPrice != null && place.maxPrice != null)
                         Text(
                           AppFormatters.priceRange(
@@ -371,16 +387,18 @@ class MapPlacePreview extends ConsumerWidget {
                     onPressed: () =>
                         openMapLink(context, walkingDirections(place)),
                   ),
-                  AppButton(
-                    label: 'Xem chi tiết',
-                    icon: Icons.arrow_forward,
-                    onPressed: () => context.push(
-                      AppRoute.restaurant.location(
-                        parameters: {'restaurantId': place.id},
+                  if (!osmOnly)
+                    AppButton(
+                      label: 'Xem chi tiết',
+                      icon: Icons.arrow_forward,
+                      onPressed: () => context.push(
+                        AppRoute.restaurant.location(
+                          parameters: {'restaurantId': place.id},
+                        ),
                       ),
                     ),
-                  ),
                 ];
+                if (buttons.length == 1) return buttons.single;
                 return constraints.maxWidth < 300 ||
                         MediaQuery.textScalerOf(context).scale(14) > 19
                     ? Column(

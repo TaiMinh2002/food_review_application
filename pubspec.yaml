@@ -35,6 +35,7 @@ flutter:
   assets:
     - .env
     - assets/images/demo/
+    - assets/osm/hanoi_urban_places.json
   fonts:
     - family: Inter
       fonts:

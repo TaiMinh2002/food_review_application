@@ -1,20 +1,35 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_error_message.dart';
 import '../../../core/errors/app_exception.dart';
+import '../data/osm_region_map_repository.dart';
+import '../data/osm_region_place_repository.dart';
 import '../domain/place_map_repository.dart';
 import '../domain/place_search.dart';
-import 'place_providers.dart';
 import 'user_location_controller.dart';
 
 export 'user_location_controller.dart' show userLocationRepositoryProvider;
 
-final placeMapRepositoryProvider = Provider<PlaceMapRepository?>((ref) {
-  final source = ref.watch(placeRepositoryProvider);
-  return source is PlaceMapRepository ? source as PlaceMapRepository : null;
-});
+final osmRegionPlaceRepositoryProvider = Provider<OsmRegionPlaceRepository>(
+  (ref) => OsmRegionPlaceRepository(
+    () => rootBundle.loadString('assets/osm/hanoi_urban_places.json'),
+  ),
+);
+
+final placeMapRepositoryProvider = Provider<PlaceMapRepository?>(
+  (ref) => OsmRegionMapRepository(ref.watch(osmRegionPlaceRepositoryProvider)),
+);
+
+final mapUsesOsmRegionProvider = Provider<bool>(
+  (ref) => ref.watch(placeMapRepositoryProvider) is OsmRegionMapRepository,
+);
+
+final osmDataDateProvider = FutureProvider<DateTime>(
+  (ref) => ref.watch(osmRegionPlaceRepositoryProvider).sourceTime(),
+);
 // Override in deterministic tests; production always renders the native basemap.
 final mapTilesEnabledProvider = Provider<bool>((ref) => true);
 
@@ -38,6 +53,7 @@ class PlaceMapState {
   PlaceMapState copyWith({
     PlaceSearchRequest? filters,
     PlaceMapResult? result,
+    bool clearResult = false,
     bool? loading,
     String? error,
     bool clearError = false,
@@ -49,7 +65,7 @@ class PlaceMapState {
     bool clearLocation = false,
   }) => PlaceMapState(
     filters: filters ?? this.filters,
-    result: result ?? this.result,
+    result: clearResult ? null : result ?? this.result,
     loading: loading ?? this.loading,
     error: clearError ? null : error ?? this.error,
     location: clearLocation ? null : location ?? this.location,
@@ -109,7 +125,12 @@ class PlaceMapController extends Notifier<PlaceMapState> {
   void apply(PlaceSearchRequest filters, {bool debounce = false}) {
     _debounce?.cancel();
     final generation = ++_generation;
-    state = state.copyWith(filters: filters, loading: true, clearError: true);
+    state = state.copyWith(
+      filters: filters,
+      loading: true,
+      clearError: true,
+      clearResult: true,
+    );
     if (debounce) {
       _debounce = Timer(
         const Duration(milliseconds: 300),

@@ -28,6 +28,7 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
   final _text = TextEditingController();
   final _canvasKey = GlobalKey();
   bool _ready = false, _moved = false, _hint = true;
+  GeoPoint? _manualCenter;
   String? _selectedId, _focusError;
   Place? _focused;
   int _focusGeneration = 0;
@@ -74,10 +75,16 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
       _selectedId = null;
     });
     try {
-      final place = await ref.read(placeRepositoryProvider).getPlace(id);
+      final place = id.startsWith('osm_')
+          ? await ref.read(osmRegionPlaceRepositoryProvider).getById(id)
+          : await ref.read(placeRepositoryProvider).getPlace(id);
       if (!mounted || generation != _focusGeneration) return;
       if (place == null || !GeoPoint(place.latitude, place.longitude).isValid) {
         setState(() => _focusError = 'Không tìm thấy vị trí quán này.');
+      } else if (place.isDemo && ref.read(mapUsesOsmRegionProvider)) {
+        setState(
+          () => _focusError = 'Quán minh họa chưa có trên bản đồ dữ liệu thật.',
+        );
       } else {
         setState(() {
           _focused = place;
@@ -121,9 +128,27 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
   Future<void> _locate({bool nearby = false}) async {
     final point = await _controller.locate();
     if (!mounted || point == null || !_ready) return;
+    setState(() => _manualCenter = null);
     _map.move(LatLng(point.latitude, point.longitude), 15);
     if (nearby) _controller.nearby(true);
     _searchArea();
+  }
+
+  void _choosePhungKhoang() {
+    const center = GeoPoint(20.9859, 105.7938);
+    if (ref.read(placeMapControllerProvider).nearby) {
+      _controller.nearby(false);
+    }
+    setState(() {
+      _manualCenter = center;
+      _focused = null;
+      _selectedId = null;
+      _focusError = null;
+    });
+    if (_ready) {
+      _map.move(LatLng(center.latitude, center.longitude), 15);
+      _searchArea();
+    }
   }
 
   void _apply(PlaceSearchRequest filters) {
@@ -251,7 +276,7 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
               child: Text(
                 state.nearby
                     ? 'Trong 1 km quanh vị trí của bạn'
-                    : 'Khám phá trên bản đồ',
+                    : 'Quán trong 5 km quanh tâm bản đồ',
                 style: context.textStyles.labelMedium,
               ),
             ),
@@ -270,7 +295,9 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
         ),
         AppSearchField(
           controller: _text,
-          hintText: 'Tìm quán ăn, món ngon...',
+          hintText: ref.watch(mapUsesOsmRegionProvider)
+              ? 'Tìm tên quán trong vùng...'
+              : 'Tìm quán ăn, món ngon...',
           onChanged: (query) {
             _focused = null;
             _selectedId = null;
@@ -281,7 +308,7 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
             _searchArea();
           },
           filterCount: state.filters.activeFilterCount,
-          onFilter: _filters,
+          onFilter: ref.watch(mapUsesOsmRegionProvider) ? null : _filters,
         ),
         const SizedBox(height: 8),
         SingleChildScrollView(
@@ -307,41 +334,46 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
                 message: 'Chưa có dữ liệu giờ mở cửa đáng tin cậy',
                 child: AppChip(label: 'Đang mở cửa', icon: Icons.schedule),
               ),
-              const SizedBox(width: 6),
-              AppChip(
-                label: 'Đánh giá từ 4.5',
-                icon: Icons.star,
-                selected: state.filters.minRating == 4.5,
-                onSelected: (value) => _apply(
-                  state.filters.copyWith(minRating: 4.5, clearRating: !value),
-                ),
-              ),
-              const SizedBox(width: 6),
-              AppChip(
-                label: 'Dưới 50.000đ',
-                icon: Icons.payments_outlined,
-                selected: state.filters.maxPrice == 49999,
-                onSelected: (value) => _apply(
-                  state.filters.copyWith(
-                    clearPrice: true,
-                    maxPrice: value ? 49999 : null,
+              if (!ref.watch(mapUsesOsmRegionProvider)) ...[
+                const SizedBox(width: 6),
+                AppChip(
+                  label: 'Đánh giá từ 4.5',
+                  icon: Icons.star,
+                  selected: state.filters.minRating == 4.5,
+                  onSelected: (value) => _apply(
+                    state.filters.copyWith(minRating: 4.5, clearRating: !value),
                   ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              AppChip(
-                label: 'Phở & Bún',
-                icon: Icons.ramen_dining,
-                selected: state.filters.categories.containsAll({'Phở', 'Bún'}),
-                onSelected: (value) => _apply(
-                  state.filters.copyWith(
-                    categories: value
-                        ? {...state.filters.categories, 'Phở', 'Bún'}
-                        : ({...state.filters.categories}
-                            ..removeAll({'Phở', 'Bún'})),
+                const SizedBox(width: 6),
+                AppChip(
+                  label: 'Dưới 50.000đ',
+                  icon: Icons.payments_outlined,
+                  selected: state.filters.maxPrice == 49999,
+                  onSelected: (value) => _apply(
+                    state.filters.copyWith(
+                      clearPrice: true,
+                      maxPrice: value ? 49999 : null,
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(width: 6),
+                AppChip(
+                  label: 'Phở & Bún',
+                  icon: Icons.ramen_dining,
+                  selected: state.filters.categories.containsAll({
+                    'Phở',
+                    'Bún',
+                  }),
+                  onSelected: (value) => _apply(
+                    state.filters.copyWith(
+                      categories: value
+                          ? {...state.filters.categories, 'Phở', 'Bún'}
+                          : ({...state.filters.categories}
+                              ..removeAll({'Phở', 'Bún'})),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -354,7 +386,8 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
     // This is the current camera viewport, never a fallback user coordinate.
     final camera = _ready ? _map.camera.center : null;
     final point = _focused == null
-        ? state.location ??
+        ? _manualCenter ??
+              state.location ??
               (camera == null
                   ? null
                   : GeoPoint(camera.latitude, camera.longitude))
@@ -369,7 +402,14 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
             children: [
               Text('Bản đồ quanh bạn', style: context.textStyles.titleLarge),
               const SizedBox(height: AppSpacing.sm),
-              const Text('Cần vị trí thiết bị để hiển thị bản đồ quanh bạn.'),
+              const Text(
+                'Dùng vị trí thiết bị hoặc chọn khu vực thử nghiệm để xem bản đồ.',
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              TextButton(
+                onPressed: _choosePhungKhoang,
+                child: const Text('Xem quán quanh Chợ Phùng Khoang'),
+              ),
               const SizedBox(height: AppSpacing.sm),
               const UserLocationStatus(),
             ],
@@ -520,7 +560,15 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
                 }
               }),
             if (state.error != null)
-              _notice(state.error!, 'Thử lại', _searchArea)
+              _notice(
+                state.error!,
+                state.error!.contains('chưa có dữ liệu')
+                    ? 'Xem Chợ Phùng Khoang'
+                    : 'Thử lại',
+                state.error!.contains('chưa có dữ liệu')
+                    ? _choosePhungKhoang
+                    : _searchArea,
+              )
             else if (!state.loading && selected == null && _ready)
               _notice(
                 'Không có quán phù hợp trong vùng đã tìm.',
@@ -556,6 +604,14 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
               ),
             if (selected != null)
               MapPlacePreview(place: selected, location: state.location),
+            if (state.result != null && ref.watch(mapUsesOsmRegionProvider))
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  'OSM Hà Nội · dữ liệu ${ref.watch(osmDataDateProvider).value?.toIso8601String().split('T').first ?? 'đang tải'} · bán kính 5 km quanh tâm bản đồ',
+                  style: context.textStyles.labelSmall,
+                ),
+              ),
             if (state.result?.isDemo == true)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
