@@ -41,6 +41,12 @@ T07 tái sử dụng controller/result slivers của Search. `PlaceCategory` đ�
 Controller của route giữ scope từ seed kể cả Apply/Reset; form T06 chỉ hiển thị món con
 trong scope, Reset vẫn giữ danh mục. Xem [CATEGORY_UI.md](CATEGORY_UI.md).
 Map dùng capability `PlaceMapRepository.findInViewport(bounds, filters, near, limit)`;
+provider mặc định hiện đọc gói OSM Hà Nội có provenance từ Geofabrik và dựng spatial
+grid index trên thiết bị. Query giới hạn bán kính 5 km quanh tâm bản đồ, thêm viewport
+và limit; đây là dữ liệu asset đã lọc, không phải quét collection Firestore hay gọi
+Overpass công khai lúc chạy. Ngoài vùng gói trả lỗi chưa hỗ trợ. Home/Search/Detail
+vẫn theo adapter demo cho tới các đợt tích hợp riêng; xem
+[REAL_DATA_R1_STATUS.md](REAL_DATA_R1_STATUS.md).
 `placeMapControllerProvider` giữ query/result/GPS và chặn stale response, screen giữ camera.
 `UserLocationRepository` có implementation Geolocator với foreground fix khi mở app hoặc
 cập nhật thủ công. `AppPermissionsStartup` gọi sau frame đầu, `userLocationControllerProvider`

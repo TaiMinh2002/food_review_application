@@ -37,7 +37,10 @@ abstract final class OsmPlaceMapper {
       return null;
     }
 
-    final center = type == 'node' ? value : value['center'];
+    final center =
+        type == 'node' || (value['lat'] is num && value['lon'] is num)
+        ? value
+        : value['center'];
     if (center is! Map) return null;
     final lat = center['lat'];
     final lon = center['lon'];

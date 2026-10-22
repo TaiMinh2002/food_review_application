@@ -135,16 +135,14 @@ void main() {
         'banh-mi-demo',
       );
       controller.searchArea(region);
+      expect(container.read(placeMapControllerProvider).result, isNull);
       repo.calls.last.completeError(const AppException('Lỗi vùng thử nghiệm'));
       await Future<void>.delayed(Duration.zero);
       expect(
         container.read(placeMapControllerProvider).error,
         'Lỗi vùng thử nghiệm',
       );
-      expect(
-        container.read(placeMapControllerProvider).result!.places,
-        hasLength(1),
-      );
+      expect(container.read(placeMapControllerProvider).result, isNull);
     },
   );
 
@@ -188,6 +186,7 @@ void main() {
     String route = '/map',
     FakeLocation? location,
     PlaceMapRepository? repository,
+    bool realSource = false,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = Size(width, height);
@@ -200,8 +199,10 @@ void main() {
         userLocationRepositoryProvider.overrideWithValue(
           location ?? FakeLocation(),
         ),
-        if (repository != null)
-          placeMapRepositoryProvider.overrideWithValue(repository),
+        if (!realSource)
+          placeMapRepositoryProvider.overrideWithValue(
+            repository ?? DemoPlaceRepository(),
+          ),
       ],
     );
     addTearDown(container.dispose);
@@ -279,6 +280,49 @@ void main() {
       expect(find.byTooltip('Bỏ lưu quán'), findsOneWidget);
     },
   );
+
+  for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+    testWidgets('GPS denial opens real Phùng Khoang map in ${mode.name}', (
+      tester,
+    ) async {
+      final location = FakeLocation()
+        ..error = const AppException('Vị trí bị từ chối');
+      final container = await mount(
+        tester,
+        width: 320,
+        height: 700,
+        scale: 1.6,
+        mode: mode,
+        location: location,
+        realSource: true,
+      );
+      expect(find.text('Xem quán quanh Chợ Phùng Khoang'), findsOneWidget);
+      await tester.ensureVisible(find.text('Xem quán quanh Chợ Phùng Khoang'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Xem quán quanh Chợ Phùng Khoang'));
+      await tester.runAsync(
+        () => container.read(osmRegionPlaceRepositoryProvider).sourceTime(),
+      );
+      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        for (var attempt = 0; attempt < 100; attempt++) {
+          if (!container.read(placeMapControllerProvider).loading) return;
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+        }
+      });
+      await tester.pumpAndSettle();
+      final state = container.read(placeMapControllerProvider);
+      final result = state.result;
+      expect(result, isNotNull, reason: 'map error: ${state.error}');
+      expect(result!.places, isNotEmpty);
+      expect(result.isDemo, isFalse);
+      expect(result.places.first.id, startsWith('osm_'));
+      expect(find.byTooltip('Lưu quán'), findsNothing);
+      expect(find.text('Xem chi tiết'), findsNothing);
+      expect(find.textContaining('OSM Hà Nội'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('Search, clear, empty and filter draft apply affect map data', (
     tester,
