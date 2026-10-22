@@ -3,6 +3,11 @@
 Phạm vi sản phẩm nằm tại [FEATURES.md](FEATURES.md). Tài liệu này mô tả thiết kế dữ liệu
 và hướng tích hợp tương ứng, **chưa phải backend đã triển khai hoặc rules đã kiểm thử**.
 
+Lộ trình thay demo trên toàn ứng dụng theo ràng buộc miễn phí ngày 22/10/2026:
+[REAL_DATA_INTEGRATION_PLAN.md](REAL_DATA_INTEGRATION_PLAN.md). Schema bên dưới là
+thiết kế trước tích hợp, cần đối chiếu các điều chỉnh OSM/catalog, aggregate không
+Functions, collections và report private trong kế hoạch mới trước khi triển khai.
+
 ## 1. Hiện trạng và cấu hình Firebase
 
 - Application ID Android/bundle ID iOS: `com.minhpt.foodreview`.
@@ -13,8 +18,32 @@ và hướng tích hợp tương ứng, **chưa phải backend đã triển khai
   FirebaseAuthRepository cho email/password/session/logout/register; xem [LOGIN_AUTH_UI.md](LOGIN_AUTH_UI.md) và [REGISTER_AUTH_UI.md](REGISTER_AUTH_UI.md).
 - Web chưa có `FirebaseOptions`; cần cấu hình riêng trước khi chạy Web.
 - Khi tích hợp: bật email/password, tạo Firestore, tách development/production,
-  triển khai repository qua Riverpod; seed quán bằng admin tool ngoài app.
+  triển khai repository qua Riverpod. Khám phá quán phải dựa vào nguồn địa điểm thật
+  quanh vị trí người dùng, mặc định bán kính 5 km; không seed quán giả để thay nguồn này.
 - Cấu hình công khai/secret theo [ENVIRONMENT.md](ENVIRONMENT.md).
+
+### Ràng buộc chi phí và hướng khám phá quán — 22/10/2026
+
+- Người dùng yêu cầu không mất chi phí, không có Google Maps/Places API key;
+  không bật billing hoặc triển khai giải pháp bắt buộc dịch vụ trả phí.
+- Giữ MapLibre/OpenFreeMap cho nền bản đồ. Ứng viên nguồn POI miễn phí là
+  OpenStreetMap qua Overpass: tìm restaurant/cafe/fast_food/food_court quanh GPS
+  hoặc tâm người dùng chọn trong bán kính 5.000 m. Chưa tích hợp/nghiệm thu nguồn này.
+- Public Overpass chỉ cân nhắc cho thử nghiệm phát triển nhỏ theo chính sách instance;
+  tài liệu nhà vận hành cảnh báo không dựa vào public instance làm backend cho app
+  đại chúng. Cache, giới hạn tần suất và backoff không thay thế yêu cầu này.
+- Nếu phát hành mà vẫn giữ ngân sách bằng 0, cần đánh giá gói dữ liệu OSM khu vực
+  tải trước với truy vấn bán kính trên thiết bị, hoặc nguồn hosting miễn phí có điều
+  kiện phù hợp; không hứa public Overpass phục vụ không giới hạn.
+- Dữ liệu quán có thể thiếu hoặc cũ. Không tự tạo ảnh/menu/giá/rating; ảnh và review
+  cộng đồng lấy từ dữ liệu người dùng app. Giữ attribution và điều kiện ODbL.
+- Firestore lưu dữ liệu ứng dụng trong quota miễn phí và tham chiếu nguồn địa điểm;
+  schema `places` bên dưới là thiết kế cũ, cần chốt lại mapping/ID/aggregate sau khi
+  kiểm chứng nguồn POI. Không mặc định cần Cloud Functions hoặc backend có phí.
+
+Tham khảo: [OpenFreeMap](https://openfreemap.org/),
+[Overpass public instance](https://dev.overpass-api.de/overpass-doc/en/preface/commons.html),
+[giấy phép OSM](https://www.openstreetmap.org/copyright).
 
 T10 cần bật Email/Password ở Firebase Console → Authentication → Sign-in method.
 Chưa xác minh cấu hình Console/tài khoản thật; native build/run không thay thế kiểm thử
@@ -49,7 +78,8 @@ Các số đếm/thumbnail dẫn xuất phải có nguồn và cơ chế cập n
 Giá, giờ mở cửa theo múi giờ/ngày nghỉ, menu/liên hệ/tiện ích, geohash, tiêu chí đánh giá,
 helpful/follow/comment, thiết bị nhận push và dữ liệu kinh doanh chưa thuộc schema bắt buộc.
 Bổ sung cùng feature mở rộng, migration và rules tương ứng; không tạo sẵn collection rỗng
-cho toàn bộ ý tưởng P1–P5. Không dùng OSM làm nguồn mặc định cho menu/review/danh sách quán.
+cho toàn bộ ý tưởng P1–P5. OSM có thể là nguồn danh sách quán theo hướng đề xuất trên;
+không giả định OSM cung cấp đầy đủ menu, ảnh hoặc review.
 
 ## 3. Review, định danh và thống kê
 

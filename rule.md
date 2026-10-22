@@ -93,6 +93,7 @@ Text(
 
 ## 8. Điều hướng, xác thực và bảo mật
 
+- Ràng buộc chi phí (22/10/2026): dự án phát triển theo hướng miễn phí; không có Google Maps/Places API key. Không thêm dịch vụ trả phí, yêu cầu bật billing hoặc tự nâng gói. Dịch vụ có free tier chỉ dùng trong hạn mức miễn phí; khi không đủ phải báo giới hạn và đề xuất phương án phù hợp, không tự chuyển sang gói tính phí. Firebase native hiện có vẫn giữ nguyên.
 - Dùng `AppRoute`, route name và helper encode tham số; ưu tiên ID thay vì truyền object bắt buộc qua bộ nhớ.
 - Dùng `push` cho luồng cần Back về nguồn; chuyển tab qua shell. Không dùng `go('/home')` thay mọi hành vi Back.
 - Giữ return-to nội bộ hợp lệ khi yêu cầu đăng nhập; không tự submit form/thực hiện hành động nhạy cảm chỉ vì login thành công.
