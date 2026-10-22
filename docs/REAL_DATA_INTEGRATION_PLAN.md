@@ -1,7 +1,9 @@
 # Kế hoạch thay dữ liệu demo bằng dữ liệu thật
 
 Ngày lập: 22/10/2026. Phạm vi: toàn bộ tính năng người dùng hiện có trên Android/iOS.
-Đây là kế hoạch, chưa phải bằng chứng tích hợp hoặc deploy. Mọi đợt bên dưới chưa triển khai.
+Đây là kế hoạch, không phải bằng chứng tích hợp hoặc deploy. Trạng thái R0 và đầu R1
+được ghi trong [REAL_DATA_R0_STATUS.md](REAL_DATA_R0_STATUS.md); các đợt còn lại
+chưa triển khai.
 Web là hạng mục riêng nếu được chọn; không coi Web chạy được chỉ vì widget tests pass.
 
 ## 1. Mục tiêu và ràng buộc
@@ -85,7 +87,8 @@ ARCHITECTURE/rule về query local có giới hạn khi triển khai R1, kèm đ
 
 Catalog Firestore chỉ để xác thực tham chiếu và lookup ngoài vùng khám phá, không là
 nguồn danh sách quanh đây. Import từ OSM thật theo vùng hỗ trợ bằng local admin tool,
-không service account trong app/repo. Đây là điều chỉnh schema đề xuất, chưa triển khai.
+không service account trong app/repo. Rules nền tảng mới triển khai một phần theo
+[trạng thái R0](REAL_DATA_R0_STATUS.md); catalog và adapter production chưa có.
 POI chỉ mới thấy qua thử nghiệm mà chưa đăng ký: cho đọc, nhưng không giả lưu review
 thành công; R1 phải giải quyết đăng ký catalog trước nghiệm thu tính năng ghi R4.
 

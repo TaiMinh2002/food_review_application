@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "scripts": {
+    "test:rules": "firebase emulators:exec --only firestore --project demo-food-review 'node --test test/firestore.rules.test.cjs'"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.0",
+    "firebase": "^12.0.0",
+    "firebase-tools": "^15.34.1"
+  }
+}
