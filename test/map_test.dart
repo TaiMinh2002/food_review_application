@@ -18,6 +18,7 @@ import 'package:food_review/features/places/data/demo_place_repository.dart';
 import 'package:food_review/features/places/domain/place_map_repository.dart';
 import 'package:food_review/features/places/domain/place_search.dart';
 import 'package:food_review/features/places/presentation/map_controller.dart';
+import 'package:food_review/features/places/presentation/search_controller.dart';
 import 'package:food_review/features/places/presentation/map_widgets.dart';
 import 'package:food_review/features/places/presentation/user_location_controller.dart';
 import 'package:food_review/features/places/presentation/place_detail_screen.dart';
@@ -203,6 +204,10 @@ void main() {
           placeMapRepositoryProvider.overrideWithValue(
             repository ?? DemoPlaceRepository(),
           ),
+        if (!realSource)
+          osmPlaceSearchRepositoryProvider.overrideWithValue(
+            DemoPlaceRepository(),
+          ),
       ],
     );
     addTearDown(container.dispose);
@@ -354,18 +359,20 @@ void main() {
     expect(container.read(placeMapControllerProvider).filters.query, '');
     await tester.tap(find.byTooltip('Bộ lọc'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Dưới 50.000đ'));
-    await tester.tap(find.text('Dưới 50.000đ'));
+    await tester.ensureVisible(find.widgetWithText(FilterChip, 'Cà phê'));
+    await tester.tap(find.widgetWithText(FilterChip, 'Cà phê'));
     await tester.tap(find.text('Áp dụng bộ lọc'));
     await tester.pumpAndSettle();
-    expect(container.read(placeMapControllerProvider).filters.maxPrice, 49999);
+    expect(
+      container.read(placeMapControllerProvider).filters.categories,
+      contains('Cà phê'),
+    );
     final ids = container
         .read(placeMapControllerProvider)
         .result!
         .places
         .map((p) => p.id);
-    expect(ids, contains('banh-mi-demo'));
-    expect(ids, isNot(contains('pho-demo')));
+    expect(ids.toList(), isEmpty);
   });
 
   testWidgets(

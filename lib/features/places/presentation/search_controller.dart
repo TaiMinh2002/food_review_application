@@ -5,17 +5,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/app_error_message.dart';
 import '../../../core/errors/app_exception.dart';
 import '../domain/place.dart';
+import '../domain/place_category.dart';
 import '../domain/place_search.dart';
 import '../domain/place_search_repository.dart';
+import '../data/osm_region_search_repository.dart';
+import 'discovery_center.dart';
 import 'place_providers.dart';
 
 typedef SearchSeed = ({PlaceSearchRequest request, String scope});
 
+/// Existing data source retained by Category and place-picker screens until
+/// those capabilities receive their own real-data migration.
 final placeSearchRepositoryProvider = Provider<PlaceSearchRepository?>((ref) {
   final repository = ref.watch(placeRepositoryProvider);
   return repository is PlaceSearchRepository
       ? repository as PlaceSearchRepository
       : null;
+});
+
+/// Search uses real OSM results around the shared discovery center.
+final osmPlaceSearchRepositoryProvider = Provider<PlaceSearchRepository?>((
+  ref,
+) {
+  final center = ref.watch(activeDiscoveryCenterProvider);
+  if (center == null) return null;
+  return OsmRegionSearchRepository(
+    ref.watch(nearbyPlaceRepositoryProvider),
+    center,
+  );
 });
 
 class PlaceSearchState {
@@ -63,19 +80,27 @@ class PlaceSearchState {
 
 final searchControllerProvider = NotifierProvider.autoDispose
     .family<PlaceSearchController, PlaceSearchState, SearchSeed>(
-      PlaceSearchController.new,
+      (seed) => PlaceSearchController(seed),
+    );
+
+final osmSearchControllerProvider = NotifierProvider.autoDispose
+    .family<PlaceSearchController, PlaceSearchState, SearchSeed>(
+      (seed) => PlaceSearchController(seed, useOsm: true),
     );
 
 class PlaceSearchController extends Notifier<PlaceSearchState> {
-  PlaceSearchController(this.seed);
+  PlaceSearchController(this.seed, {this.useOsm = false});
   final SearchSeed seed;
+  final bool useOsm;
   Timer? _debounce;
   int _generation = 0;
   PlaceSearchRepository? _repository;
 
   @override
   PlaceSearchState build() {
-    _repository = ref.watch(placeSearchRepositoryProvider);
+    _repository = ref.watch(
+      useOsm ? osmPlaceSearchRepositoryProvider : placeSearchRepositoryProvider,
+    );
     final generation = ++_generation;
     final reference = ref;
     final request = seed.request;
@@ -243,12 +268,20 @@ class RecentSearches extends Notifier<List<String>> {
   void clear() => state = const [];
 }
 
-final searchOptionsProvider = FutureProvider.autoDispose<PlaceSearchPage>((
-  ref,
-) {
-  final repository = ref.watch(placeSearchRepositoryProvider);
-  if (repository == null) {
-    throw const AppException('Chưa tải được các lựa chọn tìm kiếm.');
-  }
-  return repository.searchPlaces(PlaceSearchRequest(), pageSize: 1);
-}, retry: (count, error) => null);
+final searchOptionsProvider = FutureProvider.autoDispose
+    .family<PlaceSearchPage, bool>((ref, scopedCategory) {
+      final repository = ref.watch(
+        scopedCategory
+            ? placeSearchRepositoryProvider
+            : osmPlaceSearchRepositoryProvider,
+      );
+      if (repository == null) {
+        return PlaceSearchPage(
+          items: const [],
+          categories: PlaceCategory.values
+              .map((category) => category.label)
+              .toList(),
+        );
+      }
+      return repository.searchPlaces(PlaceSearchRequest(), pageSize: 1);
+    }, retry: (count, error) => null);

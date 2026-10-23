@@ -6,6 +6,7 @@ import '../../../core/router/app_route.dart';
 import '../../../core/router/route_placeholder_screen.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../domain/place_search.dart';
+import 'discovery_center.dart';
 import 'search_results.dart';
 import 'search_controller.dart';
 import 'search_widgets.dart';
@@ -22,7 +23,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _scroll = ScrollController();
   final _resultsKey = GlobalKey();
   PlaceSearchController get _controller =>
-      ref.read(searchControllerProvider(widget.seed).notifier);
+      ref.read(osmSearchControllerProvider(widget.seed).notifier);
 
   @override
   void initState() {
@@ -81,7 +82,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Future<void> _filters() async {
     FocusScope.of(context).unfocus();
-    final request = ref.read(searchControllerProvider(widget.seed)).request;
+    final request = ref.read(osmSearchControllerProvider(widget.seed)).request;
     final result = await context.push<PlaceSearchRequest>(
       AppRoute.filters.location(query: request.queryParameters),
     );
@@ -92,15 +93,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   Future<void> _sort() async {
-    final request = ref.read(searchControllerProvider(widget.seed)).request;
-    final result = await showSearchSort(context, request.sort);
+    final request = ref.read(osmSearchControllerProvider(widget.seed)).request;
+    final result = await showSearchSort(context, request.sort, realData: true);
     if (mounted && result != null) _controller.setSort(result);
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(searchControllerProvider(widget.seed));
+    final state = ref.watch(osmSearchControllerProvider(widget.seed));
     final request = state.request;
+    final center = ref.watch(activeDiscoveryCenterProvider);
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 64,
@@ -163,6 +165,24 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         const SizedBox(height: 16),
                         SearchRecentSection(onSelected: _recent),
                         const SizedBox(height: 24),
+                        if (center == null)
+                          Card(
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.location_on_outlined,
+                                color: context.colors.primary,
+                              ),
+                              title: const Text('Chọn khu vực tìm quán'),
+                              subtitle: const Text(
+                                'Dùng vị trí thiết bị hoặc chọn Chợ Phùng Khoang. Tìm kiếm chỉ tải quán trong 5 km.',
+                              ),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () => ref
+                                  .read(discoveryCenterProvider.notifier)
+                                  .choose(phungKhoangCenter),
+                            ),
+                          ),
+                        if (center == null) const SizedBox(height: 16),
                         if (state.categories.isNotEmpty ||
                             request.categories.isNotEmpty) ...[
                           SearchCategorySection(
@@ -184,7 +204,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             ),
                             title: const Text('Bộ lọc chi tiết'),
                             subtitle: const Text(
-                              'Đánh giá, khoảng giá và tiện ích',
+                              'Chỉ lọc danh mục và từ khóa theo dữ liệu OSM',
                             ),
                             trailing: const Icon(Icons.chevron_right),
                             onTap: _filters,
@@ -204,14 +224,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           title: 'Kết quả tìm kiếm',
                           subtitle: state.isLoading
                               ? 'Đang tìm quán phù hợp…'
+                              : state.error != null
+                              ? 'Chưa tải được dữ liệu khu vực'
                               : state.totalCount == null
-                              ? '${state.items.length} quán đã tải'
-                              : '${state.totalCount} quán phù hợp',
+                              ? '${state.items.length} quán đã tải trong 5 km'
+                              : '${state.totalCount} quán phù hợp trong 5 km',
                           actionLabel: 'Sắp xếp',
                           onAction: _sort,
                         ),
                         Text(
-                          request.sort.label,
+                          state.isDemo
+                              ? request.sort.label
+                              : 'OpenStreetMap · bán kính cố định 5 km',
                           style: context.textStyles.bodySmall?.copyWith(
                             color: context.colors.onSurfaceVariant,
                           ),
@@ -226,6 +250,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   onLoadMore: _controller.loadMore,
                   onReset: _reset,
                   onOpen: _remember,
+                  openRealPlacesOnMap: true,
                 ),
               ],
             ),

@@ -174,18 +174,18 @@ void main() {
   })
   setup(PlaceSearchRepository repo) {
     final container = ProviderContainer(
-      overrides: [placeSearchRepositoryProvider.overrideWithValue(repo)],
+      overrides: [osmPlaceSearchRepositoryProvider.overrideWithValue(repo)],
     );
     final seed = (request: PlaceSearchRequest(), scope: 'test');
     addTearDown(container.dispose);
     final subscription = container.listen(
-      searchControllerProvider(seed),
+      osmSearchControllerProvider(seed),
       (_, _) {},
     );
     addTearDown(subscription.close);
     return (
       container: container,
-      controller: container.read(searchControllerProvider(seed).notifier),
+      controller: container.read(osmSearchControllerProvider(seed).notifier),
       seed: seed,
     );
   }
@@ -217,7 +217,7 @@ void main() {
       old.complete(PlaceSearchPage(items: [_a]));
       await tester.pump();
       final state = setupState.container.read(
-        searchControllerProvider(setupState.seed),
+        osmSearchControllerProvider(setupState.seed),
       );
       expect(state.items.single.id, 'b');
       expect(state.request.query, 'latest');
@@ -251,13 +251,13 @@ void main() {
       failedPage.completeError(StateError('private backend detail'));
       await pending;
       var state = setupState.container.read(
-        searchControllerProvider(setupState.seed),
+        osmSearchControllerProvider(setupState.seed),
       );
       expect(state.items.single.id, 'a');
       expect(state.pageError, 'Không tải được thêm quán. Vui lòng thử lại.');
       await setupState.controller.loadMore();
       state = setupState.container.read(
-        searchControllerProvider(setupState.seed),
+        osmSearchControllerProvider(setupState.seed),
       );
       expect(state.items.map((place) => place.id), ['a', 'b']);
       expect(state.pageError, isNull);
@@ -288,7 +288,7 @@ void main() {
       await pending;
       expect(
         setupState.container
-            .read(searchControllerProvider(setupState.seed))
+            .read(osmSearchControllerProvider(setupState.seed))
             .items
             .single
             .id,

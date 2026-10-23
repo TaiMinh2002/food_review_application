@@ -52,7 +52,9 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         signedInSession,
-        if (repo != null) placeSearchRepositoryProvider.overrideWithValue(repo),
+        osmPlaceSearchRepositoryProvider.overrideWithValue(
+          repo ?? DemoPlaceRepository(),
+        ),
       ],
     );
     addTearDown(container.dispose);
@@ -108,7 +110,7 @@ void main() {
 
   PlaceSearchState current(WidgetTester tester, ProviderContainer container) =>
       container.read(
-        searchControllerProvider(
+        osmSearchControllerProvider(
           tester.widget<SearchScreen>(find.byType(SearchScreen)).seed,
         ),
       );
@@ -184,6 +186,7 @@ void main() {
       await tester.enterText(find.byType(TextField), 'không có quán');
       await tester.pump(const Duration(milliseconds: 350));
       await tester.pumpAndSettle();
+      await reveal(tester, find.text('Không tìm thấy quán phù hợp.'));
       expect(find.text('Không tìm thấy quán phù hợp.'), findsOneWidget);
       await reveal(tester, find.byTooltip('Xoá nội dung'));
       await tester.tap(find.byTooltip('Xoá nội dung'));
@@ -199,7 +202,7 @@ void main() {
       await reveal(tester, find.text('Sắp xếp'));
       await tester.tap(find.text('Sắp xếp'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Giá thấp đến cao'));
+      await tester.tap(find.text('Liên quan nhất').last);
       await tester.pumpAndSettle();
       expect(current(tester, container).items.first.id, 'banh-mi-demo');
       await reveal(tester, find.byType(TextField));
@@ -218,15 +221,12 @@ void main() {
   testWidgets(
     'Draft cancel preserves filters; apply commits and reset is local until applied',
     (tester) async {
-      final container = await mount(
-        tester,
-        url: '/search?q=pho&category=Ph%E1%BB%9F',
-      );
+      final container = await mount(tester, url: '/search');
       final original = current(tester, container).request;
       await tester.tap(find.byTooltip('Bộ lọc'));
       await tester.pumpAndSettle();
-      await reveal(tester, find.text('Từ 4 sao ★'));
-      await tester.tap(find.text('Từ 4 sao ★'));
+      await reveal(tester, find.widgetWithText(FilterChip, 'Cà phê'));
+      await tester.tap(find.widgetWithText(FilterChip, 'Cà phê'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Hủy'));
       await tester.pumpAndSettle();
@@ -234,15 +234,12 @@ void main() {
       await reveal(tester, find.byTooltip('Bộ lọc'));
       await tester.tap(find.byTooltip('Bộ lọc'));
       await tester.pumpAndSettle();
-      await reveal(tester, find.text('Từ 4 sao ★'));
-      await tester.tap(find.text('Từ 4 sao ★'));
-      await reveal(tester, find.text('50.000đ – 100.000đ'));
-      await tester.tap(find.text('50.000đ – 100.000đ'));
+      await reveal(tester, find.widgetWithText(FilterChip, 'Cà phê'));
+      await tester.tap(find.widgetWithText(FilterChip, 'Cà phê'));
       await tester.tap(find.text('Áp dụng bộ lọc'));
       await tester.pumpAndSettle();
-      expect(current(tester, container).request.minRating, 4);
-      expect(current(tester, container).request.minPrice, 50000);
-      expect(current(tester, container).items.single.id, 'pho-demo');
+      expect(current(tester, container).request.categories, contains('Cà phê'));
+      expect(current(tester, container).items.single.id, 'coffee-demo');
       await reveal(tester, find.byTooltip('Bộ lọc'));
       await tester.tap(find.byTooltip('Bộ lọc'));
       await tester.pumpAndSettle();
@@ -250,7 +247,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Hủy'));
       await tester.pumpAndSettle();
-      expect(current(tester, container).request.minRating, 4);
+      expect(current(tester, container).request.categories, contains('Cà phê'));
     },
   );
 
@@ -274,20 +271,12 @@ void main() {
   );
 
   testWidgets(
-    'Unavailable GPS/open-now controls stay disabled and keyboard keeps input usable',
+    'Unavailable real-data filters are explained and keyboard keeps input usable',
     (tester) async {
       await mount(tester, url: '/search/filters');
-      await reveal(tester, find.text('Đang mở cửa'));
-      expect(
-        tester.widget<SwitchListTile>(find.byType(SwitchListTile)).onChanged,
-        isNull,
-      );
-      expect(
-        tester
-            .widget<FilterChip>(find.widgetWithText(FilterChip, '< 3 km'))
-            .onSelected,
-        isNull,
-      );
+      await reveal(tester, find.text('Dữ liệu bộ lọc'));
+      expect(find.text('Đánh giá'), findsNothing);
+      expect(find.text('Khoảng giá (VND)'), findsNothing);
       expect(
         tester
             .widget<ListTile>(find.widgetWithText(ListTile, 'Gần tôi nhất'))
