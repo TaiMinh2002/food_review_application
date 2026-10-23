@@ -9,7 +9,6 @@ import '../../auth/presentation/auth_gate.dart';
 import '../../places/domain/place.dart';
 import '../../places/domain/place_search.dart';
 import '../../places/presentation/place_card.dart';
-import '../../places/presentation/place_providers.dart';
 import 'favorite_providers.dart';
 
 enum _FavoriteSort { recent, rating, name }
@@ -56,7 +55,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
         child: AuthGate(
           returnTo: AppRoute.favorites.path,
           child: ref
-              .watch(placesProvider)
+              .watch(favoritePlacesProvider)
               .when(
                 loading: () => const Center(
                   child: CircularProgressIndicator(
@@ -68,7 +67,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                     error,
                     fallback: 'Không tải được danh sách yêu thích.',
                   ),
-                  onRetry: () => ref.invalidate(placesProvider),
+                  onRetry: () => ref.invalidate(favoritePlacesProvider),
                 ),
                 data: (places) => _content(context, ref, places, ids),
               ),

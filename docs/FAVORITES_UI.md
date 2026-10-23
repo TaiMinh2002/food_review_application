@@ -9,6 +9,8 @@ Màn `/favorites` được đối chiếu với Stitch screen `09 - Favorites` (
 - `FavoriteRepository` dùng stream `watchPlaceIds(userId)` và thao tác bất đồng bộ `setFavorite(...)`; các card Home, Search, Detail và Favorites dùng chung notifier.
 - Guest được đưa qua `AuthGate`; trạng thái loading/error có retry; danh sách rỗng và kết quả lọc rỗng có CTA phù hợp.
 
-## Dữ liệu và giới hạn
+## Dữ liệu và tích hợp Firestore
 
-Hiện `MemoryFavoriteRepository` là adapter demo trong RAM, nên dữ liệu mẫu mất khi app khởi động lại và chưa ghi Firestore. Khi tích hợp backend, giữ nguyên contract domain và thay implementation/provider ở tầng data.
+- Đã tích hợp `FirestoreFavoriteRepository` lưu trữ vĩnh viễn trên Cloud Firestore theo đường dẫn `users/{uid}/favorites/{placeKey}` (0-cost Spark).
+- `favoritePlacesProvider` giải quyết thông tin quán theo ID cả từ nguồn OSM thật (`osm_node_*`, `osm_way_*`) lẫn dữ liệu demo một cách mượt mà.
+- Tự động fallback sang `MemoryFavoriteRepository` trong môi trường test/chưa kết nối Firebase để duy trì 100% tính độc lập khi kiểm thử.
