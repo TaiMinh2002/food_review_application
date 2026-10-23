@@ -25,6 +25,16 @@ service cloud.firestore {
         request.resource.data.createdAt == request.time;
     }
 
+    function validCollectionData() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['name', 'description', 'placeIds', 'updatedAt']) &&
+        data.keys().hasOnly(['name', 'description', 'placeIds', 'coverUrl', 'createdAt', 'updatedAt']) &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 60 &&
+        data.description is string && data.description.size() <= 300 &&
+        data.placeIds is list && data.placeIds.size() <= 50 &&
+        data.get('coverUrl', '') is string && data.get('coverUrl', '').size() <= 2048;
+    }
+
     function validPublicProfile(uid) {
       return request.resource.data.keys().hasOnly([
         'displayName', 'photoUrl', 'bio', 'region', 'status',
@@ -111,8 +121,17 @@ service cloud.firestore {
         allow update: if false;
       }
 
+      match /collections/{collectionId} {
+        allow read, delete: if signedInAs(uid);
+        allow create: if signedInAs(uid) && validCollectionData() &&
+          request.resource.data.createdAt == request.time;
+        allow update: if signedInAs(uid) && validCollectionData() &&
+          request.resource.data.createdAt == resource.data.createdAt &&
+          request.resource.data.updatedAt == request.time;
+      }
+
       // Keep unimplemented private domains closed until their data adapters,
-      // validation and ownership tests arrive in R3/R6.
+      // validation and ownership tests arrive in R7.
       match /{privateDocument=**} {
         allow read, write: if false;
       }

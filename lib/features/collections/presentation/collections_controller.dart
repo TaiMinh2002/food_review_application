@@ -1,17 +1,33 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_error_message.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../auth/presentation/auth_providers.dart';
+import '../../places/presentation/map_controller.dart';
 import '../../places/presentation/place_providers.dart';
 import '../data/demo_collection_repository.dart';
+import '../data/firestore_collection_repository.dart';
 import '../domain/collection_repository.dart';
 
-final collectionRepositoryProvider = Provider<CollectionRepository>(
-  (ref) => DemoCollectionRepository(places: ref.watch(placeRepositoryProvider)),
-);
+final collectionRepositoryProvider = Provider<CollectionRepository>((ref) {
+  if (Firebase.apps.isEmpty) {
+    return DemoCollectionRepository(places: ref.watch(placeRepositoryProvider));
+  }
+  return FirestoreCollectionRepository(
+    FirebaseFirestore.instance,
+    placeLookup: (id) async {
+      final demoRepo = ref.watch(placeRepositoryProvider);
+      final osmRepo = ref.watch(osmRegionPlaceRepositoryProvider);
+      var place = await demoRepo.getPlace(id);
+      place ??= await osmRepo.getById(id);
+      return place;
+    },
+  );
+});
 
 class CollectionsState {
   const CollectionsState({

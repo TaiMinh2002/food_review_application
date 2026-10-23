@@ -134,7 +134,49 @@ test('reviews are owner-written, validated and readable when public', async () =
     content: 'Quá ngắn',
   }));
 
-  // Collections and reports remain closed
-  await assertFails(setDoc(doc(db('alice'), 'users/alice/collections/one'), { name: 'Ăn ngon' }));
+  // Reports remain closed until R7
   await assertFails(setDoc(doc(db('alice'), 'reports/alice/submissions/one'), { reason: 'spam' }));
+});
+
+test('collections are owner-scoped, validated, and private from other users', async () => {
+  const aliceCollection = doc(db('alice'), 'users/alice/collections/col1');
+  const validCollection = {
+    name: 'Quán ngon Hà Nội',
+    description: 'Danh sách các quán phở truyền thống',
+    placeIds: ['osm_node_123'],
+    coverUrl: 'https://example.com/cover.jpg',
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+
+  // Alice can create her collection
+  await assertSucceeds(setDoc(aliceCollection, validCollection));
+
+  // Alice can read her collection
+  assert.equal((await assertSucceeds(getDoc(aliceCollection))).exists(), true);
+  assert.equal((await assertSucceeds(getDocs(collection(db('alice'), 'users/alice/collections')))).size, 1);
+
+  // Bob and guest cannot read Alice's collection
+  await assertFails(getDoc(doc(db('bob'), 'users/alice/collections/col1')));
+  await assertFails(getDocs(collection(db('bob'), 'users/alice/collections')));
+  await assertFails(getDoc(doc(db(), 'users/alice/collections/col1')));
+
+  // Bob cannot modify or delete Alice's collection
+  await assertFails(updateDoc(aliceCollection, { name: 'Bob hack', updatedAt: serverTimestamp() }));
+  await assertFails(deleteDoc(doc(db('bob'), 'users/alice/collections/col1')));
+
+  // Alice can update her collection
+  await assertSucceeds(updateDoc(aliceCollection, {
+    name: 'Quán ngon Hà Nội - Update',
+    updatedAt: serverTimestamp(),
+  }));
+
+  // Invalid data rejected (e.g. name too long)
+  await assertFails(setDoc(doc(db('alice'), 'users/alice/collections/col2'), {
+    ...validCollection,
+    name: 'a'.repeat(61),
+  }));
+
+  // Alice can delete her collection
+  await assertSucceeds(deleteDoc(aliceCollection));
 });
