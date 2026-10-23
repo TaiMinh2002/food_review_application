@@ -1,6 +1,6 @@
 # R4 — Reviews & Ảnh Cloudinary trên Firestore
 
-Cập nhật 23/10/2026. Triển khai theo từng bước nhỏ trên các nhánh `feat/`:
+Cập nhật 24/10/2026. Toàn bộ giai đoạn R4 đã được hoàn thiện qua các nhánh tính năng:
 
 ## Tiến độ các bước
 
@@ -29,7 +29,7 @@ Cập nhật 23/10/2026. Triển khai theo từng bước nhỏ trên các nhán
      - `test/write_review_screen_test.dart` (8 tests pass).
 
 ### Bước 4.2 — Feed, Phân trang All Reviews & Thống kê điểm (ReviewFeedRepository)
-- **Nhánh**: `feat/all-reviews-ui`, base từ `origin/dev`.
+- **Nhánh**: `feat/all-reviews-ui`, đã merge vào `dev`.
 - **Đã hoàn thành**:
   1. **Triển khai ReviewFeedRepository trên FirestoreReviewRepository (`lib/features/reviews/data/firestore_review_repository.dart`)**:
      - `getSummary(placeId)`: tính toán số lượng tổng `totalCount`, điểm đánh giá trung bình `averageRating`, phân bố số lượng sao `starCounts` (1–5 sao) và số bài có ảnh `withPhotosCount` trực tiếp từ các tài liệu review công khai thật của quán.
@@ -41,5 +41,19 @@ Cập nhật 23/10/2026. Triển khai theo từng bước nhỏ trên các nhán
      - Unit tests `test/firestore_review_repository_test.dart` bổ sung kiểm tra `getSummary` và `getReviews` (9 tests pass).
      - Widget tests `test/all_reviews_screen_test.dart` (18 tests pass).
 
-### Bước 4.3 — My Reviews & Gallery thật
-- *Dự kiến thực hiện tiếp theo trên nhánh `feat/my-reviews`*.
+### Bước 4.3 — My Reviews & Gallery thật (UserReviewRepository & Media)
+- **Nhánh**: `feat/my-reviews`, base từ `origin/dev`.
+- **Đã hoàn thành**:
+  1. **Triển khai UserReviewRepository trên FirestoreReviewRepository (`lib/features/reviews/data/firestore_review_repository.dart`)**:
+     - `getUserReviewSummary(userId)`: truy vấn Firestore collectionGroup `reviews` lọc theo `userId`, tính toán tổng số bài (`total`), số bài có ảnh (`withPhotos`) và số bài đã qua chỉnh sửa (`edited`).
+     - `getUserReviews(userId, filter, cursor, pageSize)`: nạp danh sách bài đánh giá của chính mình, hỗ trợ lọc theo tab (`all`, `withPhotos`, `edited`) và phân trang danh sách.
+     - `watchUserReviewChanges(userId)`: phát tín hiệu thay đổi theo thời gian thực mỗi khi có thao tác tạo, cập nhật hoặc xóa review để cập nhật giao diện `MyReviewsScreen` ngay lập tức.
+  2. **Khai báo chỉ mục truy vấn collectionGroup (`firestore.indexes.json`)**:
+     - Thêm chỉ mục composite `reviews` (queryScope `COLLECTION_GROUP`) cho `userId` (Ascending) và `createdAt` (Descending).
+  3. **Kết nối MyReviewsScreen & PlaceGalleryRepository (`lib/features/`)**:
+     - `myReviewsControllerProvider` tự động kết nối `FirestoreReviewRepository` khi chạy với Firebase.
+     - `PlaceGalleryRepository` trích xuất chính xác ảnh từ đánh giá thật của người dùng (`ReviewMediaRepository`).
+  4. **Kiểm thử**:
+     - Unit tests `test/firestore_review_repository_test.dart` (12 tests pass).
+     - Widget tests `test/my_reviews_ui_test.dart` (12 tests pass).
+     - Tests hồi quy Gallery `test/gallery_test.dart` (14 tests pass).

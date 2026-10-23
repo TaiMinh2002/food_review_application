@@ -6,13 +6,15 @@ import '../../../core/errors/app_exception.dart';
 import '../domain/review.dart';
 import '../domain/review_feed_repository.dart';
 import '../domain/review_repository.dart';
+import '../domain/user_review_repository.dart';
 
 class FirestoreReviewRepository
     implements
         ReviewRepository,
         ReviewManagementRepository,
         ReviewMediaRepository,
-        ReviewFeedRepository {
+        ReviewFeedRepository,
+        UserReviewRepository {
   FirestoreReviewRepository(
     this._firestore, {
     this.saveReview,
@@ -22,6 +24,9 @@ class FirestoreReviewRepository
     this.getReviewHook,
     this.getSummaryHook,
     this.getReviewsHook,
+    this.getUserReviewSummaryHook,
+    this.getUserReviewsHook,
+    this.watchUserReviewChangesHook,
   });
 
   final FirebaseFirestore? _firestore;
@@ -41,6 +46,20 @@ class FirestoreReviewRepository
     int pageSize,
   )?
   getReviewsHook;
+  final Future<UserReviewSummary> Function(String userId)?
+  getUserReviewSummaryHook;
+  final Future<ReviewPage> Function(
+    String userId,
+    UserReviewFilter filter,
+    String? cursor,
+    int pageSize,
+  )?
+  getUserReviewsHook;
+  final Stream<void> Function(String userId)? watchUserReviewChangesHook;
+
+  final _userChanges = StreamController<String>.broadcast(sync: true);
+
+  void dispose() => _userChanges.close();
 
   CollectionReference<Map<String, dynamic>> _reviewsCollection(
     String placeId,
@@ -73,7 +92,9 @@ class FirestoreReviewRepository
       throw const AppException('Nội dung đánh giá cần ít nhất 10 ký tự.');
     }
     if (saveReview != null) {
-      return saveReview!(review);
+      await saveReview!(review);
+      _userChanges.add(review.userId);
+      return;
     }
 
     final docRef = _reviewsCollection(review.placeId).doc(review.userId);
@@ -94,6 +115,7 @@ class FirestoreReviewRepository
         'status': 'public',
         'createdAt': FieldValue.serverTimestamp(),
       });
+      _userChanges.add(review.userId);
     } on FirebaseException catch (e) {
       throw AppException(
         e.code == 'permission-denied'
@@ -128,7 +150,9 @@ class FirestoreReviewRepository
       throw const AppException('Nội dung đánh giá cần ít nhất 10 ký tự.');
     }
     if (updateReviewHook != null) {
-      return updateReviewHook!(review);
+      await updateReviewHook!(review);
+      _userChanges.add(review.userId);
+      return;
     }
 
     final docRef = _reviewsCollection(review.placeId).doc(review.id);
@@ -145,6 +169,7 @@ class FirestoreReviewRepository
         'imageUrls': review.imageUrls,
         'updatedAt': FieldValue.serverTimestamp(),
       });
+      _userChanges.add(review.userId);
     } on FirebaseException catch (e) {
       throw AppException(
         e.code == 'permission-denied'
@@ -169,12 +194,15 @@ class FirestoreReviewRepository
       throw const AppException('Vui lòng đăng nhập để xóa đánh giá.');
     }
     if (deleteReviewHook != null) {
-      return deleteReviewHook!(userId, placeId, reviewId);
+      await deleteReviewHook!(userId, placeId, reviewId);
+      _userChanges.add(userId);
+      return;
     }
 
     final docRef = _reviewsCollection(placeId).doc(reviewId);
     try {
       await docRef.delete();
+      _userChanges.add(userId);
     } on FirebaseException catch (e) {
       throw AppException(
         e.code == 'permission-denied'
@@ -324,6 +352,121 @@ class FirestoreReviewRepository
     } catch (_) {
       throw const AppException(
         'Không tải được danh sách đánh giá. Vui lòng thử lại.',
+      );
+    }
+  }
+
+  @override
+  Stream<void> watchUserReviewChanges(String userId) {
+    if (userId.trim().isEmpty) return const Stream.empty();
+    if (watchUserReviewChangesHook != null) {
+      return watchUserReviewChangesHook!(userId);
+    }
+    return _userChanges.stream.where((id) => id == userId).map((_) {});
+  }
+
+  @override
+  Future<UserReviewSummary> getUserReviewSummary(String userId) async {
+    if (userId.trim().isEmpty) {
+      return const UserReviewSummary(
+        total: 0,
+        withPhotos: 0,
+        edited: 0,
+        isDemo: false,
+      );
+    }
+    if (getUserReviewSummaryHook != null) {
+      return getUserReviewSummaryHook!(userId);
+    }
+    try {
+      final snapshot = await _firestore!
+          .collectionGroup('reviews')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      final reviews = snapshot.docs.map(_fromDoc).toList();
+      return UserReviewSummary(
+        total: reviews.length,
+        withPhotos: reviews.where((r) => r.imageUrls.isNotEmpty).length,
+        edited: reviews.where((r) => r.updatedAt != null).length,
+        isDemo: false,
+      );
+    } on FirebaseException catch (e) {
+      throw AppException(
+        'Không tải được thống kê đánh giá cá nhân. Vui lòng thử lại.',
+        code: e.code,
+      );
+    } catch (_) {
+      throw const AppException(
+        'Không tải được thống kê đánh giá cá nhân. Vui lòng thử lại.',
+      );
+    }
+  }
+
+  @override
+  Future<ReviewPage> getUserReviews(
+    String userId, {
+    required UserReviewFilter filter,
+    String? cursor,
+    int pageSize = 10,
+  }) async {
+    if (pageSize < 1 || pageSize > 50) {
+      throw ArgumentError.value(pageSize, 'pageSize');
+    }
+    if (userId.trim().isEmpty) {
+      return ReviewPage(items: const [], totalCount: 0, isDemo: false);
+    }
+    if (getUserReviewsHook != null) {
+      return getUserReviewsHook!(userId, filter, cursor, pageSize);
+    }
+    try {
+      final snapshot = await _firestore!
+          .collectionGroup('reviews')
+          .where('userId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      var owned = snapshot.docs.map(_fromDoc).toList();
+      owned = owned
+          .where(
+            (r) => switch (filter) {
+              UserReviewFilter.all => true,
+              UserReviewFilter.withPhotos => r.imageUrls.isNotEmpty,
+              UserReviewFilter.edited => r.updatedAt != null,
+            },
+          )
+          .toList();
+
+      var start = 0;
+      if (cursor != null) {
+        final index = owned.indexWhere((r) => r.id == cursor);
+        if (index < 0) {
+          throw const AppException('Danh sách đã thay đổi. Vui lòng tải lại.');
+        }
+        start = index + 1;
+      }
+
+      final items = owned.skip(start).take(pageSize).toList();
+      final nextCursor = start + items.length < owned.length
+          ? items.last.id
+          : null;
+
+      return ReviewPage(
+        items: items,
+        totalCount: owned.length,
+        nextCursor: nextCursor,
+        isDemo: false,
+      );
+    } on AppException {
+      rethrow;
+    } on FirebaseException catch (e) {
+      throw AppException(
+        'Không tải được danh sách đánh giá cá nhân. Vui lòng thử lại.',
+        code: e.code,
+      );
+    } catch (_) {
+      throw const AppException(
+        'Không tải được danh sách đánh giá cá nhân. Vui lòng thử lại.',
       );
     }
   }
