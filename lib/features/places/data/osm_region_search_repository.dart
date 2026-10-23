@@ -32,18 +32,28 @@ class OsmRegionSearchRepository implements PlaceSearchRepository {
       );
     }
 
-    final nearby = await _places.findNearby(_center, radiusMeters: 5000);
     final scope = PlaceCategory.byId(request.categoryScope);
+    if (request.categoryScope != null && scope == null) {
+      throw const AppException('Danh mục không tồn tại.');
+    }
+    if (scope != null && !scope.isOsmSupported) {
+      throw const AppException(
+        'Nguồn OSM hiện chưa có dữ liệu phân loại món ăn cho danh mục này.',
+        code: 'unsupported_category',
+      );
+    }
+    final nearby = await _places.findNearby(_center, radiusMeters: 5000);
+    final scoped = nearby.where(
+      (place) => scope == null || scope.contains(place),
+    );
     final query = normalizePlaceSearchText(request.query);
     final categories = <String>{};
-    for (final place in nearby) {
+    for (final place in scoped) {
       categories.add(place.category);
       categories.addAll(place.foodCategories);
     }
-    final filtered = nearby
+    final filtered = scoped
         .where((place) {
-          if (scope != null && !scope.contains(place)) return false;
-          if (request.categoryScope != null && scope == null) return false;
           if (request.categories.isNotEmpty &&
               !request.categories.any(
                 (category) =>

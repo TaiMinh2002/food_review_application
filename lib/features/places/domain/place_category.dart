@@ -12,12 +12,23 @@ class PlaceCategory {
   final String id, label;
   final List<String> subcategories, tags;
 
+  /// These IDs correspond directly to amenity tags retained by the OSM package.
+  /// Cuisine-specific categories require source tags that this package lacks.
+  bool get isOsmSupported =>
+      const {'nha-hang', 'ca-phe', 'an-nhanh', 'khu-am-thuc'}.contains(id);
+
+  static List<PlaceCategory> get osmValues => values
+      .where((category) => category.isOsmSupported)
+      .toList(growable: false);
+
   bool contains(Place place) => {
     place.category,
     ...place.foodCategories,
   }.any((tag) => tag == label || tags.contains(tag));
 
   static const values = [
+    PlaceCategory('nha-hang', 'Nhà hàng'),
+    PlaceCategory('khu-am-thuc', 'Khu ẩm thực'),
     PlaceCategory(
       'mon-viet',
       'Món Việt',

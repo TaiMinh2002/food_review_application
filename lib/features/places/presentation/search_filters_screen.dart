@@ -63,7 +63,7 @@ class _SearchFiltersScreenState extends ConsumerState<SearchFiltersScreen> {
   @override
   Widget build(BuildContext context) {
     final options = ref.watch(
-      searchOptionsProvider(widget.initialRequest.categoryScope != null),
+      searchOptionsProvider(widget.initialRequest.categoryScope),
     );
     return Scaffold(
       appBar: AppBar(
@@ -137,23 +137,17 @@ class _SearchFiltersScreenState extends ConsumerState<SearchFiltersScreen> {
                     ),
                     onRetry: () => ref.invalidate(
                       searchOptionsProvider(
-                        widget.initialRequest.categoryScope != null,
+                        widget.initialRequest.categoryScope,
                       ),
                     ),
                   ),
                   data: (page) => Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if ((PlaceCategory.byId(_draft.categoryScope)
-                                      ?.subcategories ??
-                                  page.categories)
-                              .isNotEmpty ||
+                      if (_categoryOptions(page).isNotEmpty ||
                           _draft.categories.isNotEmpty) ...[
                         SearchCategorySection(
-                          categories:
-                              PlaceCategory.byId(_draft.categoryScope)
-                                  ?.subcategories ??
-                              page.categories,
+                          categories: _categoryOptions(page),
                           selected: _draft.categories,
                           onToggle: _toggleCategory,
                         ),
@@ -194,6 +188,12 @@ class _SearchFiltersScreenState extends ConsumerState<SearchFiltersScreen> {
         ),
       ),
     );
+  }
+
+  List<String> _categoryOptions(PlaceSearchPage page) {
+    final scope = PlaceCategory.byId(_draft.categoryScope);
+    if (scope == null) return page.categories;
+    return scope.subcategories.where(page.categories.contains).toList();
   }
 }
 

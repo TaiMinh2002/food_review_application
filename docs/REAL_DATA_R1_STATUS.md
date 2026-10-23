@@ -46,9 +46,9 @@ Tại Chợ Phùng Khoang có 245 restaurant, 245 cafe, 62 fast_food và 4 food_
 
 ## Còn thiếu trước khi R1 hoàn tất
 
-- Search/Category/Detail còn nguồn demo và thuộc các branch tính năng tương ứng.
-  Home và Map đã chia sẻ tâm, nhưng context filter/cursor/dataset version cho toàn
-  bộ Search/Category vẫn cần triển khai ở R2. Chưa import catalog Firestore nên
+- Search/Category đã chuyển nguồn OSM trong R2; xem
+  [REAL_DATA_R2_STATUS.md](REAL_DATA_R2_STATUS.md). Detail còn nguồn demo trên
+  branch tính năng riêng. Chưa import catalog Firestore nên
   chưa mở ghi review/favorite thật.
 - Chưa nghiệm thu GPS, tải nền và mở chỉ đường trên Android/iOS thực tế; chưa xác minh ít nhất vài quán quen tại Chợ Phùng Khoang bằng quan sát thực địa. 50 marker gần nhất không phải toàn bộ 556 POI; cần phân trang/cluster nếu muốn hiện hết ở một lần tìm.
 - Vùng ngoài bbox hỗ trợ cần gói bổ sung. Không dùng public Overpass làm backend production.
