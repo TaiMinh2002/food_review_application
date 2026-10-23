@@ -93,16 +93,48 @@ test('favorites are owner-scoped, validated and independent of wantToVisit', asy
   assert.equal((await assertSucceeds(getDocs(collection(db('alice'), 'users/alice/wantToVisit')))).size, 1);
 });
 
-test('review, collections and reports stay closed until their rules are implemented', async () => {
-  await env.withSecurityRulesDisabled(async (context) => {
-    await setDoc(doc(context.firestore(), 'places/osm_node_123/reviews/alice'), {
-      status: 'public', content: 'Một đánh giá có thật',
-    });
-  });
-  await assertFails(getDoc(doc(db(), 'places/osm_node_123/reviews/alice')));
-  await assertFails(setDoc(doc(db('alice'), 'places/osm_node_123/reviews/alice'), {
-    status: 'public', content: 'Một đánh giá có thật',
+test('reviews are owner-written, validated and readable when public', async () => {
+  const aliceReview = doc(db('alice'), 'places/osm_node_123/reviews/alice');
+  const validData = {
+    placeId: 'osm_node_123',
+    userId: 'alice',
+    authorName: 'Alice',
+    rating: 5,
+    content: 'Phở bò ở đây rất ngon và nước dùng thanh mát!',
+    status: 'public',
+    createdAt: serverTimestamp(),
+  };
+
+  // Alice can create her review
+  await assertSucceeds(setDoc(aliceReview, validData));
+
+  // Guest & Bob can read public review
+  assert.equal((await assertSucceeds(getDoc(doc(db(), 'places/osm_node_123/reviews/alice')))).exists(), true);
+  assert.equal((await assertSucceeds(getDoc(doc(db('bob'), 'places/osm_node_123/reviews/alice')))).exists(), true);
+
+  // Bob cannot modify or delete Alice's review
+  await assertFails(updateDoc(aliceReview, { content: 'Bob sửa lén bài này', updatedAt: serverTimestamp() }));
+  await assertFails(deleteDoc(doc(db('bob'), 'places/osm_node_123/reviews/alice')));
+
+  // Alice can update her review
+  await assertSucceeds(updateDoc(aliceReview, {
+    content: 'Phở bò ở đây rất ngon, phục vụ nhanh!',
+    updatedAt: serverTimestamp(),
   }));
+
+  // Invalid data rejected (e.g. rating > 5 or content too short)
+  await assertFails(setDoc(doc(db('bob'), 'places/osm_node_123/reviews/bob'), {
+    ...validData,
+    userId: 'bob',
+    rating: 6,
+  }));
+  await assertFails(setDoc(doc(db('bob'), 'places/osm_node_123/reviews/bob'), {
+    ...validData,
+    userId: 'bob',
+    content: 'Quá ngắn',
+  }));
+
+  // Collections and reports remain closed
   await assertFails(setDoc(doc(db('alice'), 'users/alice/collections/one'), { name: 'Ăn ngon' }));
   await assertFails(setDoc(doc(db('alice'), 'reports/alice/submissions/one'), { reason: 'spam' }));
 });

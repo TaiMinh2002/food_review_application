@@ -48,7 +48,6 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   int _rating = 4;
   String? _companion = 'Bạn bè';
   DateTime? _visitDate = DateTime.now();
-  bool _seededPhotos = false;
   bool _seededReview = false;
 
   static const _ratingLabels = <int, String>{
@@ -77,16 +76,6 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     _title.dispose();
     _body.dispose();
     super.dispose();
-  }
-
-  void _seedPhotos(Place place) {
-    if (_seededPhotos) return;
-    _seededPhotos = true;
-    _photos.addAll(
-      place.imageUrls
-          .take(2)
-          .map((url) => _ReviewPhoto(url: url, label: 'Ảnh món ăn')),
-    );
   }
 
   void _seedReview(Review review) {
@@ -146,6 +135,20 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     final controller = ref.read(
       reviewWriteControllerProvider(widget.scope).notifier,
     );
+    final existingUrls = _photos
+        .where((photo) => photo.url != null && photo.bytes == null)
+        .map((photo) => photo.url!)
+        .toList();
+    final newPhotos = _photos
+        .where((photo) => photo.bytes != null)
+        .map(
+          (photo) => (
+            bytes: photo.bytes!,
+            filename: photo.label ?? 'review_photo.jpg',
+          ),
+        )
+        .toList();
+
     if (widget.reviewId case final reviewId?) {
       final existing = ref
           .read(
@@ -166,10 +169,8 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
         visitDate: _visitDate,
         companion: _companion,
         createdAt: existing.createdAt,
-        imageUrls: _photos
-            .map((photo) => photo.url ?? '')
-            .where((url) => url.isNotEmpty)
-            .toList(),
+        imageUrls: existingUrls,
+        newPhotos: newPhotos,
       );
     } else {
       await controller.submit(
@@ -179,10 +180,8 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
         content: _body.text,
         visitDate: _visitDate,
         companion: _companion,
-        imageUrls: _photos
-            .map((photo) => photo.url ?? '')
-            .where((url) => url.isNotEmpty)
-            .toList(),
+        imageUrls: existingUrls,
+        newPhotos: newPhotos,
       );
     }
     if (!mounted) return;
@@ -292,7 +291,6 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   }
 
   Widget _content(Place place, bool busy, AsyncValue<void> operation) {
-    if (widget.reviewId == null) _seedPhotos(place);
     return CustomScrollView(
       key: PageStorageKey('write-review-${place.id}'),
       slivers: [

@@ -46,14 +46,43 @@ service cloud.firestore {
         request.resource.data.updatedAt == request.time;
     }
 
+    function validReviewData(placeKey, uid) {
+      let data = request.resource.data;
+      return data.keys().hasAll(['placeId', 'userId', 'rating', 'content', 'status', 'createdAt']) &&
+        data.keys().hasOnly([
+          'placeId', 'userId', 'authorName', 'rating', 'title', 'content',
+          'visitDate', 'companion', 'dishes', 'imageUrls', 'status',
+          'createdAt', 'updatedAt'
+        ]) &&
+        data.placeId == placeKey &&
+        data.userId == uid &&
+        data.status in ['public', 'hidden'] &&
+        data.rating is int && data.rating >= 1 && data.rating <= 5 &&
+        data.content is string && data.content.size() >= 10 && data.content.size() <= 3000 &&
+        data.get('authorName', '') is string && data.get('authorName', '').size() <= 60 &&
+        data.get('title', '') is string && data.get('title', '').size() <= 100 &&
+        data.get('companion', '') is string && data.get('companion', '').size() <= 50 &&
+        data.get('imageUrls', []) is list && data.get('imageUrls', []).size() <= 10 &&
+        data.get('dishes', []) is list && data.get('dishes', []).size() <= 20;
+    }
+
     match /places/{placeKey} {
       allow get: if validPlaceKey(placeKey) && resource.data.status == 'active';
       allow list, create, update, delete: if false;
 
-      // R4 will open only published reads and owner writes after review rules
-      // and emulator tests are implemented. Unreviewed content stays private.
       match /reviews/{reviewId} {
-        allow read, write: if false;
+        allow read: if resource.data.status == 'public' || signedInAs(reviewId);
+        allow create: if signedInAs(reviewId) &&
+          validReviewData(placeKey, reviewId) &&
+          request.resource.data.status == 'public' &&
+          request.resource.data.createdAt == request.time;
+        allow update: if signedInAs(reviewId) &&
+          validReviewData(placeKey, reviewId) &&
+          request.resource.data.createdAt == resource.data.createdAt &&
+          request.resource.data.userId == resource.data.userId &&
+          request.resource.data.placeId == resource.data.placeId &&
+          request.resource.data.updatedAt == request.time;
+        allow delete: if signedInAs(reviewId);
       }
     }
 
