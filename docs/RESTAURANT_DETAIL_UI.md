@@ -61,13 +61,18 @@ Palette linen/forest và dark dùng design system của repository.
 | Tùy chọn nhận xét | Mở T25 với targetType=review, restaurantId, reviewId |
 | Báo cáo quán | Mở T25 với targetType=place, restaurantId |
 | Viết đánh giá | Mở T13 đúng restaurantId; T10 đã có Auth gate và returnTo, khách cần đăng nhập |
-| Chỉ đường / Xem bản đồ | Chuyển tab Map với restaurantId; GPS, marker và chỉ đường thật chờ T08 |
+| Chỉ đường / Xem bản đồ | "Xem trên bản đồ" mở tab Map tại đúng quán; "Chỉ đường ngoài" mở ứng dụng bản đồ bên ngoài (Google/Apple Maps) qua tọa độ thực |
 
-Ở thời điểm task T04, T09a/T09b/T10/T13/T24/T25 chưa triển khai. Hiện T09a và T09b
-đã có UI/demo; xem [ALL_REVIEWS_UI.md](ALL_REVIEWS_UI.md) và [GALLERY_UI.md](GALLERY_UI.md).
-Route placeholder còn lại ghi rõ
-task còn thiếu; không giả lưu backend, đăng review, chia sẻ hay gửi báo cáo.
-Backend phải xác minh quyền và dữ liệu khi các luồng đó được triển khai.
+### Nối dữ liệu OpenStreetMap (23/10/2026 — R2)
+
+Restaurant Detail đã được nối với nguồn dữ liệu quán thật từ gói OSM Hà Nội (`assets/osm/hanoi_urban_places.json`):
+- `placeProvider(id)` hỗ trợ lookup POI OSM độc lập với tâm tìm kiếm hiện tại thông qua `osmRegionPlaceRepositoryProvider` và `OsmRegionPlaceRepository`.
+- Hiển thị tên, danh mục OSM thật (Nhà hàng, Cà phê, Ăn nhanh, Khu ẩm thực), địa chỉ OSM nếu có (hoặc thông báo "Chưa cập nhật địa chỉ cụ thể" nếu thiếu thẻ địa chỉ).
+- Tính khoảng cách đường chim bay từ tâm khám phá hiện tại (GPS hoặc Chợ Phùng Khoang) hoặc hiển thị tọa độ thực tế nếu chưa chọn tâm.
+- Dữ liệu thiếu được hiển thị trung thực: placeholder ảnh chuẩn theme, "Quán chưa cập nhật thực đơn", "Chưa có đánh giá".
+- Nút "Chỉ đường" ở thanh giá dưới mở Map với quán đã chọn; nút "Chỉ đường ngoài" trong panel địa chỉ mở ứng dụng dẫn đường ngoài qua tọa độ thực tế.
+- Ghi nhận bản quyền dữ liệu mở: "Dữ liệu nguồn OpenStreetMap · © OpenStreetMap contributors (ODbL)".
+- Bộ test `test/osm_place_detail_test.dart` (14 test cases) kiểm tra đầy đủ các luồng dữ liệu thật, fallback, và render light/dark.
 
 ## Kiểm chứng
 

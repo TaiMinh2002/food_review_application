@@ -20,12 +20,16 @@ class PlaceDetailOverview extends StatelessWidget {
     required this.onGallery,
     required this.onMap,
     required this.quickActions,
+    this.distanceLabel,
+    this.onDirections,
   });
   final Place place;
   final int photoIndex;
   final ValueChanged<int> onPhotoChanged;
   final VoidCallback onGallery, onMap;
+  final VoidCallback? onDirections;
   final Widget quickActions;
+  final String? distanceLabel;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -162,6 +166,16 @@ class PlaceDetailOverview extends StatelessWidget {
                             color: context.colors.secondary,
                           ),
                         ),
+                      )
+                    else if (place.id.startsWith('osm_'))
+                      Padding(
+                        padding: const EdgeInsets.only(top: AppSpacing.sm),
+                        child: Text(
+                          'Dữ liệu nguồn OpenStreetMap · © OpenStreetMap contributors (ODbL)',
+                          style: context.textStyles.labelSmall?.copyWith(
+                            color: context.colors.onSurfaceVariant,
+                          ),
+                        ),
                       ),
                     const SizedBox(height: AppSpacing.lg),
                     _InfoPanel(
@@ -175,20 +189,36 @@ class PlaceDetailOverview extends StatelessWidget {
                     const SizedBox(height: AppSpacing.md),
                     _InfoPanel(
                       icon: Icons.location_on_outlined,
-                      title: place.address,
+                      title: place.address.isNotEmpty
+                          ? place.address
+                          : 'Chưa cập nhật địa chỉ cụ thể',
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Chưa sử dụng vị trí của bạn',
+                            distanceLabel ??
+                                (place.latitude != 0 || place.longitude != 0
+                                    ? 'Tọa độ: ${place.latitude.toStringAsFixed(4)}, ${place.longitude.toStringAsFixed(4)}'
+                                    : 'Chưa sử dụng vị trí của bạn'),
                             style: context.textStyles.bodySmall?.copyWith(
                               color: context.colors.onSurfaceVariant,
                             ),
                           ),
-                          TextButton.icon(
-                            onPressed: onMap,
-                            icon: const Icon(Icons.directions, size: 18),
-                            label: const Text('Xem bản đồ'),
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              TextButton.icon(
+                                onPressed: onMap,
+                                icon: const Icon(Icons.map_outlined, size: 18),
+                                label: const Text('Xem trên bản đồ'),
+                              ),
+                              if (onDirections != null)
+                                TextButton.icon(
+                                  onPressed: onDirections,
+                                  icon: const Icon(Icons.turn_right, size: 18),
+                                  label: const Text('Chỉ đường ngoài'),
+                                ),
+                            ],
                           ),
                         ],
                       ),
