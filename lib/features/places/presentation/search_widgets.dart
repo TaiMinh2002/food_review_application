@@ -222,12 +222,14 @@ class SearchBottomBar extends StatelessWidget {
 
 Future<PlaceSearchSort?> showSearchSort(
   BuildContext context,
-  PlaceSearchSort selected,
-) => showAppBottomSheet<PlaceSearchSort>(
+  PlaceSearchSort selected, {
+  bool realData = false,
+}) => showAppBottomSheet<PlaceSearchSort>(
   context,
   title: 'Sắp xếp theo',
   builder: (context) => SearchSortChoices(
     selected: selected,
+    realData: realData,
     onSelected: (sort) => Navigator.pop(context, sort),
   ),
 );
@@ -237,9 +239,11 @@ class SearchSortChoices extends StatelessWidget {
     super.key,
     required this.selected,
     required this.onSelected,
+    this.realData = false,
   });
   final PlaceSearchSort selected;
   final ValueChanged<PlaceSearchSort> onSelected;
+  final bool realData;
   @override
   Widget build(BuildContext context) => Card(
     child: Padding(
@@ -260,12 +264,19 @@ class SearchSortChoices extends StatelessWidget {
                 PlaceSearchSort.price => Icons.sell_outlined,
               }),
               title: Text(sort.label),
+              subtitle: realData && sort != PlaceSearchSort.relevance
+                  ? const Text('Chưa có dữ liệu xác thực để sắp xếp')
+                  : sort == PlaceSearchSort.relevance
+                  ? const Text('Gần khu vực đã chọn, trong bán kính 5 km')
+                  : null,
               trailing: Icon(
                 selected == sort
                     ? Icons.check_circle_outline
                     : Icons.circle_outlined,
               ),
-              onTap: () => onSelected(sort),
+              onTap: !realData || sort == PlaceSearchSort.relevance
+                  ? () => onSelected(sort)
+                  : null,
             ),
           ListTile(
             enabled: false,

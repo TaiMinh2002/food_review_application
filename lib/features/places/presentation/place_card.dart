@@ -17,12 +17,14 @@ class PlaceCard extends ConsumerWidget {
     required this.place,
     this.compact = true,
     this.onOpen,
+    this.openOnMap = false,
     this.imageAspectRatio = 16 / 9,
     this.insetImage = false,
   });
 
   final Place place;
   final VoidCallback? onOpen;
+  final bool openOnMap;
   final bool compact;
   final bool insetImage;
   final double imageAspectRatio;
@@ -56,11 +58,17 @@ class PlaceCard extends ConsumerWidget {
         isFavorite: isFavorite,
         onTap: () {
           onOpen?.call();
-          context.push(
-            AppRoute.restaurant.location(
-              parameters: {'restaurantId': place.id},
-            ),
-          );
+          if (openOnMap) {
+            context.go(
+              AppRoute.map.location(query: {'restaurantId': place.id}),
+            );
+          } else {
+            context.push(
+              AppRoute.restaurant.location(
+                parameters: {'restaurantId': place.id},
+              ),
+            );
+          }
         },
         onFavorite: () => requestFavorite(context, ref, place.id),
       ),

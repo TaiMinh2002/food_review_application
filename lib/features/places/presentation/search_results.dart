@@ -14,12 +14,14 @@ class PlaceSearchResults extends StatelessWidget {
     required this.onReset,
     this.onOpen,
     this.insetCards = false,
+    this.openRealPlacesOnMap = false,
     this.emptyState,
   });
   final PlaceSearchState state;
   final VoidCallback onRetry, onLoadMore, onReset;
   final VoidCallback? onOpen;
   final bool insetCards;
+  final bool openRealPlacesOnMap;
   final Widget? emptyState;
 
   @override
@@ -65,6 +67,7 @@ class PlaceSearchResults extends StatelessWidget {
             itemBuilder: (_, index) => PlaceCard(
               place: state.items[index],
               onOpen: onOpen,
+              openOnMap: openRealPlacesOnMap && !state.isDemo,
               compact: !insetCards,
               insetImage: insetCards,
               imageAspectRatio: insetCards ? 1.85 : 16 / 9,

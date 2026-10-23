@@ -62,7 +62,9 @@ class _SearchFiltersScreenState extends ConsumerState<SearchFiltersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final options = ref.watch(searchOptionsProvider);
+    final options = ref.watch(
+      searchOptionsProvider(widget.initialRequest.categoryScope != null),
+    );
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 64,
@@ -82,9 +84,7 @@ class _SearchFiltersScreenState extends ConsumerState<SearchFiltersScreen> {
                 PlaceSearchRequest(
                   query: _draft.query,
                   categoryScope: widget.initialRequest.categoryScope,
-                  sort: widget.initialRequest.categoryScope == null
-                      ? PlaceSearchSort.relevance
-                      : PlaceSearchSort.rating,
+                  sort: PlaceSearchSort.relevance,
                 ),
               ),
               onSubmit: options.hasValue ? _apply : null,
@@ -135,7 +135,11 @@ class _SearchFiltersScreenState extends ConsumerState<SearchFiltersScreen> {
                       error,
                       fallback: 'Không tải được lựa chọn bộ lọc.',
                     ),
-                    onRetry: () => ref.invalidate(searchOptionsProvider),
+                    onRetry: () => ref.invalidate(
+                      searchOptionsProvider(
+                        widget.initialRequest.categoryScope != null,
+                      ),
+                    ),
                   ),
                   data: (page) => Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -157,140 +161,11 @@ class _SearchFiltersScreenState extends ConsumerState<SearchFiltersScreen> {
                       ],
                       const AppSectionHeader(title: 'Bộ lọc chi tiết'),
                       const SizedBox(height: 12),
-                      _FilterGroup(
-                        title: 'Đánh giá',
-                        child: _ChoiceGrid(
-                          choices: [
-                            for (final rating in <double?>[null, 3, 4, 4.5])
-                              (
-                                label: rating == null
-                                    ? 'Tất cả'
-                                    : 'Từ ${rating == rating.roundToDouble() ? rating.toInt() : rating} sao ★',
-                                selected: _draft.minRating == rating,
-                                onTap: () => _change(
-                                  _draft.copyWith(
-                                    minRating: rating,
-                                    clearRating: rating == null,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _FilterGroup(
-                        title: 'Khoảng giá (VND)',
-                        subtitle: 'Khoảng giá quán có giao với mức chọn',
-                        child: _ChoiceGrid(
-                          choices: [
-                            for (final range
-                                in const <({String label, int? min, int? max})>[
-                                  (
-                                    label: 'Dưới 50.000đ',
-                                    min: null,
-                                    max: 49999,
-                                  ),
-                                  (
-                                    label: '50.000đ – 100.000đ',
-                                    min: 50000,
-                                    max: 100000,
-                                  ),
-                                  (
-                                    label: '100.000đ – 200.000đ',
-                                    min: 100000,
-                                    max: 200000,
-                                  ),
-                                  (
-                                    label: 'Trên 200.000đ',
-                                    min: 200001,
-                                    max: null,
-                                  ),
-                                ])
-                              (
-                                label: range.label,
-                                selected:
-                                    _draft.minPrice == range.min &&
-                                    _draft.maxPrice == range.max,
-                                onTap: () => _change(
-                                  _draft.copyWith(
-                                    clearPrice: true,
-                                    minPrice: range.min,
-                                    maxPrice: range.max,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
                       const _FilterGroup(
-                        title: 'Khoảng cách',
-                        subtitle: 'Chưa có vị trí để tính khoảng cách.',
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 4,
-                          children: [
-                            AppChip(
-                              label: '< 1 km',
-                              icon: Icons.near_me_outlined,
-                            ),
-                            AppChip(
-                              label: '< 3 km',
-                              icon: Icons.near_me_outlined,
-                            ),
-                            AppChip(
-                              label: '< 5 km',
-                              icon: Icons.near_me_outlined,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _FilterGroup(
-                        title: 'Giờ phục vụ và tiện ích',
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            const SwitchListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text('Đang mở cửa'),
-                              subtitle: Text(
-                                'Chưa có lịch phục vụ được xác minh',
-                              ),
-                              value: false,
-                              onChanged: null,
-                            ),
-                            const Divider(),
-                            const Text('Tiện ích đi kèm'),
-                            const SizedBox(height: 8),
-                            if (page.amenities.isEmpty)
-                              const Text('Chưa có thông tin tiện ích.')
-                            else
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 4,
-                                children: [
-                                  for (final amenity in page.amenities)
-                                    AppChip(
-                                      label: amenity,
-                                      selected: _draft.amenities.contains(
-                                        amenity,
-                                      ),
-                                      onSelected: (selected) {
-                                        final values = {..._draft.amenities};
-                                        if (selected) {
-                                          values.add(amenity);
-                                        } else {
-                                          values.remove(amenity);
-                                        }
-                                        _change(
-                                          _draft.copyWith(amenities: values),
-                                        );
-                                      },
-                                    ),
-                                ],
-                              ),
-                          ],
+                        title: 'Dữ liệu bộ lọc',
+                        subtitle: 'Nguồn OpenStreetMap hiện chỉ xác nhận vị trí, tên và danh mục. Đánh giá, giá, giờ mở cửa và tiện ích sẽ khả dụng khi có nguồn dữ liệu xác thực.',
+                        child: Text(
+                          'Bán kính tìm kiếm được cố định ở 5 km quanh vị trí đã chọn.',
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -298,6 +173,7 @@ class _SearchFiltersScreenState extends ConsumerState<SearchFiltersScreen> {
                       const SizedBox(height: 12),
                       SearchSortChoices(
                         selected: _draft.sort,
+                        realData: !page.isDemo,
                         onSelected: (sort) =>
                             _change(_draft.copyWith(sort: sort)),
                       ),
@@ -348,47 +224,5 @@ class _FilterGroup extends StatelessWidget {
         ],
       ),
     ),
-  );
-}
-
-class _ChoiceGrid extends StatelessWidget {
-  const _ChoiceGrid({required this.choices});
-  final List<({String label, bool selected, VoidCallback onTap})> choices;
-  @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      final columns =
-          constraints.maxWidth < 240 ||
-              MediaQuery.textScalerOf(context).scale(14) > 20
-          ? 1
-          : 2;
-      return Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          for (final choice in choices)
-            SizedBox(
-              width: (constraints.maxWidth - (columns - 1) * 8) / columns,
-              child: FilledButton.tonal(
-                onPressed: choice.onTap,
-                style: FilledButton.styleFrom(
-                  backgroundColor: choice.selected
-                      ? context.colors.primary
-                      : context.colors.surfaceContainerLow,
-                  foregroundColor: choice.selected
-                      ? context.colors.onPrimary
-                      : context.colors.onSurface,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 12,
-                  ),
-                  minimumSize: const Size(48, 48),
-                ),
-                child: Text(choice.label, textAlign: TextAlign.center),
-              ),
-            ),
-        ],
-      );
-    },
   );
 }
