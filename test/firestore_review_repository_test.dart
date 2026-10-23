@@ -7,6 +7,7 @@ import 'package:food_review/features/reviews/data/cloudinary_review_photo_upload
 import 'package:food_review/features/reviews/data/firestore_review_repository.dart';
 import 'package:food_review/features/reviews/domain/review.dart';
 import 'package:food_review/features/reviews/domain/review_feed_repository.dart';
+import 'package:food_review/features/reviews/domain/user_review_repository.dart';
 
 void main() {
   group('FirestoreReviewRepository unit tests', () {
@@ -266,6 +267,108 @@ void main() {
       );
       expect(page.items, hasLength(1));
       expect(page.items.first.content, 'Ngon tuyệt vời!');
+    });
+
+    test(
+      'getUserReviewSummary returns empty for empty userId or via hook',
+      () async {
+        final repo = FirestoreReviewRepository(
+          null,
+          getUserReviewSummaryHook: (userId) async => const UserReviewSummary(
+            total: 5,
+            withPhotos: 3,
+            edited: 1,
+            isDemo: false,
+          ),
+        );
+
+        final empty = await repo.getUserReviewSummary('');
+        expect(empty.total, 0);
+
+        final summary = await repo.getUserReviewSummary('u1');
+        expect(summary.total, 5);
+        expect(summary.withPhotos, 3);
+        expect(summary.edited, 1);
+      },
+    );
+
+    test(
+      'getUserReviews validates pageSize and returns page via hook',
+      () async {
+        final repo = FirestoreReviewRepository(
+          null,
+          getUserReviewsHook: (userId, filter, cursor, pageSize) async =>
+              ReviewPage(
+                items: [
+                  Review(
+                    id: 'u1',
+                    placeId: 'pho-demo',
+                    userId: userId,
+                    rating: 5,
+                    content: 'Phở bò nước dùng trong và ngọt.',
+                    createdAt: DateTime.now(),
+                  ),
+                ],
+                totalCount: 1,
+              ),
+        );
+
+        expect(
+          () => repo.getUserReviews(
+            'u1',
+            filter: UserReviewFilter.all,
+            pageSize: 0,
+          ),
+          throwsA(isA<ArgumentError>()),
+        );
+        expect(
+          () => repo.getUserReviews(
+            'u1',
+            filter: UserReviewFilter.all,
+            pageSize: 51,
+          ),
+          throwsA(isA<ArgumentError>()),
+        );
+
+        final empty = await repo.getUserReviews(
+          '',
+          filter: UserReviewFilter.all,
+        );
+        expect(empty.items, isEmpty);
+
+        final page = await repo.getUserReviews(
+          'u1',
+          filter: UserReviewFilter.all,
+        );
+        expect(page.items, hasLength(1));
+        expect(page.items.first.content, contains('nước dùng'));
+      },
+    );
+
+    test('watchUserReviewChanges emits when review created', () async {
+      final repo = FirestoreReviewRepository(
+        null,
+        saveReview: (review) async {},
+      );
+
+      final emitted = <void>[];
+      final sub = repo.watchUserReviewChanges('u1').listen((event) {
+        emitted.add(event);
+      });
+      addTearDown(sub.cancel);
+
+      await repo.create(
+        Review(
+          id: 'u1',
+          placeId: 'p1',
+          userId: 'u1',
+          rating: 5,
+          content: 'Nội dung đánh giá hợp lệ.',
+          createdAt: DateTime.now(),
+        ),
+      );
+
+      expect(emitted, hasLength(1));
     });
   });
 

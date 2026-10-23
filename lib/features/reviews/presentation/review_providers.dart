@@ -21,7 +21,9 @@ final reviewRepositoryProvider = Provider<ReviewRepository>((ref) {
     ref.onDispose(repository.dispose);
     return repository;
   }
-  return FirestoreReviewRepository(FirebaseFirestore.instance);
+  final repository = FirestoreReviewRepository(FirebaseFirestore.instance);
+  ref.onDispose(repository.dispose);
+  return repository;
 });
 
 /// Only a bounded preview; the full list/pagination belongs to T09a.
