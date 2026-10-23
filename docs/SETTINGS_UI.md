@@ -22,8 +22,8 @@ màn **19 - Settings**, screen `74348ac3dfde4af39bf85773df28f817` (HTML và ản
 - Thẻ tài khoản và Chỉnh sửa hồ sơ mở form T18; Back về Settings.
 - Đặt lại mật khẩu mở luồng T12 gửi liên kết email; không giả là đổi mật khẩu trực tiếp.
 - Chế độ hiển thị mở bottom sheet Sáng/Tối/Hệ thống, dùng `themeModeProvider` hiện có;
-  thay đổi toàn app, giữ khi chuyển route. **Chỉ lưu trong phiên**, khởi động lại dùng
-  mặc định hệ thống. Không thêm package persistence; giới hạn này có ghi trên UI.
+  thay đổi toàn app, giữ khi chuyển route. **Đã hỗ trợ lưu qua khởi động lại** bằng
+  `SharedPreferencesThemeRepository` (gói `shared_preferences`), không ghi vào public profile.
 - `SignOutAction` dùng chung ở Profile và Settings: xác nhận/Huỷ, chống submit trùng,
   lỗi an toàn/retry qua `signOutControllerProvider` → `AuthRepository.signOut()`.
   Xác nhận của user cũ không đăng xuất user mới nếu session đổi khi dialog mở.
@@ -37,8 +37,7 @@ màn **19 - Settings**, screen `74348ac3dfde4af39bf85773df28f817` (HTML và ản
 Tính năng thông báo và nhóm cài đặt thông báo đã loại bỏ theo yêu cầu ngày 22/10/2026.
 Xem [NOTIFICATIONS_UI.md](NOTIFICATIONS_UI.md).
 Quản lý quyền hiển thị, trung tâm trợ giúp, điều khoản và chính sách chưa có dịch vụ/nội dung được công bố; các hàng hiển thị
-lý do chưa khả dụng, không điều hướng giả hoặc báo thành công giả. Chưa có lưu theme
-qua restart. Không thêm fixture tài khoản vào production; ảnh test dùng `ControlledAuth`.
+lý do chưa khả dụng, không điều hướng giả hoặc báo thành công giả. Không thêm fixture tài khoản vào production; ảnh test dùng `ControlledAuth`.
 Các giới hạn RAM demo của Favorite/Want to Visit/Reviews vẫn theo tài liệu từng feature.
 
 ## Kiểm chứng

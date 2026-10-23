@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../core/errors/app_exception.dart';
@@ -29,8 +30,10 @@ AppException authFailure(String code) => AppException(switch (code) {
 }, code: code);
 
 class FirebaseAuthRepository implements AuthRepository {
-  FirebaseAuthRepository(this.auth);
+  FirebaseAuthRepository(this.auth, {this.firestore, this.onUserCreated});
   final FirebaseAuth auth;
+  final FirebaseFirestore? firestore;
+  final Future<void> Function(String userId, String displayName)? onUserCreated;
   @override
   Stream<UserProfile?> authStateChanges() => auth
       .userChanges()
@@ -96,14 +99,28 @@ class FirebaseAuthRepository implements AuthRepository {
           code: 'account-not-created',
         );
       }
+      final cleanName = displayName.trim();
       try {
-        await user.updateDisplayName(displayName.trim());
+        await user.updateDisplayName(cleanName);
       } on FirebaseAuthException catch (error) {
         throw AppException(
           'Tài khoản đã được tạo nhưng chưa lưu được tên hiển thị. '
           'Bạn có thể đăng nhập và cập nhật lại.',
           code: error.code,
         );
+      }
+      if (onUserCreated != null) {
+        try {
+          await onUserCreated!(user.uid, cleanName);
+        } catch (_) {}
+      } else if (firestore != null) {
+        try {
+          await firestore!.collection('users').doc(user.uid).set({
+            'displayName': cleanName,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (_) {}
       }
     } on FirebaseAuthException catch (error) {
       throw authFailure(error.code);
