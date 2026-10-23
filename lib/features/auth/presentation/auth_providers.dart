@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +10,10 @@ import '../domain/auth_repository.dart';
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => Firebase.apps.isEmpty
       ? UnavailableAuthRepository()
-      : FirebaseAuthRepository(FirebaseAuth.instance),
+      : FirebaseAuthRepository(
+          FirebaseAuth.instance,
+          firestore: FirebaseFirestore.instance,
+        ),
 );
 final authSessionProvider = StreamProvider<UserProfile?>(
   (ref) => ref.watch(authRepositoryProvider).authStateChanges(),

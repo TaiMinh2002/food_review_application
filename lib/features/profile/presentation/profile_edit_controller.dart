@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +14,10 @@ import '../domain/profile_repository.dart';
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
   return Firebase.apps.isEmpty
       ? UnavailableProfileRepository()
-      : FirebaseProfileRepository(FirebaseAuth.instance);
+      : FirebaseProfileRepository(
+          FirebaseAuth.instance,
+          firestore: FirebaseFirestore.instance,
+        );
 });
 
 final profilePhotoRepositoryProvider = Provider<ProfilePhotoRepository>((ref) {
