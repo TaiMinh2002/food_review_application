@@ -240,10 +240,10 @@ void main() {
         canvas.controller.camera.center.longitude,
         closeTo(105.8342, 0.00001),
       );
+      expect(canvas.places, isNotEmpty);
       expect(
-        canvas.places,
-        isEmpty,
-        reason: 'Demo restaurants are in HCMC, not near the Hanoi fix',
+        canvas.places.every((place) => place.id.startsWith('osm_')),
+        isTrue,
       );
       expect(source.calls, 1);
       expect(tester.takeException(), isNull);

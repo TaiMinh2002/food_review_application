@@ -127,6 +127,12 @@ Nguồn: `02 - Home`, screen `be51296ba5444ed0b0fc92ac5495ad7a`.
 
 **Đạt khi:** ảnh chụp đối chiếu đủ các khối Home, không overflow; card mở đúng quán. CTA đến feature chưa xong được theo dõi và kiểm chứng lại khi feature hoàn tất.
 
+**Cập nhật dữ liệu 23/10/2026:** Các khối gợi ý, yêu thích và CTA review ở checklist
+trên là trạng thái UI/demo ban đầu, đã gỡ khỏi Home runtime vì chưa có nguồn
+thật. Home hiện truy vấn POI OSM 5 km, chọn tâm chung với Map, tìm tên/loại
+trong vùng và mở marker. Search/Category/Detail tiếp tục trong R2 trên các
+nhánh tính năng tương ứng; xem [HOME_UI.md](HOME_UI.md).
+
 **Bằng chứng T03:** [HOME_UI.md](HOME_UI.md). Search/lọc danh mục tại chỗ được giữ theo yêu cầu; submit mở T05, filter mở T06; “Xem danh mục” mở T07 theo lựa chọn hiện tại. Auth gate và thống kê tuần chưa hoàn tất. UI đã kiểm tra bằng render/test, chưa có xác nhận duyệt của người dùng.
 
 ### Đợt B — Khám phá và đọc nội dung

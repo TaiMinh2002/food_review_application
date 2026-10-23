@@ -18,6 +18,7 @@ class AppRestaurantCard extends StatelessWidget {
     this.distanceLabel,
     this.rating = 0,
     this.reviewCount = 0,
+    this.showReviewSummary = true,
     this.isFavorite = false,
     this.favoriteIcon = Icons.favorite,
     this.favoriteBorderIcon = Icons.favorite_border,
@@ -34,7 +35,7 @@ class AppRestaurantCard extends StatelessWidget {
   final String? imageUrl, address, priceLabel, distanceLabel, badge;
   final double rating, imageAspectRatio;
   final int reviewCount;
-  final bool isFavorite, compact, insetImage;
+  final bool isFavorite, compact, insetImage, showReviewSummary;
   final IconData favoriteIcon, favoriteBorderIcon;
   final String? favoriteLabel;
   final bool? isOpen;
@@ -65,12 +66,13 @@ class AppRestaurantCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    if (reviewCount > 0) AppRating(value: rating),
+                    if (showReviewSummary && reviewCount > 0)
+                      AppRating(value: rating),
                   ],
                 ),
               const SizedBox(height: 4),
               Text(
-                compact || reviewCount == 0
+                compact || !showReviewSummary || reviewCount == 0
                     ? category
                     : '$category · $reviewCount đánh giá',
                 style: context.textStyles.bodySmall?.copyWith(
@@ -78,9 +80,9 @@ class AppRestaurantCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              if (compact && reviewCount > 0)
+              if (showReviewSummary && compact && reviewCount > 0)
                 AppRating(value: rating, count: reviewCount)
-              else if (reviewCount == 0)
+              else if (showReviewSummary && reviewCount == 0)
                 Text('Chưa có đánh giá', style: context.textStyles.bodySmall),
               if (priceLabel != null)
                 Padding(
@@ -219,7 +221,7 @@ class AppRestaurantCard extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 6),
-      if (reviewCount > 0)
+      if (showReviewSummary && reviewCount > 0)
         Wrap(
           spacing: 8,
           crossAxisAlignment: WrapCrossAlignment.center,
@@ -231,7 +233,7 @@ class AppRestaurantCard extends StatelessWidget {
             ),
           ],
         )
-      else
+      else if (showReviewSummary)
         Text('Chưa có đánh giá', style: context.textStyles.labelSmall),
       const SizedBox(height: 8),
       Wrap(

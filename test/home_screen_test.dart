@@ -1,201 +1,281 @@
+import 'dart:async';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:food_review/app/food_review_app.dart';
+import 'package:food_review/core/theme/theme_mode_provider.dart';
+import 'package:food_review/features/places/domain/nearby_place_repository.dart';
+import 'package:food_review/features/places/data/osm_region_place_repository.dart';
+import 'package:food_review/features/places/domain/place.dart';
+import 'package:food_review/features/places/domain/place_map_repository.dart';
+import 'package:food_review/features/places/presentation/discovery_center.dart';
+import 'package:food_review/features/places/presentation/map_controller.dart';
+import 'package:food_review/features/places/presentation/map_widgets.dart';
+import 'package:food_review/features/places/presentation/place_providers.dart';
+import 'package:food_review/features/places/presentation/user_location_controller.dart';
 
 import 'support/auth_fixtures.dart';
 
-import 'package:flutter_test/flutter_test.dart';
-import 'package:food_review/app/food_review_app.dart';
-import 'package:food_review/core/router/app_router.dart';
-import 'package:food_review/core/theme/theme_mode_provider.dart';
-import 'package:food_review/features/places/data/demo_place_fixtures.dart';
-import 'package:food_review/features/places/data/demo_place_repository.dart';
-import 'package:food_review/features/places/presentation/place_providers.dart';
+const _cafe = Place(
+  id: 'osm_node_1',
+  name: 'Cà Phê Sông',
+  description: '',
+  address: 'Phùng Khoang',
+  category: 'Cà phê',
+  latitude: 20.986,
+  longitude: 105.794,
+);
+const _restaurant = Place(
+  id: 'osm_node_2',
+  name: 'Bún Thanh Xuân',
+  description: '',
+  address: '',
+  category: 'Nhà hàng',
+  latitude: 20.99,
+  longitude: 105.795,
+);
+const _other = Place(
+  id: 'osm_node_3',
+  name: 'Quán Khu Mới',
+  description: '',
+  address: '',
+  category: 'Nhà hàng',
+  latitude: 21.02,
+  longitude: 105.82,
+);
+
+class _Nearby implements NearbyPlaceRepository {
+  final calls = <GeoPoint>[];
+
+  @override
+  Future<List<Place>> findNearby(
+    GeoPoint center, {
+    int radiusMeters = 5000,
+  }) async {
+    calls.add(center);
+    expectSync(radiusMeters, 5000);
+    return center.latitude > 21 ? [_other] : [_cafe, _restaurant];
+  }
+}
+
+class _DelayedNearby implements NearbyPlaceRepository {
+  final pending = <Completer<List<Place>>>[];
+
+  @override
+  Future<List<Place>> findNearby(GeoPoint center, {int radiusMeters = 5000}) {
+    final result = Completer<List<Place>>();
+    pending.add(result);
+    return result.future;
+  }
+}
+
+class _Location implements UserLocationRepository {
+  _Location(this.point);
+  final GeoPoint? point;
+  @override
+  Future<GeoPoint> locate() async => point ?? (throw StateError('GPS denied'));
+  @override
+  Future<bool> openSettings() async => false;
+}
+
+Future<ProviderContainer> _mount(
+  WidgetTester tester, {
+  NearbyPlaceRepository? nearby,
+  GeoPoint? gps,
+  double width = 390,
+  double scale = 1,
+  ThemeMode mode = ThemeMode.light,
+  OsmRegionPlaceRepository? region,
+}) async {
+  tester.view.devicePixelRatio = 1;
+  tester.view.physicalSize = Size(width, 844);
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+  final container = ProviderContainer(
+    overrides: [
+      signedInSession,
+      userLocationRepositoryProvider.overrideWithValue(_Location(gps)),
+      if (nearby != null)
+        nearbyPlaceRepositoryProvider.overrideWithValue(nearby),
+      if (region != null)
+        osmRegionPlaceRepositoryProvider.overrideWithValue(region),
+      mapTilesEnabledProvider.overrideWithValue(false),
+    ],
+  );
+  addTearDown(container.dispose);
+  container.read(themeModeProvider.notifier).setMode(mode);
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: MediaQuery(
+        data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+        child: const FoodReviewApp(),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+  return container;
+}
 
 void main() {
-  final captureKey = GlobalKey();
-  setUpAll(() async {
-    TestWidgetsFlutterBinding.ensureInitialized();
-    await (FontLoader(
-      'Inter',
-    )..addFont(rootBundle.load('assets/fonts/Inter.ttf'))).load();
-    await (FontLoader(
-      'MaterialIcons',
-    )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
-  });
-  Future<ProviderContainer> mount(
-    WidgetTester tester, {
-    double width = 390,
-    double height = 844,
-    double scale = 1,
-    ThemeMode mode = ThemeMode.light,
-    bool missingImages = false,
-  }) async {
-    tester.view.devicePixelRatio = 1;
-    tester.view.physicalSize = Size(width, height);
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    final container = ProviderContainer(
-      overrides: [
-        signedInSession,
-        if (missingImages)
-          placeRepositoryProvider.overrideWithValue(
-            DemoPlaceRepository(data: DemoPlaceFixtures.withoutImages),
-          ),
-      ],
-    );
-    addTearDown(container.dispose);
-    container.read(themeModeProvider.notifier).setMode(mode);
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: RepaintBoundary(
-          key: captureKey,
-          child: MediaQuery(
-            data: MediaQueryData(textScaler: TextScaler.linear(scale)),
-            child: const FoodReviewApp(),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    return container;
-  }
-
-  for (final mode in [ThemeMode.light, ThemeMode.dark]) {
-    for (final width in [320.0, 390.0, 428.0]) {
-      testWidgets('Home sections scroll at $width, large text, ${mode.name}', (
-        tester,
-      ) async {
-        await mount(tester, width: width, scale: 1.6, mode: mode);
-        expect(find.text('Hôm nay ăn gì?'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-        for (var i = 0; i < 7; i++) {
-          await tester.drag(
-            find.byType(CustomScrollView).first,
-            const Offset(0, -350),
-          );
-          await tester.pumpAndSettle();
-          expect(tester.takeException(), isNull);
-        }
-        expect(find.text('Khám phá gần bạn'), findsOneWidget);
-        await tester.tap(find.text('Yêu thích'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Trang chủ'));
-        await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull);
-        final scroll = tester.state<ScrollableState>(
-          find
-              .descendant(
-                of: find.byType(CustomScrollView).first,
-                matching: find.byType(Scrollable),
-              )
-              .first,
-        );
-        expect(scroll.position.pixels, greaterThan(0));
-      });
-    }
-  }
-
-  testWidgets('Category filters and clearing search restore Home sections', (
+  testWidgets('Home waits for a real center and allows manual Phùng Khoang', (
     tester,
   ) async {
-    await mount(tester, missingImages: true);
-    await tester.tap(find.widgetWithText(FilterChip, 'Cà phê'));
+    final source = _Nearby();
+    await _mount(tester, nearby: source);
+    expect(source.calls, isEmpty);
+    expect(
+      find.textContaining('Chọn Chợ Phùng Khoang hoặc cấp quyền'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Xem Chợ Phùng Khoang'));
     await tester.pumpAndSettle();
-    expect(find.text('Góc Cà Phê'), findsOneWidget);
-    expect(find.text('Phở Nhà Mình'), findsNothing);
-    await tester.tap(find.widgetWithText(FilterChip, 'Tất cả'));
-    await tester.enterText(find.byType(TextField), 'không có quán');
+    expect(source.calls.single.latitude, phungKhoangCenter.latitude);
+    expect(find.text('2 quán phù hợp trong 5 km'), findsOneWidget);
+    expect(find.text('Cà Phê Sông'), findsOneWidget);
+    expect(find.text('Bản demo'), findsNothing);
+    expect(find.text('Chưa có đánh giá'), findsNothing);
+    expect(find.byTooltip('Lưu yêu thích'), findsNothing);
+  });
+
+  testWidgets('Changing the center replaces old results', (tester) async {
+    final source = _Nearby();
+    final container = await _mount(tester, nearby: source);
+    await tester.tap(find.text('Xem Chợ Phùng Khoang'));
     await tester.pumpAndSettle();
-    expect(find.text('Không tìm thấy quán phù hợp.'), findsOneWidget);
+    await tester.ensureVisible(find.text('Quán quanh khu vực này'));
+    await tester.pumpAndSettle();
+    expect(find.text('Cà Phê Sông'), findsOneWidget);
+    container
+        .read(discoveryCenterProvider.notifier)
+        .choose(const GeoPoint(21.02, 105.82));
+    await tester.pumpAndSettle();
+    expect(find.text('Cà Phê Sông'), findsNothing);
+    expect(
+      (await container.read(homeNearbyPlacesProvider.future))?.single.name,
+      'Quán Khu Mới',
+    );
+    expect(source.calls.length, 2);
+  });
+
+  testWidgets('An older region response cannot replace the new center', (
+    tester,
+  ) async {
+    final source = _DelayedNearby();
+    final container = await _mount(tester, nearby: source);
+    await tester.tap(find.text('Xem Chợ Phùng Khoang'));
+    await tester.pump();
+    expect(source.pending, hasLength(1));
+    container
+        .read(discoveryCenterProvider.notifier)
+        .choose(const GeoPoint(21.02, 105.82));
+    await tester.pump();
+    expect(source.pending, hasLength(2));
+    source.pending.last.complete([_other]);
+    await tester.pumpAndSettle();
+    source.pending.first.complete([_cafe]);
+    await tester.pumpAndSettle();
+    expect(
+      container.read(homeNearbyPlacesProvider).value?.single.id,
+      _other.id,
+    );
+  });
+
+  testWidgets('GPS can replace the manual center; local search filters POIs', (
+    tester,
+  ) async {
+    final source = _Nearby();
+    final container = await _mount(
+      tester,
+      nearby: source,
+      gps: const GeoPoint(21.02, 105.82),
+    );
+    await container.read(userLocationControllerProvider.notifier).initialize();
+    await tester.pumpAndSettle();
+    expect(
+      (await container.read(homeNearbyPlacesProvider.future))?.single.name,
+      'Quán Khu Mới',
+    );
+    await tester.tap(find.text('Xem Chợ Phùng Khoang'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Quán quanh khu vực này'));
+    await tester.pumpAndSettle();
+    expect(find.text('Cà Phê Sông'), findsOneWidget);
+    await tester.ensureVisible(find.byType(TextField));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'bun');
+    await tester.pumpAndSettle();
+    expect(find.text('Bún Thanh Xuân'), findsOneWidget);
+    expect(find.text('Cà Phê Sông'), findsNothing);
     await tester.tap(find.byTooltip('Xoá nội dung'));
     await tester.pumpAndSettle();
-    expect(find.text('Gợi ý cho bạn'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+    await tester.ensureVisible(find.text('Dùng vị trí thiết bị'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Dùng vị trí thiết bị'));
+    await tester.pumpAndSettle();
+    expect(
+      (await container.read(homeNearbyPlacesProvider.future))?.single.name,
+      'Quán Khu Mới',
+    );
+    expect(container.read(discoveryCenterProvider), isNull);
   });
 
-  testWidgets(
-    'Review CTA selects a restaurant before opening its pending route',
-    (tester) async {
-      final container = await mount(tester);
-      await tester.ensureVisible(find.text('Viết review'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Viết review'));
-      await tester.pumpAndSettle();
-      expect(find.text('Bạn muốn đánh giá quán nào?'), findsOneWidget);
-      await tester.tap(find.widgetWithText(ListTile, 'Góc Cà Phê'));
-      await tester.pumpAndSettle();
-      expect(
-        container
-            .read(appRouterProvider)
-            .routerDelegate
-            .currentConfiguration
-            .last
-            .matchedLocation,
-        '/restaurants/coffee-demo/reviews/create',
-      );
-      expect(find.text('Bạn đánh giá quán thế nào?'), findsOneWidget);
-    },
-  );
+  for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+    testWidgets(
+      'Home renders on a small screen with large text in ${mode.name}',
+      (tester) async {
+        await _mount(
+          tester,
+          nearby: _Nearby(),
+          width: 320,
+          scale: 1.6,
+          mode: mode,
+        );
+        await tester.tap(find.text('Xem Chợ Phùng Khoang'));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        await tester.drag(find.byType(CustomScrollView), const Offset(0, -450));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
-  testWidgets('Home keeps search and filters without a notification entry', (
+  testWidgets('Bundled OSM asset supplies the real Phùng Khoang count', (
     tester,
   ) async {
-    final container = await mount(tester);
-    final router = container.read(appRouterProvider);
-    await tester.enterText(find.byType(TextField), 'phở');
-    await tester.testTextInput.receiveAction(TextInputAction.search);
-    await tester.pumpAndSettle();
-    expect(
-      router.routerDelegate.currentConfiguration.last.matchedLocation,
-      '/search',
+    await _mount(
+      tester,
+      region: OsmRegionPlaceRepository(
+        () async =>
+            File('assets/osm/hanoi_urban_places.json').readAsStringSync(),
+      ),
     );
-    await tester.pageBack();
+    await tester.tap(find.text('Xem Chợ Phùng Khoang'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Bộ lọc'));
-    await tester.pumpAndSettle();
-    expect(
-      router.routerDelegate.currentConfiguration.last.matchedLocation,
-      '/search/filters',
-    );
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    expect(find.byTooltip('Thông báo'), findsNothing);
+    expect(find.text('556 quán phù hợp trong 5 km'), findsOneWidget);
   });
 
-  // Opt-in review artifacts, generated from the same app and demo provider.
-  if (const bool.fromEnvironment('HOME_CAPTURE')) {
-    for (final mode in [ThemeMode.light, ThemeMode.dark]) {
-      testWidgets('Capture ${mode.name} Home', (tester) async {
-        await mount(tester, height: 1900, mode: mode);
-        await tester.runAsync(() async {
-          final context = tester.element(find.byType(FoodReviewApp));
-          for (final name in ['pho', 'coffee', 'banh_mi']) {
-            await precacheImage(
-              AssetImage('assets/images/demo/$name.jpg'),
-              context,
-            );
-          }
-        });
-        await tester.pumpAndSettle();
-        await tester.runAsync(() async {
-          final node = tester.renderObject<RenderRepaintBoundary>(
-            find.byKey(captureKey),
-          );
-          final image = await node.toImage();
-          final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-          final directory = Directory('build/home-screenshots')
-            ..createSync(recursive: true);
-          File('${directory.path}/home-${mode.name}.png')
-              .writeAsBytesSync(bytes!.buffer.asUint8List());
-          image.dispose();
-        });
-      });
-    }
-  }
+  testWidgets('Home-selected center opens Map at the same location', (
+    tester,
+  ) async {
+    await _mount(tester, nearby: _Nearby());
+    await tester.tap(find.text('Xem Chợ Phùng Khoang'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Mở bản đồ'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mở bản đồ'));
+    await tester.pumpAndSettle();
+    final canvas = tester.widget<PlaceMapCanvas>(find.byType(PlaceMapCanvas));
+    expect(
+      canvas.center.latitude,
+      closeTo(phungKhoangCenter.latitude, 0.00001),
+    );
+    expect(
+      canvas.center.longitude,
+      closeTo(phungKhoangCenter.longitude, 0.00001),
+    );
+  });
 }

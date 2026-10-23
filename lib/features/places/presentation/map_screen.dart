@@ -11,6 +11,7 @@ import '../domain/place.dart';
 import '../domain/place_map_repository.dart';
 import '../domain/place_search.dart';
 import 'map_controller.dart';
+import 'discovery_center.dart';
 import 'map_widgets.dart';
 import 'place_providers.dart';
 import 'user_location_controller.dart';
@@ -28,7 +29,6 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
   final _text = TextEditingController();
   final _canvasKey = GlobalKey();
   bool _ready = false, _moved = false, _hint = true;
-  GeoPoint? _manualCenter;
   String? _selectedId, _focusError;
   Place? _focused;
   int _focusGeneration = 0;
@@ -111,9 +111,15 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
     }
   }
 
-  void _searchArea() {
+  void _searchArea({bool selectCenter = false}) {
     if (!_ready) return;
     final bounds = _map.camera.visibleBounds;
+    if (selectCenter) {
+      final camera = _map.camera.center;
+      ref
+          .read(discoveryCenterProvider.notifier)
+          .choose(GeoPoint(camera.latitude, camera.longitude));
+    }
     _controller.searchArea(
       MapViewport(
         south: bounds.south,
@@ -128,19 +134,19 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
   Future<void> _locate({bool nearby = false}) async {
     final point = await _controller.locate();
     if (!mounted || point == null || !_ready) return;
-    setState(() => _manualCenter = null);
+    ref.read(discoveryCenterProvider.notifier).useDeviceLocation();
     _map.move(LatLng(point.latitude, point.longitude), 15);
     if (nearby) _controller.nearby(true);
     _searchArea();
   }
 
   void _choosePhungKhoang() {
-    const center = GeoPoint(20.9859, 105.7938);
+    const center = phungKhoangCenter;
+    ref.read(discoveryCenterProvider.notifier).choose(center);
     if (ref.read(placeMapControllerProvider).nearby) {
       _controller.nearby(false);
     }
     setState(() {
-      _manualCenter = center;
       _focused = null;
       _selectedId = null;
       _focusError = null;
@@ -170,11 +176,29 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(discoveryCenterProvider, (previous, next) {
+      if (widget.restaurantId != null || !_ready) return;
+      final target = next ?? ref.read(userLocationControllerProvider).point;
+      if (target == null) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_ready) return;
+        final camera = _map.camera.center;
+        if (GeoPoint(camera.latitude, camera.longitude).distanceTo(target) <
+            10) {
+          return;
+        }
+        _map.move(LatLng(target.latitude, target.longitude), 15);
+        _searchArea();
+      });
+    });
     ref.listen(placeMapControllerProvider.select((value) => value.location), (
       previous,
       next,
     ) {
-      if (next == null || previous == next || widget.restaurantId != null) {
+      if (next == null ||
+          previous == next ||
+          widget.restaurantId != null ||
+          ref.read(discoveryCenterProvider) != null) {
         return;
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -386,7 +410,7 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
     // This is the current camera viewport, never a fallback user coordinate.
     final camera = _ready ? _map.camera.center : null;
     final point = _focused == null
-        ? _manualCenter ??
+        ? ref.watch(discoveryCenterProvider) ??
               state.location ??
               (camera == null
                   ? null
@@ -489,7 +513,7 @@ class _PlaceMapScreenState extends ConsumerState<PlaceMapScreen> {
             child: Padding(
               padding: const EdgeInsets.only(top: 48),
               child: FilledButton.tonalIcon(
-                onPressed: _searchArea,
+                onPressed: () => _searchArea(selectCenter: true),
                 icon: const Icon(Icons.refresh, size: 18),
                 label: const Text('Tìm vùng này'),
               ),

@@ -145,9 +145,9 @@ void main() {
   }
 
   testWidgets(
-    'Home query opens results; detail Back preserves query, scroll and favorites',
+    'Search query preserves results, detail Back, scroll and favorites',
     (tester) async {
-      final container = await mount(tester, url: '/home');
+      final container = await mount(tester, url: '/search');
       await tester.enterText(find.byType(TextField), 'pho');
       await tester.testTextInput.receiveAction(TextInputAction.search);
       await tester.pumpAndSettle();
@@ -255,9 +255,9 @@ void main() {
   );
 
   testWidgets(
-    'Home filter apply opens results and direct filter links can apply without history',
+    'Search filter apply opens results and direct filter links work',
     (tester) async {
-      final container = await mount(tester, url: '/home');
+      final container = await mount(tester, url: '/search');
       await tester.tap(find.byTooltip('Bộ lọc'));
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(FilterChip, 'Cà phê'));
