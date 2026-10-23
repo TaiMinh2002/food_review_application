@@ -8,7 +8,6 @@ import '../../../shared/design_system/design_system.dart';
 import '../../auth/presentation/auth_gate.dart';
 import '../../places/domain/place.dart';
 import '../../places/domain/place_search.dart';
-import '../../places/presentation/place_providers.dart';
 import 'want_to_visit_providers.dart';
 
 enum _WantSort { recent, rating, distance }
@@ -58,7 +57,7 @@ class _WantToVisitScreenState extends ConsumerState<WantToVisitScreen> {
         child: AuthGate(
           returnTo: AppRoute.wantToVisit.path,
           child: ref
-              .watch(placesProvider)
+              .watch(wantToVisitPlacesProvider)
               .when(
                 loading: () => const Center(
                   child: CircularProgressIndicator(
@@ -70,7 +69,7 @@ class _WantToVisitScreenState extends ConsumerState<WantToVisitScreen> {
                     error,
                     fallback: 'Không tải được danh sách muốn ghé.',
                   ),
-                  onRetry: () => ref.invalidate(placesProvider),
+                  onRetry: () => ref.invalidate(wantToVisitPlacesProvider),
                 ),
                 data: (places) => _content(context, places, ids),
               ),
