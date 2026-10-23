@@ -6,6 +6,7 @@ import 'package:food_review/core/errors/app_exception.dart';
 import 'package:food_review/features/reviews/data/cloudinary_review_photo_uploader.dart';
 import 'package:food_review/features/reviews/data/firestore_review_repository.dart';
 import 'package:food_review/features/reviews/domain/review.dart';
+import 'package:food_review/features/reviews/domain/review_feed_repository.dart';
 
 void main() {
   group('FirestoreReviewRepository unit tests', () {
@@ -200,6 +201,71 @@ void main() {
 
       final notFound = await repo.getReview('osm_node_123', 'nonexistent');
       expect(notFound, isNull);
+    });
+
+    test(
+      'getSummary returns empty summary for empty placeId or via hook',
+      () async {
+        final repo = FirestoreReviewRepository(
+          null,
+          getSummaryHook: (placeId) async => ReviewSummary(
+            totalCount: 3,
+            averageRating: 4.67,
+            starCounts: const {1: 0, 2: 0, 3: 0, 4: 1, 5: 2},
+            withPhotosCount: 2,
+          ),
+        );
+
+        final empty = await repo.getSummary('');
+        expect(empty.totalCount, 0);
+
+        final summary = await repo.getSummary('osm_node_123');
+        expect(summary.totalCount, 3);
+        expect(summary.averageRating, 4.67);
+        expect(summary.starCounts?[5], 2);
+      },
+    );
+
+    test('getReviews validates pageSize and returns page via hook', () async {
+      final repo = FirestoreReviewRepository(
+        null,
+        getReviewsHook: (placeId, filters, cursor, pageSize) async =>
+            ReviewPage(
+              items: [
+                Review(
+                  id: 'u1',
+                  placeId: placeId,
+                  userId: 'u1',
+                  rating: 5,
+                  content: 'Ngon tuyệt vời!',
+                  createdAt: DateTime.now(),
+                ),
+              ],
+              nextCursor: null,
+              totalCount: 1,
+            ),
+      );
+
+      expect(
+        () =>
+            repo.getReviews('p1', filters: const ReviewFilters(), pageSize: 0),
+        throwsA(isA<ArgumentError>()),
+      );
+      expect(
+        () =>
+            repo.getReviews('p1', filters: const ReviewFilters(), pageSize: 51),
+        throwsA(isA<ArgumentError>()),
+      );
+
+      final empty = await repo.getReviews('', filters: const ReviewFilters());
+      expect(empty.items, isEmpty);
+
+      final page = await repo.getReviews(
+        'osm_node_123',
+        filters: const ReviewFilters(),
+      );
+      expect(page.items, hasLength(1));
+      expect(page.items.first.content, 'Ngon tuyệt vời!');
     });
   });
 

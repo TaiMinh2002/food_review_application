@@ -4,13 +4,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../domain/review.dart';
+import '../domain/review_feed_repository.dart';
 import '../domain/review_repository.dart';
 
 class FirestoreReviewRepository
     implements
         ReviewRepository,
         ReviewManagementRepository,
-        ReviewMediaRepository {
+        ReviewMediaRepository,
+        ReviewFeedRepository {
   FirestoreReviewRepository(
     this._firestore, {
     this.saveReview,
@@ -18,6 +20,8 @@ class FirestoreReviewRepository
     this.deleteReviewHook,
     this.watchPlaceHook,
     this.getReviewHook,
+    this.getSummaryHook,
+    this.getReviewsHook,
   });
 
   final FirebaseFirestore? _firestore;
@@ -29,6 +33,14 @@ class FirestoreReviewRepository
   watchPlaceHook;
   final Future<Review?> Function(String placeId, String reviewId)?
   getReviewHook;
+  final Future<ReviewSummary> Function(String placeId)? getSummaryHook;
+  final Future<ReviewPage> Function(
+    String placeId,
+    ReviewFilters filters,
+    String? cursor,
+    int pageSize,
+  )?
+  getReviewsHook;
 
   CollectionReference<Map<String, dynamic>> _reviewsCollection(
     String placeId,
@@ -184,6 +196,136 @@ class FirestoreReviewRepository
         .snapshots()
         .map((snapshot) => snapshot.docs.map(_fromDoc).toList())
         .handleError((_, _) => const <Review>[]);
+  }
+
+  @override
+  Future<ReviewSummary> getSummary(String placeId) async {
+    if (placeId.trim().isEmpty) {
+      return ReviewSummary(
+        totalCount: 0,
+        averageRating: null,
+        starCounts: const {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
+        withPhotosCount: 0,
+        isDemo: false,
+      );
+    }
+    if (getSummaryHook != null) {
+      return getSummaryHook!(placeId);
+    }
+
+    try {
+      final snapshot = await _reviewsCollection(placeId)
+          .where('status', isEqualTo: 'public')
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        return ReviewSummary(
+          totalCount: 0,
+          averageRating: null,
+          starCounts: const {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
+          withPhotosCount: 0,
+          isDemo: false,
+        );
+      }
+
+      final reviews = snapshot.docs.map(_fromDoc).toList();
+      final total = reviews.length;
+      final avg =
+          reviews.fold<int>(0, (totalRating, r) => totalRating + r.rating) /
+          total;
+      final starCounts = <int, int>{
+        for (var star = 1; star <= 5; star++)
+          star: reviews.where((r) => r.rating == star).length,
+      };
+      final withPhotos = reviews.where((r) => r.imageUrls.isNotEmpty).length;
+
+      return ReviewSummary(
+        totalCount: total,
+        averageRating: avg,
+        starCounts: starCounts,
+        withPhotosCount: withPhotos,
+        isDemo: false,
+      );
+    } on FirebaseException catch (e) {
+      throw AppException(
+        'Không tải được tổng quan đánh giá. Vui lòng thử lại.',
+        code: e.code,
+      );
+    } catch (_) {
+      throw const AppException(
+        'Không tải được tổng quan đánh giá. Vui lòng thử lại.',
+      );
+    }
+  }
+
+  @override
+  Future<ReviewPage> getReviews(
+    String placeId, {
+    required ReviewFilters filters,
+    String? cursor,
+    int pageSize = 10,
+  }) async {
+    if (pageSize < 1 || pageSize > 50) {
+      throw ArgumentError.value(pageSize, 'pageSize');
+    }
+    if (placeId.trim().isEmpty) {
+      return ReviewPage(items: const [], totalCount: 0, isDemo: false);
+    }
+    if (getReviewsHook != null) {
+      return getReviewsHook!(placeId, filters, cursor, pageSize);
+    }
+
+    try {
+      Query<Map<String, dynamic>> query = _reviewsCollection(placeId)
+          .where('status', isEqualTo: 'public');
+
+      if (filters.rating != null) {
+        query = query.where('rating', isEqualTo: filters.rating);
+      }
+
+      query = switch (filters.sort) {
+        ReviewSort.newest => query.orderBy('createdAt', descending: true),
+        ReviewSort.oldest => query.orderBy('createdAt', descending: false),
+        ReviewSort.ratingHigh =>
+          query
+              .orderBy('rating', descending: true)
+              .orderBy('createdAt', descending: true),
+        ReviewSort.ratingLow =>
+          query
+              .orderBy('rating', descending: false)
+              .orderBy('createdAt', descending: true),
+      };
+
+      if (cursor != null && cursor.isNotEmpty) {
+        final startDoc = await _reviewsCollection(placeId).doc(cursor).get();
+        if (startDoc.exists) {
+          query = query.startAfterDocument(startDoc);
+        }
+      }
+
+      final snapshot = await query.limit(pageSize + 1).get();
+      final docs = snapshot.docs;
+
+      var reviews = docs.map(_fromDoc).toList();
+      if (filters.withPhotos) {
+        reviews = reviews.where((r) => r.imageUrls.isNotEmpty).toList();
+      }
+
+      final hasMore = reviews.length > pageSize;
+      final items = hasMore ? reviews.sublist(0, pageSize) : reviews;
+      final nextCursor = hasMore && items.isNotEmpty ? items.last.id : null;
+
+      return ReviewPage(items: items, nextCursor: nextCursor, isDemo: false);
+    } on FirebaseException catch (e) {
+      throw AppException(
+        'Không tải được danh sách đánh giá. Vui lòng thử lại.',
+        code: e.code,
+      );
+    } catch (_) {
+      throw const AppException(
+        'Không tải được danh sách đánh giá. Vui lòng thử lại.',
+      );
+    }
   }
 
   Review _fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
