@@ -14,7 +14,7 @@ import 'place_providers.dart';
 
 typedef SearchSeed = ({PlaceSearchRequest request, String scope});
 
-/// Existing data source retained by Category and place-picker screens until
+/// Existing data source retained by place-picker screens until
 /// those capabilities receive their own real-data migration.
 final placeSearchRepositoryProvider = Provider<PlaceSearchRepository?>((ref) {
   final repository = ref.watch(placeRepositoryProvider);
@@ -95,6 +95,7 @@ class PlaceSearchController extends Notifier<PlaceSearchState> {
   Timer? _debounce;
   int _generation = 0;
   PlaceSearchRepository? _repository;
+  PlaceSearchRequest? _currentRequest;
 
   @override
   PlaceSearchState build() {
@@ -103,7 +104,7 @@ class PlaceSearchController extends Notifier<PlaceSearchState> {
     );
     final generation = ++_generation;
     final reference = ref;
-    final request = seed.request;
+    final request = _currentRequest ?? seed.request;
     ref.onDispose(() {
       _debounce?.cancel();
       _generation++;
@@ -131,7 +132,7 @@ class PlaceSearchController extends Notifier<PlaceSearchState> {
       _start(state.request.copyWith(sort: sort));
   void reset() => _start(
     PlaceSearchRequest(
-      sort: seed.request.categoryScope == null
+      sort: useOsm || seed.request.categoryScope == null
           ? PlaceSearchSort.relevance
           : PlaceSearchSort.rating,
     ),
@@ -150,6 +151,7 @@ class PlaceSearchController extends Notifier<PlaceSearchState> {
     if (seed.request.categoryScope != null) {
       request = request.copyWith(categoryScope: seed.request.categoryScope);
     }
+    _currentRequest = request;
     _debounce?.cancel();
     final generation = ++_generation;
     state = PlaceSearchState(
@@ -269,19 +271,22 @@ class RecentSearches extends Notifier<List<String>> {
 }
 
 final searchOptionsProvider = FutureProvider.autoDispose
-    .family<PlaceSearchPage, bool>((ref, scopedCategory) {
-      final repository = ref.watch(
-        scopedCategory
-            ? placeSearchRepositoryProvider
-            : osmPlaceSearchRepositoryProvider,
-      );
+    .family<PlaceSearchPage, String?>((ref, categoryScope) {
+      final repository = ref.watch(osmPlaceSearchRepositoryProvider);
       if (repository == null) {
         return PlaceSearchPage(
           items: const [],
-          categories: PlaceCategory.values
+          categories: PlaceCategory.osmValues
+              .where(
+                (category) =>
+                    categoryScope == null || category.id == categoryScope,
+              )
               .map((category) => category.label)
               .toList(),
         );
       }
-      return repository.searchPlaces(PlaceSearchRequest(), pageSize: 1);
+      return repository.searchPlaces(
+        PlaceSearchRequest(categoryScope: categoryScope),
+        pageSize: 1,
+      );
     }, retry: (count, error) => null);

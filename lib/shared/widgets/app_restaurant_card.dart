@@ -235,6 +235,10 @@ class AppRestaurantCard extends StatelessWidget {
         )
       else if (showReviewSummary)
         Text('Chưa có đánh giá', style: context.textStyles.labelSmall),
+      if (distanceLabel != null) ...[
+        const SizedBox(height: 8),
+        Text(distanceLabel!, style: context.textStyles.labelSmall),
+      ],
       const SizedBox(height: 8),
       Wrap(
         spacing: 12,

@@ -8,6 +8,7 @@ import '../../../shared/design_system/design_system.dart';
 import '../domain/place_category.dart';
 import '../domain/place_search.dart';
 import 'category_widgets.dart';
+import 'discovery_center.dart';
 import 'search_controller.dart';
 import 'search_results.dart';
 import 'search_widgets.dart';
@@ -35,11 +36,11 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
       categoryScope: widget.categoryId,
       sort: widget.uri.queryParameters.containsKey('sort')
           ? PlaceSearchSort.parse(widget.uri.queryParameters['sort'])
-          : PlaceSearchSort.rating,
+          : PlaceSearchSort.relevance,
     ),
   );
   PlaceSearchController get _controller =>
-      ref.read(searchControllerProvider(_seed).notifier);
+      ref.read(osmSearchControllerProvider(_seed).notifier);
 
   @override
   void initState() {
@@ -75,7 +76,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   Future<void> _filters() async {
     FocusScope.of(context).unfocus();
     final seed = _seed;
-    final request = ref.read(searchControllerProvider(seed)).request;
+    final request = ref.read(osmSearchControllerProvider(seed)).request;
     final result = await context.push<PlaceSearchRequest>(
       AppRoute.filters.location(query: request.queryParameters),
     );
@@ -87,10 +88,41 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
 
   Future<void> _sort() async {
     final seed = _seed;
-    final sort = ref.read(searchControllerProvider(seed)).request.sort;
-    final result = await showSearchSort(context, sort);
+    final sort = ref.read(osmSearchControllerProvider(seed)).request.sort;
+    final result = await showSearchSort(context, sort, realData: true);
     if (mounted && seed == _seed && result != null) _controller.setSort(result);
   }
+
+  void _openCategory(PlaceCategory category) {
+    if (category.id == widget.categoryId) return;
+    context.pushReplacement(
+      AppRoute.category.location(parameters: {'categoryId': category.id}),
+    );
+  }
+
+  Widget _unavailable(PlaceCategory category, String message) => Scaffold(
+    appBar: AppBar(
+      leading: const RouteBackButton(),
+      title: const Text('Danh mục ẩm thực'),
+    ),
+    body: SafeArea(
+      child: SingleChildScrollView(
+        padding: AppSpacing.page,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            CategoryHero(category: category, countLabel: 'Chưa có kết quả'),
+            const SizedBox(height: AppSpacing.md),
+            Text(message, style: context.textStyles.bodyMedium),
+            const SizedBox(height: AppSpacing.md),
+            const CategoryDiscoveryStatus(),
+            const SizedBox(height: AppSpacing.md),
+            CategoryChoices(selectedId: category.id, onSelected: _openCategory),
+          ],
+        ),
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +142,19 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         ),
       );
     }
-    final state = ref.watch(searchControllerProvider(_seed));
+    if (!category.isOsmSupported) {
+      return _unavailable(
+        category,
+        'OSM chưa phân loại món ăn cho danh mục này. Vui lòng chọn loại quán có dữ liệu bên dưới.',
+      );
+    }
+    if (ref.watch(activeDiscoveryCenterProvider) == null) {
+      return _unavailable(
+        category,
+        'Chọn khu vực để tìm quán trong bán kính 5 km.',
+      );
+    }
+    final state = ref.watch(osmSearchControllerProvider(_seed));
     final request = state.request;
     final filterCount =
         request.activeFilterCount -
@@ -127,7 +171,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         ? 'Chưa tải được kết quả'
         : state.totalCount == null
         ? '${state.items.length} quán đã tải'
-        : '${state.totalCount} địa điểm';
+        : '${state.totalCount} địa điểm trong 5 km';
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -203,6 +247,13 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         ),
                         const SizedBox(height: 8),
                         CategoryHero(category: category, countLabel: count),
+                        const SizedBox(height: AppSpacing.md),
+                        const CategoryDiscoveryStatus(),
+                        const SizedBox(height: AppSpacing.md),
+                        CategoryChoices(
+                          selectedId: category.id,
+                          onSelected: _openCategory,
+                        ),
                         if (_showSearch) ...[
                           const SizedBox(height: 12),
                           AppSearchField(
@@ -221,33 +272,36 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     ),
                   ),
                 ),
-                SliverToBoxAdapter(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      children: [
-                        AppChip(
-                          label: 'Tất cả',
-                          selected: request.categories.isEmpty,
-                          onSelected: (_) => _controller.apply(
-                            request.copyWith(categories: {}),
-                          ),
-                        ),
-                        for (final tag in category.subcategories) ...[
-                          const SizedBox(width: 6),
+                if (category.subcategories.any(state.categories.contains))
+                  SliverToBoxAdapter(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
                           AppChip(
-                            label: tag,
-                            selected: request.categories.contains(tag),
+                            label: 'Tất cả',
+                            selected: request.categories.isEmpty,
                             onSelected: (_) => _controller.apply(
-                              request.copyWith(categories: {tag}),
+                              request.copyWith(categories: {}),
                             ),
                           ),
+                          for (final tag in category.subcategories.where(
+                            state.categories.contains,
+                          )) ...[
+                            const SizedBox(width: 6),
+                            AppChip(
+                              label: tag,
+                              selected: request.categories.contains(tag),
+                              onSelected: (_) => _controller.apply(
+                                request.copyWith(categories: {tag}),
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
-                ),
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
                   sliver: SliverToBoxAdapter(
@@ -272,7 +326,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                                   label: Text(switch (request.sort) {
                                     PlaceSearchSort.rating => 'Đánh giá cao',
                                     PlaceSearchSort.relevance =>
-                                      'Liên quan nhất',
+                                      'Gần tâm đã chọn',
                                     PlaceSearchSort.reviews => 'Nhiều đánh giá',
                                     PlaceSearchSort.price => 'Giá thấp',
                                   }),
@@ -293,7 +347,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         ),
                         SearchActiveFilters(
                           request: request,
-                          defaultSort: PlaceSearchSort.rating,
+                          defaultSort: PlaceSearchSort.relevance,
                           onChanged: _controller.apply,
                         ),
                         if (state.isDemo)
@@ -314,18 +368,19 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                   onLoadMore: _controller.loadMore,
                   onReset: _reset,
                   insetCards: true,
+                  openRealPlacesOnMap: true,
                   emptyState: Column(
                     children: [
                       AppEmptyState(
                         title: 'Chưa tìm thấy nhà hàng',
-                        message: 'Thử thay đổi bộ lọc hoặc chọn danh mục khác để khám phá thêm món ngon.',
+                        message: 'Không có kết quả phù hợp trong dữ liệu OSM của vùng 5 km. Dữ liệu có thể chưa đầy đủ; thử từ khóa hoặc khu vực khác.',
                         icon: Icons.ramen_dining,
                         actionLabel: 'Xóa bộ lọc',
                         onAction: _reset,
                       ),
                       TextButton(
                         onPressed: () => context.push(AppRoute.search.path),
-                        child: const Text('Xem tất cả nhà hàng'),
+                        child: const Text('Tìm trong tất cả loại quán'),
                       ),
                     ],
                   ),

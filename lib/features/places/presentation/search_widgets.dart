@@ -263,7 +263,11 @@ class SearchSortChoices extends StatelessWidget {
                 PlaceSearchSort.reviews => Icons.rate_review_outlined,
                 PlaceSearchSort.price => Icons.sell_outlined,
               }),
-              title: Text(sort.label),
+              title: Text(
+                realData && sort == PlaceSearchSort.relevance
+                    ? 'Gần tâm đã chọn'
+                    : sort.label,
+              ),
               subtitle: realData && sort != PlaceSearchSort.relevance
                   ? const Text('Chưa có dữ liệu xác thực để sắp xếp')
                   : sort == PlaceSearchSort.relevance
@@ -278,12 +282,13 @@ class SearchSortChoices extends StatelessWidget {
                   ? () => onSelected(sort)
                   : null,
             ),
-          ListTile(
-            enabled: false,
-            leading: const Icon(Icons.near_me_outlined),
-            title: const Text('Gần tôi nhất'),
-            subtitle: const Text('Chưa có dữ liệu vị trí'),
-          ),
+          if (!realData)
+            const ListTile(
+              enabled: false,
+              leading: Icon(Icons.near_me_outlined),
+              title: Text('Gần tôi nhất'),
+              subtitle: Text('Chưa có dữ liệu vị trí'),
+            ),
         ],
       ),
     ),

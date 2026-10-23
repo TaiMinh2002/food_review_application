@@ -9,6 +9,7 @@ import '../../favorites/presentation/favorite_providers.dart';
 import '../domain/place.dart';
 import '../domain/place_map_repository.dart';
 import 'user_location_controller.dart';
+import 'discovery_center.dart';
 import '../../../shared/widgets/app_restaurant_card.dart';
 
 class PlaceCard extends ConsumerWidget {
@@ -32,7 +33,9 @@ class PlaceCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavorite = ref.watch(favoriteIdsProvider).contains(place.id);
-    final location = ref.watch(userLocationControllerProvider).point;
+    final location = openOnMap
+        ? ref.watch(activeDiscoveryCenterProvider)
+        : ref.watch(userLocationControllerProvider).point;
     final destination = GeoPoint(place.latitude, place.longitude);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -41,7 +44,9 @@ class PlaceCard extends ConsumerWidget {
         category: insetImage
             ? place.foodCategories.firstOrNull ?? place.category
             : place.category,
-        address: compact || insetImage ? place.address : null,
+        address: (compact || insetImage) && place.address.isNotEmpty
+            ? place.address
+            : null,
         distanceLabel: location != null && destination.isValid
             ? '${AppFormatters.distance(location.distanceTo(destination))} · đường chim bay'
             : null,
@@ -49,6 +54,7 @@ class PlaceCard extends ConsumerWidget {
         imageUrl: place.imageUrls.firstOrNull,
         rating: place.averageRating,
         reviewCount: place.reviewCount,
+        showReviewSummary: !openOnMap,
         compact: compact,
         imageAspectRatio: imageAspectRatio,
         insetImage: insetImage,
@@ -59,7 +65,7 @@ class PlaceCard extends ConsumerWidget {
         onTap: () {
           onOpen?.call();
           if (openOnMap) {
-            context.go(
+            context.push(
               AppRoute.map.location(query: {'restaurantId': place.id}),
             );
           } else {
@@ -70,7 +76,9 @@ class PlaceCard extends ConsumerWidget {
             );
           }
         },
-        onFavorite: () => requestFavorite(context, ref, place.id),
+        onFavorite: openOnMap
+            ? null
+            : () => requestFavorite(context, ref, place.id),
       ),
     );
   }

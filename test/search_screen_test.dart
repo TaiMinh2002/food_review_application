@@ -202,7 +202,7 @@ void main() {
       await reveal(tester, find.text('Sắp xếp'));
       await tester.tap(find.text('Sắp xếp'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Liên quan nhất').last);
+      await tester.tap(find.text('Gần tâm đã chọn').last);
       await tester.pumpAndSettle();
       expect(current(tester, container).items.first.id, 'banh-mi-demo');
       await reveal(tester, find.byType(TextField));

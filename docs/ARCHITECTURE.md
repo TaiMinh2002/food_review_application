@@ -29,16 +29,18 @@ Phạm vi/trạng thái/lộ trình ở [FEATURES.md](FEATURES.md); schema, quer
 ## Dependency injection
 
 `ProviderScope` ở main; `placeRepositoryProvider` vẫn cấp
-`DemoPlaceRepository` cho Search/Category/Detail trong giai đoạn R2.
+`DemoPlaceRepository` cho Detail và bộ chọn quán chưa chuyển nguồn trong giai đoạn R2.
 Home dùng `homeNearbyPlacesProvider` → `NearbyPlaceRepository` → gói OSM
 Hà Nội qua `OsmRegionPlaceRepository`. Map dùng cùng gói qua adapter
 `OsmRegionMapRepository`. Firestore catalog về sau chỉ xác thực tham chiếu
 và lookup ID, không làm nguồn danh sách quán gần đây.
 Không tạo Firestore instance trong widget. Test có thể override provider mà không kết nối mạng.
 Search dùng capability `PlaceSearchRepository.searchPlaces(request, cursor, pageSize)`
-qua `placeSearchRepositoryProvider`; nguồn mặc định tái sử dụng DemoPlaceRepository.
+qua `osmPlaceSearchRepositoryProvider`; Search/Category dùng OSM theo tâm 5 km.
+`placeSearchRepositoryProvider` còn cấp nguồn cũ cho bộ chọn quán ở các feature chưa chuyển.
 Backend implementation phải áp dụng query/limit/cursor, không tải cả feed để lọc ở UI.
-`searchControllerProvider` autoDispose theo từng route, debounce và bỏ stale response;
+`osmSearchControllerProvider` autoDispose theo route Search/Category, debounce và bỏ stale response;
+`searchControllerProvider` dùng cho bộ chọn quán chưa chuyển nguồn;
 form T06 giữ draft riêng, metadata qua query giới hạn một item. Lịch sử chỉ lưu trong phiên.
 T07 tái sử dụng controller/result slivers của Search. `PlaceCategory` định nghĩa ID/taxonomy;
 `PlaceSearchRequest.categoryScope` là ràng buộc gốc AND với các bộ lọc khác trước count/paging.
@@ -51,8 +53,8 @@ và limit; đây là dữ liệu asset đã lọc, không phải quét collectio
 Overpass công khai lúc chạy. Ngoài vùng gói trả lỗi chưa hỗ trợ. Home truy vấn
 grid index trên gói OSM bằng tâm/bán kính 5 km, chỉ render danh sách qua
 SliverList và lọc tên/loại trong kết quả vùng đã giới hạn. Đây không phải
-quét toàn bộ backend trong widget. Search/Category/Detail vẫn theo adapter
-demo cho tới các đợt R2 riêng; xem
+quét toàn bộ backend trong widget. Search/Category đã dùng adapter OSM trong R2; Detail còn adapter
+demo. Xem [REAL_DATA_R2_STATUS.md](REAL_DATA_R2_STATUS.md) và
 [REAL_DATA_R1_STATUS.md](REAL_DATA_R1_STATUS.md).
 `placeMapControllerProvider` giữ query/result/GPS và chặn stale response, screen giữ camera.
 `UserLocationRepository` có implementation Geolocator với foreground fix khi mở app hoặc
@@ -114,8 +116,8 @@ upload công khai. Xem [REPORT_CONTENT_UI.md](REPORT_CONTENT_UI.md).
 - `/home`: Home theo Stitch (T03), tìm tên/loại quán OSM trong bán kính 5 km
   quanh tâm được chọn và giữ cuộn khi chuyển tab.
 - `/categories/:categoryId`: T07 trong branch Home, giữ thanh bốn tab; nguồn
-  của màn này vẫn demo cho tới R2 nên Home chưa mở từ card/chip. ID sai không
-  gọi query. Detail push trên root và Back giữ bộ lọc/vị trí cuộn của danh mục.
+  là OSM trong 5 km, Home mở bằng Xem danh mục. Chỉ hỗ trợ loại quán có tag nguồn;
+  ID món cũ báo chưa hỗ trợ, ID sai không query. Card push Map đúng ID, Back giữ cuộn/query.
 - `/restaurants/:restaurantId`: chi tiết Stitch T04 với gallery, menu, review preview và thanh giá/chỉ đường; map ID sang `placeId` trong domain, xử lý ID không tồn tại. Xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md).
 - `/map`: MapLibre/OpenFreeMap dựng nền native; FlutterMap giữ camera/gesture/marker/card quán. `restaurantId` chọn quán từ chi tiết. Camera/selection giữ trong indexed stack. Xem [NATIVE_MAP.md](NATIVE_MAP.md).
 - `/restaurants/:restaurantId/gallery`: T09b trên root; `index` mở viewer, `source=review&reviewId=...` chọn ảnh review đúng scope. Đóng viewer về lưới, Back về nguồn. Xem [GALLERY_UI.md](GALLERY_UI.md).

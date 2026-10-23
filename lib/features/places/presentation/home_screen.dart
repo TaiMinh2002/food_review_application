@@ -8,6 +8,7 @@ import '../../../core/router/app_route.dart';
 import '../../../shared/design_system/design_system.dart';
 import '../../../shared/widgets/app_message.dart';
 import '../domain/place.dart';
+import '../domain/place_category.dart';
 import '../domain/place_map_repository.dart';
 import 'discovery_center.dart';
 import 'home_sections.dart';
@@ -208,6 +209,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      icon: const Icon(Icons.category_outlined),
+                      label: const Text('Xem danh mục'),
+                      onPressed: () => context.push(
+                        AppRoute.category.location(
+                          parameters: {
+                            'categoryId':
+                                PlaceCategory.byLabel(_category ?? '')?.id ??
+                                'nha-hang',
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
                   AppSectionHeader(
                     title: 'Quán quanh khu vực này',
                     subtitle: '${matches.length} quán phù hợp trong 5 km',
