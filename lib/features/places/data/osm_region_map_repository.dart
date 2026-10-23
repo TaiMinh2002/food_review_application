@@ -30,10 +30,7 @@ class OsmRegionMapRepository implements PlaceMapRepository {
           (viewport.south + viewport.north) / 2,
           (viewport.west + viewport.east) / 2,
         );
-    final nearby = await region.findNearby(
-      center,
-      radiusMeters: near == null ? 5000 : 1000,
-    );
+    final nearby = await region.findNearby(center, radiusMeters: 5000);
     final query = normalizePlaceSearchText(filters.query);
     final matching = nearby.where((place) {
       final point = GeoPoint(place.latitude, place.longitude);

@@ -1,6 +1,7 @@
-# R1 — Gói quán OSM Hà Nội và bản đồ 5 km
+# R1 — Gói quán OSM Hà Nội, Home và bản đồ 5 km
 
-Ngày kiểm tra: 22/10/2026. Nhánh `feat/map-ui` được rebase trên `origin/dev` sau khi R0 được merge.
+Map được kiểm tra 22/10/2026 trên `feat/map-ui`; Home được nối tiếp
+23/10/2026 trên `feat/home-ui` sau khi merge Map vào `dev`.
 
 ## Nguồn và phạm vi
 
@@ -25,9 +26,30 @@ Tại Chợ Phùng Khoang có 245 restaurant, 245 cafe, 62 fast_food và 4 food_
 - GPS bị từ chối có lựa chọn thủ công “Xem quán quanh Chợ Phùng Khoang”. Thẻ quán OSM hiển thị tên, loại, địa chỉ nếu có và chỉ đường ngoài; ẩn đánh giá, giá, lưu quán và chi tiết khi các luồng backend tương ứng chưa có. Bộ lọc đòi rating/giá/món bị ẩn trên Map thật.
 - Test đã kiểm tra gói thực, đúng 556 ID trong 5 km, node/way/relation, lọc khoảng cách, tìm tên không dấu, asset load đồng thời, vùng chưa hỗ trợ, lỗi gói và giao diện không GPS.
 
+## Home và tâm khám phá chung (23/10/2026)
+
+- Home mặc định truy vấn cùng gói OSM Hà Nội qua `NearbyPlaceRepository`, bán kính
+  5 km quanh GPS. Khi chưa có GPS, người dùng chọn Chợ Phùng Khoang; ngoài vùng
+  gói hiển thị lỗi và retry, không trả quán demo. Tâm thủ công được chia sẻ với
+  Map; “Tìm vùng này” trên Map đổi tâm Home, còn Home có thể trở lại GPS.
+- Home hiện tên, loại, địa chỉ OSM nếu có, khoảng cách đường chim bay, ngày
+  dữ liệu/attribution; tìm tên không dấu và lọc loại trong tập 5 km đã giới hạn.
+  Danh sách dựng lazy. Card mở marker tương ứng trên Map. Các khối rating,
+  ảnh/giá minh họa, yêu thích, gợi ý cá nhân và CTA đăng review chưa có backend
+  đã được gỡ khỏi Home, không báo lưu thành công giả.
+- Widget tests kiểm tra 556 POI thật tại Chợ Phùng Khoang, đổi tâm, bỏ response
+  cũ đến muộn, GPS/tâm thủ công, lọc tên, màn 320 px/chữ lớn/light/dark.
+  Chưa nghiệm thu trên thiết bị thật.
+- Đo nhanh Dart VM trên máy phát triển: tải/parse/lập index và query đầu khoảng
+  70 ms; 100 query 5 km sau khi có index khoảng 79 ms tổng cộng. Đây là số đo
+  cục bộ, chưa đại diện thời gian khởi động hoặc bộ nhớ trên Android/iOS.
+
 ## Còn thiếu trước khi R1 hoàn tất
 
-- Home/Search/Category/Detail còn nguồn demo và thuộc các branch tính năng tương ứng; chưa đồng bộ context khám phá giữa Home/Map. Chưa import catalog Firestore nên chưa mở ghi review/favorite thật.
+- Search/Category/Detail còn nguồn demo và thuộc các branch tính năng tương ứng.
+  Home và Map đã chia sẻ tâm, nhưng context filter/cursor/dataset version cho toàn
+  bộ Search/Category vẫn cần triển khai ở R2. Chưa import catalog Firestore nên
+  chưa mở ghi review/favorite thật.
 - Chưa nghiệm thu GPS, tải nền và mở chỉ đường trên Android/iOS thực tế; chưa xác minh ít nhất vài quán quen tại Chợ Phùng Khoang bằng quan sát thực địa. 50 marker gần nhất không phải toàn bộ 556 POI; cần phân trang/cluster nếu muốn hiện hết ở một lần tìm.
 - Vùng ngoài bbox hỗ trợ cần gói bổ sung. Không dùng public Overpass làm backend production.
 

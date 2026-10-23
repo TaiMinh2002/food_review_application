@@ -28,8 +28,12 @@ Phạm vi/trạng thái/lộ trình ở [FEATURES.md](FEATURES.md); schema, quer
 
 ## Dependency injection
 
-`ProviderScope` ở main; `placeRepositoryProvider` đang cấp `DemoPlaceRepository`.
-Khi có Firestore, thêm implementation mới ở places/data và đổi provider.
+`ProviderScope` ở main; `placeRepositoryProvider` vẫn cấp
+`DemoPlaceRepository` cho Search/Category/Detail trong giai đoạn R2.
+Home dùng `homeNearbyPlacesProvider` → `NearbyPlaceRepository` → gói OSM
+Hà Nội qua `OsmRegionPlaceRepository`. Map dùng cùng gói qua adapter
+`OsmRegionMapRepository`. Firestore catalog về sau chỉ xác thực tham chiếu
+và lookup ID, không làm nguồn danh sách quán gần đây.
 Không tạo Firestore instance trong widget. Test có thể override provider mà không kết nối mạng.
 Search dùng capability `PlaceSearchRepository.searchPlaces(request, cursor, pageSize)`
 qua `placeSearchRepositoryProvider`; nguồn mặc định tái sử dụng DemoPlaceRepository.
@@ -44,13 +48,19 @@ Map dùng capability `PlaceMapRepository.findInViewport(bounds, filters, near, l
 provider mặc định hiện đọc gói OSM Hà Nội có provenance từ Geofabrik và dựng spatial
 grid index trên thiết bị. Query giới hạn bán kính 5 km quanh tâm bản đồ, thêm viewport
 và limit; đây là dữ liệu asset đã lọc, không phải quét collection Firestore hay gọi
-Overpass công khai lúc chạy. Ngoài vùng gói trả lỗi chưa hỗ trợ. Home/Search/Detail
-vẫn theo adapter demo cho tới các đợt tích hợp riêng; xem
+Overpass công khai lúc chạy. Ngoài vùng gói trả lỗi chưa hỗ trợ. Home truy vấn
+grid index trên gói OSM bằng tâm/bán kính 5 km, chỉ render danh sách qua
+SliverList và lọc tên/loại trong kết quả vùng đã giới hạn. Đây không phải
+quét toàn bộ backend trong widget. Search/Category/Detail vẫn theo adapter
+demo cho tới các đợt R2 riêng; xem
 [REAL_DATA_R1_STATUS.md](REAL_DATA_R1_STATUS.md).
 `placeMapControllerProvider` giữ query/result/GPS và chặn stale response, screen giữ camera.
 `UserLocationRepository` có implementation Geolocator với foreground fix khi mở app hoặc
 cập nhật thủ công. `AppPermissionsStartup` gọi sau frame đầu, `userLocationControllerProvider`
 chia sẻ vị trí cho Home/Map; không đọc GPS trong build và không có vị trí mặc định.
+`discoveryCenterProvider` giữ tâm được chọn thủ công ở Home/Map; khi không
+chọn tâm, cả hai dùng GPS. Map cập nhật tâm chung khi bấm “Tìm vùng này”;
+đổi tâm làm Home truy vấn lại thay vì giữ kết quả khu vực cũ.
 Xem [STARTUP_LOCATION.md](STARTUP_LOCATION.md) và [MAP_UI.md](MAP_UI.md).
 `reviewRepositoryProvider` cấp `DemoReviewRepository`; `reviewPreviewProvider(placeId)`
 đọc tối đa hai review qua contract `watchForPlace(placeId, limit: 2)`, có lỗi/retry riêng.
@@ -101,8 +111,11 @@ upload công khai. Xem [REPORT_CONTENT_UI.md](REPORT_CONTENT_UI.md).
 ## Routing
 
 - `/search`: Search T05 với query/filter/sort/phân trang riêng; `/search/filters`: form nháp T06, Apply/Reset/Cancel. Xem [SEARCH_UI.md](SEARCH_UI.md).
-- `/home`: Home theo Stitch (T03), giữ tìm/lọc demo tại chỗ và cuộn khi chuyển tab.
-- `/categories/:categoryId`: T07 trong branch Home, giữ thanh bốn tab; Home có lối “Xem danh mục”. ID sai không gọi query. Detail push trên root và Back giữ bộ lọc/vị trí cuộn của danh mục.
+- `/home`: Home theo Stitch (T03), tìm tên/loại quán OSM trong bán kính 5 km
+  quanh tâm được chọn và giữ cuộn khi chuyển tab.
+- `/categories/:categoryId`: T07 trong branch Home, giữ thanh bốn tab; nguồn
+  của màn này vẫn demo cho tới R2 nên Home chưa mở từ card/chip. ID sai không
+  gọi query. Detail push trên root và Back giữ bộ lọc/vị trí cuộn của danh mục.
 - `/restaurants/:restaurantId`: chi tiết Stitch T04 với gallery, menu, review preview và thanh giá/chỉ đường; map ID sang `placeId` trong domain, xử lý ID không tồn tại. Xem [RESTAURANT_DETAIL_UI.md](RESTAURANT_DETAIL_UI.md).
 - `/map`: MapLibre/OpenFreeMap dựng nền native; FlutterMap giữ camera/gesture/marker/card quán. `restaurantId` chọn quán từ chi tiết. Camera/selection giữ trong indexed stack. Xem [NATIVE_MAP.md](NATIVE_MAP.md).
 - `/restaurants/:restaurantId/gallery`: T09b trên root; `index` mở viewer, `source=review&reviewId=...` chọn ảnh review đúng scope. Đóng viewer về lưới, Back về nguồn. Xem [GALLERY_UI.md](GALLERY_UI.md).

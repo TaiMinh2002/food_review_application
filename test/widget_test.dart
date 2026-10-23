@@ -3,57 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'support/auth_fixtures.dart';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:food_review/app/food_review_app.dart';
 import 'package:food_review/core/router/app_router.dart';
 import 'package:food_review/features/places/domain/place.dart';
-import 'package:food_review/features/places/domain/place_repository.dart';
+import 'package:food_review/features/places/domain/nearby_place_repository.dart';
+import 'package:food_review/features/places/domain/place_map_repository.dart';
 import 'package:food_review/features/places/presentation/place_providers.dart';
 import 'package:food_review/shared/widgets/app_skeleton.dart';
 
 void main() {
-  testWidgets('Search, detail and favorites share state across navigation', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      ProviderScope(overrides: [signedInSession], child: const FoodReviewApp()),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(TextField), 'phở');
-    await tester.pumpAndSettle();
-    expect(find.text('Phở Nhà Mình'), findsOneWidget);
-    expect(find.text('Góc Cà Phê'), findsNothing);
-
-    await tester.tap(find.text('Phở Nhà Mình'));
-    await tester.pumpAndSettle();
-    expect(find.text('Chi tiết quán'), findsOneWidget);
-    await tester.ensureVisible(find.text('Lưu yêu thích'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Lưu yêu thích'));
-    await tester.pumpAndSettle();
-    expect(find.text('Bỏ yêu thích'), findsOneWidget);
-
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Yêu thích'));
-    await tester.pumpAndSettle();
-    expect(find.text('Phở Nhà Mình'), findsOneWidget);
-    await tester.tap(find.byTooltip('Bỏ yêu thích'));
-    await tester.pumpAndSettle();
-    expect(find.text('Bạn chưa lưu nhà hàng nào'), findsOneWidget);
-
-    await tester.tap(find.text('Trang chủ'));
-    await tester.pumpAndSettle();
-    expect(find.text('Góc Cà Phê'), findsNothing);
-    expect(
-      tester.widget<EditableText>(find.byType(EditableText)).controller.text,
-      'phở',
-    );
-  });
-
   testWidgets('Pending repository shows loading before its empty result', (
     tester,
   ) async {
@@ -61,18 +20,22 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          placeRepositoryProvider.overrideWithValue(
+          nearbyPlaceRepositoryProvider.overrideWithValue(
             _DeferredRepository(result.future),
           ),
         ],
         child: const FoodReviewApp(),
       ),
     );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Xem Chợ Phùng Khoang'));
     await tester.pump();
-    expect(find.byType(AppRestaurantSkeleton), findsNWidgets(2));
+    expect(find.byType(AppRestaurantSkeleton), findsOneWidget);
     result.complete([]);
     await tester.pumpAndSettle();
     expect(find.byType(AppRestaurantSkeleton), findsNothing);
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
+    await tester.pumpAndSettle();
     expect(find.text('Không tìm thấy quán phù hợp.'), findsOneWidget);
   });
 
@@ -80,11 +43,15 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          placeRepositoryProvider.overrideWithValue(_EmptyRepository()),
+          nearbyPlaceRepositoryProvider.overrideWithValue(_EmptyRepository()),
         ],
         child: const FoodReviewApp(),
       ),
     );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Xem Chợ Phùng Khoang'));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
     await tester.pumpAndSettle();
     expect(find.text('Không tìm thấy quán phù hợp.'), findsOneWidget);
   });
@@ -93,12 +60,18 @@ void main() {
     final repository = _FailOnceRepository();
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [placeRepositoryProvider.overrideWithValue(repository)],
+        overrides: [
+          nearbyPlaceRepositoryProvider.overrideWithValue(repository),
+        ],
         child: const FoodReviewApp(),
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Không tải được danh sách quán.'), findsOneWidget);
+    await tester.tap(find.text('Xem Chợ Phùng Khoang'));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
+    await tester.pumpAndSettle();
+    expect(find.text('Không tải được quán trong khu vực này.'), findsOneWidget);
     await tester.tap(find.text('Thử lại'));
     await tester.pumpAndSettle();
     expect(repository.calls, 2);
@@ -122,12 +95,12 @@ void main() {
   });
 }
 
-class _EmptyRepository implements PlaceRepository {
+class _EmptyRepository implements NearbyPlaceRepository {
   @override
-  Future<List<Place>> fetchPlaces() async => [];
-
-  @override
-  Future<Place?> getPlace(String id) async => null;
+  Future<List<Place>> findNearby(
+    GeoPoint center, {
+    int radiusMeters = 5000,
+  }) async => [];
 }
 
 class _DeferredRepository extends _EmptyRepository {
@@ -135,14 +108,18 @@ class _DeferredRepository extends _EmptyRepository {
   final Future<List<Place>> result;
 
   @override
-  Future<List<Place>> fetchPlaces() => result;
+  Future<List<Place>> findNearby(GeoPoint center, {int radiusMeters = 5000}) =>
+      result;
 }
 
 class _FailOnceRepository extends _EmptyRepository {
   int calls = 0;
 
   @override
-  Future<List<Place>> fetchPlaces() async {
+  Future<List<Place>> findNearby(
+    GeoPoint center, {
+    int radiusMeters = 5000,
+  }) async {
     calls++;
     if (calls == 1) throw Exception('Simulated network failure');
     return [];

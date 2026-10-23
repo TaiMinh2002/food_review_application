@@ -59,6 +59,20 @@ void main() {
         ),
         isTrue,
       );
+      final aroundGps = await map.findInViewport(
+        viewport,
+        filters: PlaceSearchRequest(),
+        near: market,
+        limit: 200,
+      );
+      final expected = nearby
+          .where(
+            (place) =>
+                viewport.contains(GeoPoint(place.latitude, place.longitude)),
+          )
+          .take(200)
+          .map((place) => place.id);
+      expect(aroundGps.places.map((place) => place.id), expected);
     },
   );
 

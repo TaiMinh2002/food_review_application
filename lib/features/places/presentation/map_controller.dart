@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,9 +15,12 @@ import 'user_location_controller.dart';
 export 'user_location_controller.dart' show userLocationRepositoryProvider;
 
 final osmRegionPlaceRepositoryProvider = Provider<OsmRegionPlaceRepository>(
-  (ref) => OsmRegionPlaceRepository(
-    () => rootBundle.loadString('assets/osm/hanoi_urban_places.json'),
-  ),
+  (ref) => OsmRegionPlaceRepository(() async {
+    final bytes = await rootBundle.load('assets/osm/hanoi_urban_places.json');
+    return utf8.decode(
+      bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
+    );
+  }),
 );
 
 final placeMapRepositoryProvider = Provider<PlaceMapRepository?>(

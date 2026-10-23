@@ -235,45 +235,38 @@ void main() {
     }
   }
 
-  testWidgets(
-    'Home entry retains quick filtering; detail Back and tabs retain category state',
-    (tester) async {
-      final container = await mount(tester, route: '/home');
-      await tester.tap(find.widgetWithText(FilterChip, 'Món Việt'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Xem danh mục'));
-      await tester.pumpAndSettle();
-      expect(find.byType(CategoryScreen), findsOneWidget);
-      await tester.tap(find.widgetWithText(FilterChip, 'Phở'));
-      await tester.pumpAndSettle();
-      await reveal(tester, find.byTooltip('Lưu yêu thích'));
-      await tester.tap(find.byTooltip('Lưu yêu thích'));
-      await tester.pumpAndSettle();
-      expect(container.read(favoriteIdsProvider), contains('pho-demo'));
-      final position = tester.state<ScrollableState>(scroll()).position.pixels;
-      await tester.tap(find.text('Phở Nhà Mình'));
-      await tester.pumpAndSettle();
-      expect(
-        tester
-            .widget<PlaceDetailScreen>(find.byType(PlaceDetailScreen))
-            .placeId,
-        'pho-demo',
-      );
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-      expect(tester.state<ScrollableState>(scroll()).position.pixels, position);
-      expect(find.byTooltip('Bỏ yêu thích'), findsOneWidget);
-      await tester.tap(find.text('Cá nhân').last);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Trang chủ').last);
-      await tester.pumpAndSettle();
-      expect(find.byType(CategoryScreen), findsOneWidget);
-      expect(find.text('Góc Cà Phê'), findsNothing);
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(find.text('Kết quả khám phá'), findsOneWidget);
-    },
-  );
+  testWidgets('Category route retains filters, detail Back and tab state', (
+    tester,
+  ) async {
+    final container = await mount(tester, route: '/categories/mon-viet');
+    expect(find.byType(CategoryScreen), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilterChip, 'Phở'));
+    await tester.pumpAndSettle();
+    await reveal(tester, find.byTooltip('Lưu yêu thích'));
+    await tester.tap(find.byTooltip('Lưu yêu thích'));
+    await tester.pumpAndSettle();
+    expect(container.read(favoriteIdsProvider), contains('pho-demo'));
+    final position = tester.state<ScrollableState>(scroll()).position.pixels;
+    await tester.tap(find.text('Phở Nhà Mình'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<PlaceDetailScreen>(find.byType(PlaceDetailScreen)).placeId,
+      'pho-demo',
+    );
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(tester.state<ScrollableState>(scroll()).position.pixels, position);
+    expect(find.byTooltip('Bỏ yêu thích'), findsOneWidget);
+    await tester.tap(find.text('Cá nhân').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Trang chủ').last);
+    await tester.pumpAndSettle();
+    expect(find.byType(CategoryScreen), findsOneWidget);
+    expect(find.text('Góc Cà Phê'), findsNothing);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Hôm nay ăn gì?'), findsOneWidget);
+  });
 
   testWidgets(
     'Scoped search, form Cancel Apply Reset and subtype All never leak categories',
