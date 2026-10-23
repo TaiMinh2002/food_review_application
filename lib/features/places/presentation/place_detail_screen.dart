@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_error_message.dart';
+import '../../../core/formatters/app_formatters.dart';
 import '../../../core/router/app_route.dart';
 import '../../../core/router/route_placeholder_screen.dart';
 import '../../../shared/design_system/design_system.dart';
@@ -10,6 +11,9 @@ import '../../../shared/widgets/app_message.dart';
 import '../../favorites/presentation/favorite_providers.dart';
 import '../../want_to_visit/presentation/want_to_visit_providers.dart';
 import '../domain/place.dart';
+import '../domain/place_map_repository.dart';
+import 'discovery_center.dart';
+import 'map_widgets.dart';
 import 'place_detail_actions.dart';
 import 'place_detail_overview.dart';
 import 'place_detail_sections.dart';
@@ -36,6 +40,9 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
   void _map(Place place) =>
       context.go(AppRoute.map.location(query: {'restaurantId': place.id}));
 
+  void _directions(Place place) =>
+      openMapLink(context, walkingDirections(place));
+
   void _gallery(Place place) => context.push(
     AppRoute.gallery.location(
       parameters: {'restaurantId': place.id},
@@ -59,6 +66,10 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(placeProvider(widget.placeId));
     final place = state.asData?.value;
+    final center = ref.watch(activeDiscoveryCenterProvider);
+    final distanceLabel = place != null && center != null
+        ? '${AppFormatters.distance(center.distanceTo(GeoPoint(place.latitude, place.longitude)))} · đường chim bay'
+        : null;
     final favorite = ref.watch(favoriteIdsProvider).contains(widget.placeId);
     final wantToVisit = ref
         .watch(wantToVisitIdsProvider)
@@ -146,10 +157,12 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
                           PlaceDetailOverview(
                             place: place,
                             photoIndex: _photoIndex,
+                            distanceLabel: distanceLabel,
                             onPhotoChanged: (index) =>
                                 setState(() => _photoIndex = index),
                             onGallery: () => _gallery(place),
                             onMap: () => _map(place),
+                            onDirections: () => _directions(place),
                             quickActions: PlaceDetailQuickActions(
                               favorite: favorite,
                               onFavorite: toggleFavorite,

@@ -35,12 +35,26 @@ Trạng thái: đã kiểm thử code/UI render; R2 toàn bộ chưa hoàn tất
   Cancel/Apply/Reset, sort chưa hỗ trợ, Home → Category → Map → Back, đổi tâm
   và response cũ đã có test. Screenshot là widget render, không phải native.
 
+## Restaurant Detail dùng nguồn OSM (23/10/2026)
+
+- Triển khai trên `feat/restaurant-detail-ui`, rebase từ `origin/dev` sau merge Category.
+- Hỗ trợ lookup POI OSM độc lập với tâm tìm kiếm hiện tại qua `osmRegionPlaceRepositoryProvider`
+  và `OsmRegionPlaceRepository` (implement cả `NearbyPlaceRepository` và `PlaceRepository`).
+- Tên, danh mục OSM (Nhà hàng, Cà phê, Ăn nhanh, Khu ẩm thực), địa chỉ thật nếu có và
+  khoảng cách đường chim bay từ tâm khám phá (nếu đã chọn tâm) hoặc tọa độ GPS.
+- Dữ liệu thiếu được xử lý trung thực: không bịa ảnh, menu hay rating giả; quán chưa có
+  review hiển thị "Chưa có đánh giá" và "Hãy là người đầu tiên chia sẻ cảm nhận về quán".
+- Ghi rõ attribution: "Dữ liệu nguồn OpenStreetMap · © OpenStreetMap contributors (ODbL)".
+- Tích hợp "Chỉ đường": nút Chỉ đường cố định ở thanh giá mở ứng dụng bản đồ bên ngoài
+  (Google Maps / Apple Maps qua `walkingDirections` và `openMapLink`), nút "Xem trên bản đồ"
+  mở màn hình Map nội bộ tại đúng quán.
+- Bộ test mới: `test/osm_place_detail_test.dart` (14 tests pass, gồm visual capture light/dark).
+  Toàn bộ `test/place_detail_test.dart` (16 tests pass) vẫn hoạt động nguyên vẹn.
+
 ## Phần còn lại
 
-- Bước tiếp: Detail trên `feat/restaurant-detail-ui`, rebase `dev` sau merge
-  Category; lookup OSM ID độc lập tâm hiện tại, xử lý trường thiếu và chỉ đường.
 - Bộ chọn quán Review/Collections và các capability persistence vẫn theo đợt
-  riêng. Chưa import catalog Firestore hoặc mở ghi review/favorite thật.
+  riêng (R3–R7). Chưa import catalog Firestore hoặc mở ghi review/favorite thật.
 - Chưa nghiệm thu thao tác thực tế Android/iOS, GPS/restart/mở ứng dụng chỉ đường
   và đối chiếu quán đang hoạt động. Chưa xác nhận chất lượng/phủ kín OSM thực địa.
 - Ngoài bbox gói hiện tại cần gói dữ liệu bổ sung; không fallback demo hoặc gọi

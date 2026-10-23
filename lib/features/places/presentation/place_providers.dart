@@ -30,10 +30,15 @@ final homeNearbyPlacesProvider = FutureProvider<List<Place>?>((ref) async {
   return ref.watch(nearbyPlaceRepositoryProvider).findNearby(center);
 }, retry: (retryCount, error) => null);
 
-final placeProvider = FutureProvider.autoDispose.family<Place?, String>(
-  (ref, id) => ref.watch(placeRepositoryProvider).getPlace(id),
-  retry: (retryCount, error) => null,
-);
+final placeProvider = FutureProvider.autoDispose.family<Place?, String>((
+  ref,
+  id,
+) async {
+  final repository = ref.watch(placeRepositoryProvider);
+  final place = await repository.getPlace(id);
+  if (place != null) return place;
+  return ref.watch(osmRegionPlaceRepositoryProvider).getById(id);
+}, retry: (retryCount, error) => null);
 
 List<Place> filterPlaces(List<Place> places, String query, String? category) {
   final normalized = normalizePlaceSearchText(query);

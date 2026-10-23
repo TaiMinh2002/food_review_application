@@ -5,11 +5,13 @@ import '../../../core/errors/app_exception.dart';
 import '../domain/nearby_place_repository.dart';
 import '../domain/place.dart';
 import '../domain/place_map_repository.dart';
+import '../domain/place_repository.dart';
 import 'osm_place_mapper.dart';
 
 /// Offline OSM region package. A small grid index is built once after loading.
 /// The JSON comes from tools/build_osm_region.py, not a Firestore catalog scan.
-class OsmRegionPlaceRepository implements NearbyPlaceRepository {
+class OsmRegionPlaceRepository
+    implements NearbyPlaceRepository, PlaceRepository {
   OsmRegionPlaceRepository(this.loadPackage);
 
   final Future<String> Function() loadPackage;
@@ -112,6 +114,14 @@ class OsmRegionPlaceRepository implements NearbyPlaceRepository {
   }
 
   Future<Place?> getById(String id) async => (await _index()).placesById[id];
+
+  @override
+  Future<Place?> getPlace(String id) => getById(id);
+
+  @override
+  Future<List<Place>> fetchPlaces() async =>
+      (await _index()).placesById.values.toList();
+
   Future<DateTime> sourceTime() async => (await _index()).sourceTime;
 }
 

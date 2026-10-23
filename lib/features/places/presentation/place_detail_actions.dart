@@ -15,8 +15,11 @@ Future<void> showPlaceShare(
   context,
   title: 'Chia sẻ quán',
   builder: (sheetContext) {
+    final addressPart = place.address.trim().isNotEmpty
+        ? '${place.address}\n'
+        : '';
     final info =
-        '${place.name}\n${place.address}\n${location ?? AppRoute.restaurant.location(parameters: {'restaurantId': place.id})}';
+        '${place.name}\n$addressPart${location ?? AppRoute.restaurant.location(parameters: {'restaurantId': place.id})}';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

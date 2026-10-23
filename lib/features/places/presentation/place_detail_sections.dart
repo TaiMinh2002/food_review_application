@@ -207,8 +207,11 @@ class PlaceReviewsSection extends ConsumerWidget {
           _SectionTitle(
             icon: Icons.rate_review_outlined,
             title: 'Đánh giá nổi bật',
-            onAction: () =>
-                context.push(AppRoute.reviews.location(parameters: params)),
+            onAction: place.reviewCount > 0
+                ? () => context.push(
+                    AppRoute.reviews.location(parameters: params),
+                  )
+                : null,
           ),
           const SizedBox(height: AppSpacing.md),
           if (place.reviewCount > 0) ...[
