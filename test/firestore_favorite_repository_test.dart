@@ -114,8 +114,8 @@ void main() {
     testWidgets('Resolves both demo and OSM places into Place models', (
       tester,
     ) async {
-      final package =
-          File('assets/osm/hanoi_urban_places.json').readAsStringSync();
+      final package = File('assets/osm/hanoi_urban_places.json')
+          .readAsStringSync();
       final fakeOsm = OsmRegionPlaceRepository(() async => package);
 
       final auth = ControlledAuth(user: authTestUser);
