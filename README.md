@@ -5,12 +5,29 @@ Phạm vi MVP và các hướng mở rộng được tổng hợp tại [FEATURE
 
 ## Trạng thái hiện tại
 
-- Đã chạy bằng dữ liệu mẫu: danh sách quán, tìm tên không phân biệt hoa/thường, lọc danh mục, chi tiết quán, thêm/bỏ yêu thích.
-- Riverpod quản lý dữ liệu/state; go_router điều hướng với bốn tab giữ trạng thái; tab Bản đồ hiện là placeholder; Material 3 theme.
-- Có loading, error/retry, empty và trường hợp không tìm thấy địa điểm.
-- Auth, review và profile đã có domain/contract hoặc màn hình khởi đầu; **chưa kết nối backend**.
-- Yêu thích chỉ lưu trong RAM, mất khi khởi động lại. Quán và tọa độ đều là dữ liệu minh họa.
-- Package Firebase, Cloudinary upload (HTTP/image_picker), bản đồ/GPS đã được khai báo; việc cài package chưa có nghĩa tính năng đã tích hợp.
+Dự án đã hoàn tất toàn bộ lộ trình chuyển đổi từ dữ liệu mẫu sang dữ liệu thật (Giai đoạn R0 đến R8) với ngân sách 0 đồng:
+
+- **Bản đồ & Khám phá địa điểm**: Nền bản đồ vector OpenFreeMap hiển thị qua MapLibre; dữ liệu quán ăn thật từ OpenStreetMap (OSM) theo khu vực bán kính 5.000 m; tìm kiếm tiếng Việt không dấu, lọc danh mục ẩm thực, chi tiết quán và chỉ đường mở ứng dụng ngoài.
+- **Xác thực (Auth)**: Firebase Authentication (Email & Password), hỗ trợ đăng ký, đăng nhập, quên mật khẩu, cập nhật hồ sơ và duy trì phiên đăng nhập bền vững.
+- **Hồ sơ cá nhân & Reviewer**: Lưu trữ hồ sơ công khai tại `users/{uid}`, cập nhật tên, ảnh, tiểu sử, khu vực và thống kê đánh giá thật.
+- **Yêu thích & Muốn ghé**: Lưu trữ và đồng bộ thời gian thực độc lập tại `users/{uid}/favorites` và `users/{uid}/wantToVisit`.
+- **Đánh giá & Thư viện ảnh**: Viết, chỉnh sửa, xóa đánh giá thật trên Cloud Firestore (`places/{placeKey}/reviews/{uid}`); tải ảnh trực tiếp lên Cloudinary với unsigned preset; tính điểm trung bình và phân bố sao trực tiếp từ Firestore aggregation.
+- **Bộ sưu tập cá nhân**: Quản lý bộ sưu tập tại `users/{uid}/collections/{collectionId}` với số lượng tối đa 50 địa điểm inline, phân quyền nghiêm ngặt theo chủ sở hữu.
+- **Báo cáo vi phạm**: Gửi và lưu trữ biên nhận báo cáo tại `reports/{uid}/submissions/{requestId}` kèm minh chứng ảnh riêng tư.
+- **Cài đặt & Giao diện**: SharedPreferences lưu trữ cài đặt Theme (Sáng / Tối / Theo hệ thống) bền vững trên thiết bị.
+- **Bảo mật**: Bộ quy tắc bảo mật Cloud Firestore (`firestore.rules`) đã được thiết lập nghiêm ngặt và kiểm chứng 100% qua bộ kiểm thử unit testing.
+
+Chi tiết tiến độ từng giai đoạn được ghi nhận tại các tài liệu:
+- [Kế hoạch tích hợp dữ liệu thật](docs/REAL_DATA_INTEGRATION_PLAN.md)
+- [R0 — Hợp đồng dữ liệu & Rules](docs/REAL_DATA_R0_STATUS.md)
+- [R1 — Bản đồ & OSM 5 km](docs/REAL_DATA_R1_STATUS.md)
+- [R2 — Khám phá & Danh mục](docs/REAL_DATA_R2_STATUS.md)
+- [R3 — Auth & Cài đặt](docs/REAL_DATA_R3_STATUS.md)
+- [R4 — Reviews & Cloudinary](docs/REAL_DATA_R4_STATUS.md)
+- [R5 — Favorites & Muốn ghé](docs/REAL_DATA_R5_STATUS.md)
+- [R6 — Collections & Public Reviewer](docs/REAL_DATA_R6_STATUS.md)
+- [R7 — Báo cáo vi phạm](docs/REAL_DATA_R7_STATUS.md)
+- [R8 — Nghiệm thu & Loại bỏ demo](docs/REAL_DATA_R8_STATUS.md)
 
 ## Chạy dự án
 
@@ -25,11 +42,6 @@ flutter run
 App nạp `.env` bằng `flutter_dotenv` trước khi khởi tạo Firebase. File này đã được
 Git bỏ qua và chỉ chứa cấu hình client công khai; xem [ENVIRONMENT.md](docs/ENVIRONMENT.md).
 Máy hiện tại đã có `.env` thì không cần chép lại từ bản mẫu.
-
-Luồng demo chưa gọi repository Auth/Firestore hoặc Cloudinary. App vẫn khởi tạo Firebase
-ngay lúc mở trên Android/iOS, nên cần cấu hình native hợp lệ theo
-[BACKEND_SETUP.md](docs/BACKEND_SETUP.md). Web chưa có FirebaseOptions; cần bổ sung
-cấu hình khởi tạo trước khi chạy bằng Chrome.
 
 ## Kiểm tra
 
