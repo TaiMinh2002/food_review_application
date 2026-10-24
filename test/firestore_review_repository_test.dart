@@ -8,6 +8,7 @@ import 'package:food_review/features/reviews/data/firestore_review_repository.da
 import 'package:food_review/features/reviews/domain/review.dart';
 import 'package:food_review/features/reviews/domain/review_feed_repository.dart';
 import 'package:food_review/features/reviews/domain/user_review_repository.dart';
+import 'package:food_review/features/profile/domain/public_reviewer_repository.dart';
 
 void main() {
   group('FirestoreReviewRepository unit tests', () {
@@ -362,6 +363,111 @@ void main() {
           id: 'u1',
           placeId: 'p1',
           userId: 'u1',
+          rating: 5,
+          content: 'Nội dung đánh giá hợp lệ.',
+          createdAt: DateTime.now(),
+        ),
+      );
+
+      expect(emitted, hasLength(1));
+    });
+
+    test(
+      'getPublicReviewer validates empty userId and executes hook',
+      () async {
+        final repo = FirestoreReviewRepository(
+          null,
+          getPublicReviewerHook: (userId) async => PublicReviewer(
+            id: userId,
+            name: 'Hải Đặng',
+            reviewCount: 5,
+            photoReviewCount: 2,
+            averageRating: 4.5,
+            region: 'Hà Nội',
+            isDemo: false,
+          ),
+        );
+
+        final emptyResult = await repo.getPublicReviewer('');
+        expect(emptyResult, isNull);
+
+        final reviewer = await repo.getPublicReviewer('u10');
+        expect(reviewer, isNotNull);
+        expect(reviewer!.name, 'Hải Đặng');
+        expect(reviewer.reviewCount, 5);
+        expect(reviewer.photoReviewCount, 2);
+        expect(reviewer.averageRating, 4.5);
+        expect(reviewer.isDemo, isFalse);
+      },
+    );
+
+    test('getPublicReviews validates arguments and executes hook', () async {
+      final repo = FirestoreReviewRepository(
+        null,
+        getPublicReviewsHook: (userId, filter, cursor, pageSize) async {
+          expect(userId, 'u10');
+          expect(filter, PublicReviewFilter.ratingHigh);
+          expect(pageSize, 5);
+          return ReviewPage(
+            items: [
+              Review(
+                id: 'r1',
+                placeId: 'p1',
+                userId: userId,
+                rating: 5,
+                content: 'Quán tuyệt vời!',
+                createdAt: DateTime.now(),
+              ),
+            ],
+            totalCount: 1,
+            isDemo: false,
+          );
+        },
+      );
+
+      // Invalid page size
+      expect(
+        () => repo.getPublicReviews('u10', pageSize: 0),
+        throwsA(isA<ArgumentError>()),
+      );
+      expect(
+        () => repo.getPublicReviews('u10', pageSize: 51),
+        throwsA(isA<ArgumentError>()),
+      );
+
+      // Empty user id returns empty page
+      final emptyPage = await repo.getPublicReviews('');
+      expect(emptyPage.items, isEmpty);
+      expect(emptyPage.totalCount, 0);
+
+      // Valid call
+      final page = await repo.getPublicReviews(
+        'u10',
+        filter: PublicReviewFilter.ratingHigh,
+        pageSize: 5,
+      );
+      expect(page.items, hasLength(1));
+      expect(page.items.first.content, 'Quán tuyệt vời!');
+      expect(page.isDemo, isFalse);
+    });
+
+    test('watchPublicReviewerChanges emits when review changes', () async {
+      final repo = FirestoreReviewRepository(
+        null,
+        saveReview: (review) async {},
+      );
+
+      final emitted = <void>[];
+      final sub = repo.watchPublicReviewerChanges('u10').listen((event) {
+        emitted.add(event);
+      });
+      addTearDown(sub.cancel);
+
+      await repo.create(
+        Review(
+          id: 'u10',
+          placeId: 'p1',
+          userId: 'u10',
           rating: 5,
           content: 'Nội dung đánh giá hợp lệ.',
           createdAt: DateTime.now(),
