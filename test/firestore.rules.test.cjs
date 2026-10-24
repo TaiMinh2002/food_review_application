@@ -134,8 +134,6 @@ test('reviews are owner-written, validated and readable when public', async () =
     content: 'Quá ngắn',
   }));
 
-  // Reports remain closed until R7
-  await assertFails(setDoc(doc(db('alice'), 'reports/alice/submissions/one'), { reason: 'spam' }));
 });
 
 test('collections are owner-scoped, validated, and private from other users', async () => {
@@ -179,4 +177,44 @@ test('collections are owner-scoped, validated, and private from other users', as
 
   // Alice can delete her collection
   await assertSucceeds(deleteDoc(aliceCollection));
+});
+
+test('reports are owner-created receipts, validated, and private from others', async () => {
+  const aliceSubmission = doc(db('alice'), 'reports/alice/submissions/req1');
+  const validReport = {
+    targetType: 'review',
+    targetId: 'alice',
+    placeId: 'osm_node_123',
+    reason: 'spam',
+    description: 'Nội dung quảng cáo không phù hợp.',
+    evidenceCount: 1,
+    status: 'pending',
+    createdAt: serverTimestamp(),
+  };
+
+  // Alice can submit her report receipt
+  await assertSucceeds(setDoc(aliceSubmission, validReport));
+
+  // Alice can read her submitted receipt
+  assert.equal((await assertSucceeds(getDoc(aliceSubmission))).exists(), true);
+
+  // Bob and guest cannot read Alice's report
+  await assertFails(getDoc(doc(db('bob'), 'reports/alice/submissions/req1')));
+  await assertFails(getDoc(doc(db(), 'reports/alice/submissions/req1')));
+
+  // Client cannot update report status to resolved or modify description
+  await assertFails(updateDoc(aliceSubmission, { status: 'resolved' }));
+  await assertFails(updateDoc(aliceSubmission, { description: 'Sửa nội dung' }));
+
+  // Client cannot delete report
+  await assertFails(deleteDoc(aliceSubmission));
+
+  // Bob cannot create report under Alice's path
+  await assertFails(setDoc(doc(db('bob'), 'reports/alice/submissions/req2'), validReport));
+
+  // Status must be pending on create
+  await assertFails(setDoc(doc(db('alice'), 'reports/alice/submissions/req3'), {
+    ...validReport,
+    status: 'resolved',
+  }));
 });

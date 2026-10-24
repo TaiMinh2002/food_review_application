@@ -1,18 +1,30 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../../auth/presentation/auth_providers.dart';
+import '../../places/presentation/map_controller.dart';
 import '../../places/presentation/place_providers.dart';
 import '../../reviews/presentation/review_providers.dart';
 import '../data/demo_report_repository.dart';
+import '../data/firestore_report_repository.dart';
 import '../domain/report_repository.dart';
 
-final reportRepositoryProvider = Provider<ReportRepository>(
-  (ref) => DemoReportRepository(
+final reportRepositoryProvider = Provider<ReportRepository>((ref) {
+  if (Firebase.apps.isEmpty) {
+    return DemoReportRepository(
+      places: ref.watch(placeRepositoryProvider),
+      reviews: ref.watch(reviewRepositoryProvider),
+    );
+  }
+  return FirestoreReportRepository(
+    FirebaseFirestore.instance,
     places: ref.watch(placeRepositoryProvider),
     reviews: ref.watch(reviewRepositoryProvider),
-  ),
-);
+    osmPlaces: ref.watch(osmRegionPlaceRepositoryProvider),
+  );
+});
 
 typedef ReportKey = ({String ownerId, String scope, ReportTarget target});
 
