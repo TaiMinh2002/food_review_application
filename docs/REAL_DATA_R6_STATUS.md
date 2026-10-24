@@ -26,4 +26,14 @@ Cập nhật 24/10/2026. Triển khai theo từng bước nhỏ trên các nhán
      - Widget tests `test/collections_screen_test.dart` và `test/collection_editor_screen_test.dart` (21 tests pass).
 
 ### Bước 6.2 — Public Reviewer Profile & Thống kê thật
-- *Dự kiến thực hiện tiếp theo trên nhánh `feat/public-reviewer-profile`*.
+- **Nhánh**: `feat/public-reviewer-profile`, base từ `origin/dev`.
+- **Đã hoàn thành**:
+  1. **Triển khai `PublicReviewerRepository` trên `FirestoreReviewRepository` (`lib/features/reviews/data/firestore_review_repository.dart`)**:
+     - `getPublicReviewer(userId)`: đọc hồ sơ công khai từ `users/{userId}` (displayName, photoUrl, bio, region, status), tính toán chính xác số bài review (`reviewCount`), số bài có ảnh (`photoReviewCount`), điểm trung bình (`averageRating`), và bài đánh giá nổi bật (`featured`) từ các bài viết công khai thật của người dùng.
+     - `getPublicReviews(userId, filter, cursor, pageSize)`: nạp danh sách đánh giá công khai thật qua Firestore collectionGroup `reviews`, hỗ trợ bộ lọc (`newest`, `ratingHigh`, `withPhotos`) và phân trang cursor.
+     - `watchPublicReviewerChanges(userId)`: lắng nghe thay đổi thời gian thực mỗi khi có thao tác tạo, cập nhật hoặc xóa review của tác giả để cập nhật hồ sơ công khai tức thời.
+  2. **Kết nối Provider (`lib/features/profile/presentation/public_reviewer_controller.dart`)**:
+     - `publicReviewerRepositoryProvider`: kết nối tự động với `FirestoreReviewRepository` thông qua `reviewRepositoryProvider` khi chạy trên Firebase.
+  3. **Kiểm thử**:
+     - Unit tests `test/firestore_review_repository_test.dart` bổ sung 3 test cases cho `PublicReviewerRepository` (15 tests pass).
+     - Tests hồi quy hồ sơ công khai `test/public_reviewer_test.dart` (14 tests pass).

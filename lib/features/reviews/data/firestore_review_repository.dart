@@ -7,6 +7,7 @@ import '../domain/review.dart';
 import '../domain/review_feed_repository.dart';
 import '../domain/review_repository.dart';
 import '../domain/user_review_repository.dart';
+import '../../profile/domain/public_reviewer_repository.dart';
 
 class FirestoreReviewRepository
     implements
@@ -14,7 +15,8 @@ class FirestoreReviewRepository
         ReviewManagementRepository,
         ReviewMediaRepository,
         ReviewFeedRepository,
-        UserReviewRepository {
+        UserReviewRepository,
+        PublicReviewerRepository {
   FirestoreReviewRepository(
     this._firestore, {
     this.saveReview,
@@ -27,6 +29,9 @@ class FirestoreReviewRepository
     this.getUserReviewSummaryHook,
     this.getUserReviewsHook,
     this.watchUserReviewChangesHook,
+    this.getPublicReviewerHook,
+    this.getPublicReviewsHook,
+    this.watchPublicReviewerChangesHook,
   });
 
   final FirebaseFirestore? _firestore;
@@ -56,6 +61,15 @@ class FirestoreReviewRepository
   )?
   getUserReviewsHook;
   final Stream<void> Function(String userId)? watchUserReviewChangesHook;
+  final Future<PublicReviewer?> Function(String userId)? getPublicReviewerHook;
+  final Future<ReviewPage> Function(
+    String userId,
+    PublicReviewFilter filter,
+    String? cursor,
+    int pageSize,
+  )?
+  getPublicReviewsHook;
+  final Stream<void> Function(String userId)? watchPublicReviewerChangesHook;
 
   final _userChanges = StreamController<String>.broadcast(sync: true);
 
@@ -471,37 +485,180 @@ class FirestoreReviewRepository
     }
   }
 
+  @override
+  Stream<void> watchPublicReviewerChanges(String userId) {
+    if (watchPublicReviewerChangesHook != null) {
+      return watchPublicReviewerChangesHook!(userId);
+    }
+    return _userChanges.stream.where((id) => id == userId).map((_) {});
+  }
+
+  @override
+  Future<PublicReviewer?> getPublicReviewer(String userId) async {
+    if (userId.trim().isEmpty) return null;
+    if (getPublicReviewerHook != null) {
+      return getPublicReviewerHook!(userId);
+    }
+    try {
+      final userDoc = await _firestore!.collection('users').doc(userId).get();
+      if (!userDoc.exists) return null;
+      final userData = userDoc.data() ?? {};
+      if (userData['status'] != 'active') return null;
+
+      final snapshot = await _firestore
+          .collectionGroup('reviews')
+          .where('userId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      final reviews = snapshot.docs
+          .where(
+            (doc) => (doc.data()['status'] as String? ?? 'public') == 'public',
+          )
+          .map(_fromDoc)
+          .toList();
+
+      final reviewCount = reviews.length;
+      final photoReviewCount = reviews
+          .where((r) => r.imageUrls.isNotEmpty)
+          .length;
+      final double? averageRating = reviews.isEmpty
+          ? null
+          : reviews.fold<int>(0, (total, r) => total + r.rating) /
+                reviews.length;
+
+      Review? featured;
+      if (reviews.isNotEmpty) {
+        final sorted = [...reviews]
+          ..sort((a, b) {
+            final rating = b.rating.compareTo(a.rating);
+            if (rating != 0) return rating;
+            final photoComp = (b.imageUrls.isNotEmpty ? 1 : 0).compareTo(
+              a.imageUrls.isNotEmpty ? 1 : 0,
+            );
+            return photoComp != 0
+                ? photoComp
+                : b.createdAt.compareTo(a.createdAt);
+          });
+        featured = sorted.first;
+      }
+
+      final displayName = (userData['displayName'] as String?)?.trim();
+      final name = (displayName != null && displayName.isNotEmpty)
+          ? displayName
+          : (reviews.firstOrNull?.authorName ?? 'Thành viên');
+      final photoUrl = userData['photoUrl'] as String?;
+      final bio = userData['bio'] as String?;
+      final region = userData['region'] as String?;
+      final handle = '@${userId.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '')}';
+
+      return PublicReviewer(
+        id: userId,
+        name: name,
+        reviewCount: reviewCount,
+        photoReviewCount: photoReviewCount,
+        averageRating: averageRating,
+        photoUrl: photoUrl,
+        handle: handle,
+        region: region,
+        bio: bio,
+        featured: featured,
+        isDemo: false,
+      );
+    } on FirebaseException catch (e) {
+      throw AppException(
+        'Không tải được hồ sơ người đánh giá. Vui lòng thử lại.',
+        code: e.code,
+      );
+    } catch (_) {
+      throw const AppException(
+        'Không tải được hồ sơ người đánh giá. Vui lòng thử lại.',
+      );
+    }
+  }
+
+  @override
+  Future<ReviewPage> getPublicReviews(
+    String userId, {
+    PublicReviewFilter filter = PublicReviewFilter.newest,
+    String? cursor,
+    int pageSize = 10,
+  }) async {
+    if (pageSize < 1 || pageSize > 50) {
+      throw ArgumentError.value(pageSize, 'pageSize');
+    }
+    if (userId.trim().isEmpty) {
+      return ReviewPage(items: const [], totalCount: 0, isDemo: false);
+    }
+    if (getPublicReviewsHook != null) {
+      return getPublicReviewsHook!(userId, filter, cursor, pageSize);
+    }
+    try {
+      final snapshot = await _firestore!
+          .collectionGroup('reviews')
+          .where('userId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      var reviews = snapshot.docs
+          .where(
+            (doc) => (doc.data()['status'] as String? ?? 'public') == 'public',
+          )
+          .map(_fromDoc)
+          .toList();
+
+      if (filter == PublicReviewFilter.withPhotos) {
+        reviews = reviews.where((r) => r.imageUrls.isNotEmpty).toList();
+      }
+
+      reviews.sort((a, b) {
+        final rating = filter == PublicReviewFilter.ratingHigh
+            ? b.rating.compareTo(a.rating)
+            : 0;
+        if (rating != 0) return rating;
+        final date = b.createdAt.compareTo(a.createdAt);
+        return date != 0 ? date : a.id.compareTo(b.id);
+      });
+
+      var start = 0;
+      if (cursor != null) {
+        final index = reviews.indexWhere((r) => r.id == cursor);
+        if (index < 0) {
+          throw const AppException('Danh sách đã thay đổi. Vui lòng tải lại.');
+        }
+        start = index + 1;
+      }
+
+      final items = reviews.skip(start).take(pageSize).toList();
+      final nextCursor = start + items.length < reviews.length
+          ? items.last.id
+          : null;
+
+      return ReviewPage(
+        items: items,
+        totalCount: reviews.length,
+        nextCursor: nextCursor,
+        isDemo: false,
+      );
+    } on AppException {
+      rethrow;
+    } on FirebaseException catch (e) {
+      throw AppException(
+        'Không tải được danh sách đánh giá công khai. Vui lòng thử lại.',
+        code: e.code,
+      );
+    } catch (_) {
+      throw const AppException(
+        'Không tải được danh sách đánh giá công khai. Vui lòng thử lại.',
+      );
+    }
+  }
+
   Review _fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? {};
-    final createdAtRaw = data['createdAt'];
-    DateTime createdAt;
-    if (createdAtRaw is Timestamp) {
-      createdAt = createdAtRaw.toDate();
-    } else {
-      createdAt = DateTime.now();
-    }
-
-    final updatedAtRaw = data['updatedAt'];
-    DateTime? updatedAt;
-    if (updatedAtRaw is Timestamp) {
-      updatedAt = updatedAtRaw.toDate();
-    }
-
-    final visitDateRaw = data['visitDate'];
-    DateTime? visitDate;
-    if (visitDateRaw is Timestamp) {
-      visitDate = visitDateRaw.toDate();
-    }
-
-    final imageUrls =
-        (data['imageUrls'] as List<dynamic>?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        const [];
-    final dishes =
-        (data['dishes'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
-        const [];
-
+    final cAt = data['createdAt'];
+    final uAt = data['updatedAt'];
+    final vAt = data['visitDate'];
     return Review(
       id: doc.id,
       placeId: (data['placeId'] as String?) ?? '',
@@ -509,13 +666,21 @@ class FirestoreReviewRepository
       authorName: (data['authorName'] as String?) ?? 'Thành viên',
       rating: (data['rating'] as num?)?.toInt() ?? 5,
       content: (data['content'] as String?) ?? '',
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      createdAt: cAt is Timestamp ? cAt.toDate() : DateTime.now(),
+      updatedAt: uAt is Timestamp ? uAt.toDate() : null,
       title: data['title'] as String?,
-      visitDate: visitDate,
+      visitDate: vAt is Timestamp ? vAt.toDate() : null,
       companion: data['companion'] as String?,
-      imageUrls: imageUrls,
-      dishes: dishes,
+      imageUrls:
+          (data['imageUrls'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      dishes:
+          (data['dishes'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
       isDemo: false,
     );
   }
