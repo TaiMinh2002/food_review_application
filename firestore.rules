@@ -35,6 +35,19 @@ service cloud.firestore {
         data.get('coverUrl', '') is string && data.get('coverUrl', '').size() <= 2048;
     }
 
+    function validReportSubmission() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['targetType', 'targetId', 'reason', 'description', 'evidenceCount', 'status', 'createdAt']) &&
+        data.keys().hasOnly(['targetType', 'targetId', 'placeId', 'reason', 'description', 'evidenceCount', 'status', 'createdAt']) &&
+        data.targetType in ['place', 'review', 'user'] &&
+        data.targetId is string && data.targetId.size() >= 1 && data.targetId.size() <= 200 &&
+        data.reason in ['inaccurate', 'harassment', 'spam', 'inappropriatePhoto', 'fakeReview', 'other'] &&
+        data.description is string && data.description.size() <= 500 &&
+        data.evidenceCount is int && data.evidenceCount >= 0 && data.evidenceCount <= 3 &&
+        data.status == 'pending' &&
+        data.createdAt == request.time;
+    }
+
     function validPublicProfile(uid) {
       return request.resource.data.keys().hasOnly([
         'displayName', 'photoUrl', 'bio', 'region', 'status',
@@ -130,10 +143,25 @@ service cloud.firestore {
           request.resource.data.updatedAt == request.time;
       }
 
-      // Keep unimplemented private domains closed until their data adapters,
-      // validation and ownership tests arrive in R7.
+      // All other user private subcollections are closed
       match /{privateDocument=**} {
         allow read, write: if false;
+      }
+    }
+
+    match /reports/{uid}/submissions/{requestId} {
+      allow read: if signedInAs(uid);
+      allow create: if signedInAs(uid) && validReportSubmission();
+      allow update, delete: if false;
+
+      match /evidence/{evidenceId} {
+        allow read: if signedInAs(uid);
+        allow create: if signedInAs(uid) &&
+          request.resource.data.keys().hasAll(['name', 'createdAt']) &&
+          request.resource.data.keys().hasOnly(['name', 'bytes', 'createdAt']) &&
+          request.resource.data.name is string && request.resource.data.name.size() <= 255 &&
+          request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
       }
     }
 
