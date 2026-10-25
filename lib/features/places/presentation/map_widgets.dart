@@ -368,7 +368,7 @@ class MapPlacePreview extends ConsumerWidget {
                         ),
                       if (location case final point?)
                         Text(
-                          'Cách khoảng ${AppFormatters.distance(point.distanceTo(GeoPoint(place.latitude, place.longitude)))} · đường chim bay',
+                          'Cách khoảng ${AppFormatters.distance(point.distanceTo(GeoPoint(place.latitude, place.longitude)))}',
                           style: context.textStyles.labelSmall,
                         ),
                     ],

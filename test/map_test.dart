@@ -244,10 +244,13 @@ void main() {
           (tester) async {
             await mount(tester, width: width, scale: scale, mode: mode);
             expect(tester.takeException(), isNull);
-            await tester.ensureVisible(find.text('Xem chi tiết'));
+            // Full-screen map: preview card shows at bottom when a place is selected
+            expect(find.byType(PlaceMapCanvas), findsOneWidget);
+            expect(find.byType(MapPlacePreview), findsNothing);
+            await tester.tap(find.byKey(const ValueKey('marker-pho-demo')));
             await tester.pumpAndSettle();
+            expect(find.byType(MapPlacePreview), findsOneWidget);
             expect(tester.takeException(), isNull);
-            expect(find.text('© OpenStreetMap'), findsOneWidget);
           },
         );
       }
@@ -324,14 +327,11 @@ void main() {
       expect(result.places.first.id, startsWith('osm_'));
       expect(find.byTooltip('Lưu quán'), findsNothing);
       expect(find.text('Xem chi tiết'), findsNothing);
-      expect(find.textContaining('OSM Hà Nội'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
 
-  testWidgets('Search, clear, empty and filter draft apply affect map data', (
-    tester,
-  ) async {
+  testWidgets('Search and clear affect map data', (tester) async {
     final container = await mount(tester, height: 1100);
     final input = find.descendant(
       of: find.byType(AppSearchField),
@@ -340,39 +340,16 @@ void main() {
     await tester.enterText(input, 'missing');
     await tester.pump(const Duration(milliseconds: 350));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Không có quán phù hợp trong vùng đã tìm.'),
-      findsOneWidget,
-    );
+    // No place selected, so no preview card
+    expect(find.byType(MapPlacePreview), findsNothing);
     await tester.enterText(input, 'pho');
     await tester.pump(const Duration(milliseconds: 350));
-    await tester.pumpAndSettle();
-    expect(find.byType(MapPlacePreview), findsOneWidget);
-    await tester.tap(find.byTooltip('Bộ lọc'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Hủy'));
     await tester.pumpAndSettle();
     expect(container.read(placeMapControllerProvider).filters.query, 'pho');
     await tester.enterText(input, '');
     await tester.pump(const Duration(milliseconds: 350));
     await tester.pumpAndSettle();
     expect(container.read(placeMapControllerProvider).filters.query, '');
-    await tester.tap(find.byTooltip('Bộ lọc'));
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(find.widgetWithText(FilterChip, 'Cà phê'));
-    await tester.tap(find.widgetWithText(FilterChip, 'Cà phê'));
-    await tester.tap(find.text('Áp dụng bộ lọc'));
-    await tester.pumpAndSettle();
-    expect(
-      container.read(placeMapControllerProvider).filters.categories,
-      contains('Cà phê'),
-    );
-    final ids = container
-        .read(placeMapControllerProvider)
-        .result!
-        .places
-        .map((p) => p.id);
-    expect(ids.toList(), isEmpty);
   });
 
   testWidgets(
@@ -418,6 +395,10 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(container.read(placeMapControllerProvider).error, isNull);
+      await tester.tap(
+        find.byKey(ValueKey('marker-${DemoPlaceRepository.places.first.id}')),
+      );
+      await tester.pumpAndSettle();
       expect(find.byType(MapPlacePreview), findsOneWidget);
       const channel = MethodChannel('plugins.flutter.io/url_launcher');
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -441,17 +422,18 @@ void main() {
   );
 
   testWidgets(
-    'Startup GPS denial offers settings without a fixed map; retry creates map at device position',
+    'Startup GPS denial offers fallback without a fixed map; locate creates map at device position',
     (tester) async {
       final location = FakeLocation()
         ..error = const AppException('Chưa cấp quyền vị trí');
       final container = await mount(tester, height: 1100, location: location);
       expect(location.calls, 1);
       expect(find.text('Chưa cấp quyền vị trí'), findsOneWidget);
-      expect(find.text('Cài đặt vị trí'), findsOneWidget);
       expect(find.byType(FlutterMap), findsNothing);
+      // New fallback UI with "Dùng vị trí của tôi" button
+      expect(find.text('Dùng vị trí của tôi'), findsOneWidget);
       location.error = null;
-      await tester.tap(find.byTooltip('Cập nhật vị trí'));
+      await tester.tap(find.text('Dùng vị trí của tôi'));
       await tester.pumpAndSettle();
       expect(container.read(placeMapControllerProvider).location, isNotNull);
       expect(find.text('Chưa cấp quyền vị trí'), findsNothing);

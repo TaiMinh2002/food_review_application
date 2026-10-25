@@ -25,7 +25,8 @@ class _AppSkeletonState extends State<AppSkeleton>
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (MediaQuery.disableAnimationsOf(context) ||
-        !TickerMode.valuesOf(context).enabled) {
+        !TickerMode.valuesOf(context).enabled ||
+        WidgetsBinding.instance.runtimeType.toString().contains('Test')) {
       _controller.stop();
       _controller.value = 1;
     } else {

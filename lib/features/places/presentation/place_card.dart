@@ -48,7 +48,7 @@ class PlaceCard extends ConsumerWidget {
             ? place.address
             : null,
         distanceLabel: location != null && destination.isValid
-            ? '${AppFormatters.distance(location.distanceTo(destination))} · đường chim bay'
+            ? AppFormatters.distance(location.distanceTo(destination))
             : null,
         badge: compact || !place.isDemo ? null : 'Minh họa',
         imageUrl: place.imageUrls.firstOrNull,
