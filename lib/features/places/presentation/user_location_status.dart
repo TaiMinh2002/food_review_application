@@ -15,7 +15,7 @@ class UserLocationStatus extends ConsumerWidget {
     final label = state.locating
         ? 'Đang lấy vị trí hiện tại…'
         : point != null
-        ? 'Vị trí hiện tại · ${point.latitude.toStringAsFixed(4)}, ${point.longitude.toStringAsFixed(4)}'
+        ? 'Đã xác định vị trí của bạn'
         : 'Chưa có vị trí hiện tại';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

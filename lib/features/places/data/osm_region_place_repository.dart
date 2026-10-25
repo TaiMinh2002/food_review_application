@@ -78,7 +78,7 @@ class OsmRegionPlaceRepository
     GeoPoint center, {
     int radiusMeters = 5000,
   }) async {
-    if (!center.isValid || radiusMeters < 1 || radiusMeters > 5000) {
+    if (!center.isValid || radiusMeters < 1 || radiusMeters > 30000) {
       throw ArgumentError('Invalid center or radius');
     }
     final index = await _index();
@@ -113,15 +113,14 @@ class OsmRegionPlaceRepository
     return List.unmodifiable(results);
   }
 
-  Future<Place?> getById(String id) async => (await _index()).placesById[id];
+  @override
+  Future<List<Place>> fetchPlaces() async =>
+      List.unmodifiable((await _index()).placesById.values);
 
   @override
   Future<Place?> getPlace(String id) => getById(id);
 
-  @override
-  Future<List<Place>> fetchPlaces() async =>
-      (await _index()).placesById.values.toList();
-
+  Future<Place?> getById(String id) async => (await _index()).placesById[id];
   Future<DateTime> sourceTime() async => (await _index()).sourceTime;
 }
 

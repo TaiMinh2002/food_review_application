@@ -88,7 +88,7 @@ void main() {
         throwsA(isA<AppException>()),
       );
       await expectLater(
-        source.findNearby(market, radiusMeters: 6000),
+        source.findNearby(market, radiusMeters: 35000),
         throwsArgumentError,
       );
     },

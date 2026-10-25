@@ -225,7 +225,7 @@ void main() {
       expect(find.text('TP. Hồ Chí Minh · Vị trí minh họa'), findsNothing);
       source.pending!.complete(source.point);
       await tester.pumpAndSettle();
-      expect(find.text('Vị trí hiện tại · 21.0278, 105.8342'), findsOneWidget);
+      expect(find.text('Đã xác định vị trí của bạn'), findsOneWidget);
       container.read(themeModeProvider.notifier).setMode(ThemeMode.dark);
       await tester.pumpAndSettle();
       expect(source.calls, 1);
